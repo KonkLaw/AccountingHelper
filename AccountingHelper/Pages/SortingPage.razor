@@ -1,0 +1,17 @@
+﻿@page "/SortingPage"
+
+@using AccountingHelper.Logic
+@using AccountingHelper.UtilityPages
+@using AccountingHelper.ViewModels
+
+@inject ISortingPageVM vm
+
+<TabControl>
+    @foreach (AccountFile file in vm.Files)
+    {
+        <TabPage Text=@file.Description.Name>
+            <RecordSortingTab vm=@(new AccountPageVM(file)) />
+        </TabPage>
+    }
+</TabControl>
+<button @onclick=vm.Test>Test</button>

@@ -1,0 +1,18 @@
+﻿@page "/"
+@using AccountingHelper.Logic
+@using AccountingHelper.ViewModels
+
+@inject ILoadFilesPageVM vm
+
+<PageTitle>Load Data</PageTitle>
+<div>
+    @foreach(AccountFile info in vm.LoadedFiles)
+    {
+        <h5>File @info.Description.Name</h5>
+    }
+    <InputFile OnChange="@vm.LoadFile"/>
+</div>
+<p></p>
+<button @onclick=vm.ClearFiles>Clear Files</button>
+<p></p>
+<button @onclick=vm.Next>Next</button>

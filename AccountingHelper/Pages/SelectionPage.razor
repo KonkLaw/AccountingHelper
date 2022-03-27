@@ -1,0 +1,18 @@
+﻿@page "/SelectionPage"
+
+@using AccountingHelper.Logic
+@using AccountingHelper.UtilityPages
+@using AccountingHelper.ViewModels
+
+@inject ISelectionPageVM vm
+
+<button @onclick=vm.Next>Next</button>
+<p></p>
+<TabControl>
+    @foreach (AccountFile file in vm.Files)
+    {
+        <TabPage Text=@file.Description.Name>
+            <RecordSelectionTab vm=@(new RecordSelectionTabVM(file)) />
+        </TabPage>
+    }
+</TabControl>

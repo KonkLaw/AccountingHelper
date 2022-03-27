@@ -1,0 +1,54 @@
+﻿@using AccountingHelper.Logic
+@using AccountingHelper.ViewModels
+
+<h4>FileName: @VM.FileName</h4>
+<h4>Currency @VM.Currency</h4>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Transaction Date</th>
+            <th>Operation Name</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Account Data</th>
+            <th>Money Back</th>
+            <th>Account Amount</th>
+            <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (RecordSelectionGroup group in VM.RecordGroups)
+        {
+            <tr>
+                <td></td>
+                <th>@group.Group.Name</th>
+            </tr>
+            {
+                bool isSelected = true;
+                @foreach (Record record in group.Group.Records)
+                {
+                    <tr style=@(isSelected? "background-color:#CCFFDD" : "background-color:#FFFFFF")
+                        @onclick="() => { group.SetLastSelected(record); }">
+                    @*<tr>*@
+                        <td>@record.TransactionDateTime.ToString("dd-MM-yyyy hh:mm:ss")</td>
+                        <td>@record.OperationName</td>
+                        <td>@record.Amount</td>
+                        <td>@record.Curency</td>
+                        <td>@record.AccountData.ToString("dd-MM-yyyy")</td>
+                        <td>@record.MoneyBack</td>
+                        <td>@record.AccountAmount</td>
+                        <td>@record.Category</td>
+                    </tr>
+                    if (group.LastSelected == record)
+                        isSelected = false;
+                }
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public IRecordSelectionTabVM? VM { get; set; }
+}
