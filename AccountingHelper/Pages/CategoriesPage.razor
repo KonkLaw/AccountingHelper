@@ -1,0 +1,12 @@
+﻿@page "/CategoriesPage"
+
+@using AccountingHelper.ViewModels
+
+@inject ICategoriesPageVM vm;
+
+<select name="Cars">  
+    @foreach(var category in vm.Categories)
+    {
+        <option value="BMW">@category</option>
+    }
+</select>  

@@ -1,0 +1,67 @@
+﻿@using AccountingHelper.Logic
+@using AccountingHelper.ViewModels
+
+<h4>FileName: @VM.FileName</h4>
+<h4>Currency @VM.Currency</h4>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Transaction Date</th>
+            <th>Operation Name</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Account Data</th>
+            <th>Money Back</th>
+            <th>Account Amount</th>
+            <th>Category</th>
+            <th>Test</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (RecordGroup group in VM.RecordGroups)
+        {
+            <tr>
+                <td></td>
+                <th>@group.Name</th>
+            </tr>
+            @foreach (Record r in group.Records)
+            {
+                <tr @onclick="() => { Do(r); }">
+                @*<tr>*@
+                    <td>@r.TransactionDateTime.ToString("dd-MM-yyyy hh:mm:ss")</td>
+                    <td>@r.OperationName</td>
+                    <td>@r.Amount</td>
+                    <td>@r.Curency</td>
+                    <td>@r.AccountData.ToString("dd-MM-yyyy")</td>
+                    <td>@r.MoneyBack</td>
+                    <td>@r.AccountAmount</td>
+                    <td>@r.Category</td>
+                    <td>
+                        @*<select class="form-control selectpicker" @bind="r.Test">
+                            @foreach (var item in VM.Tests)
+                            {
+                                <option>@item</option>
+                            }
+                        </select>*@
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<button @onclick="VM.OnClick">Button</button>
+<body>
+    @VM.TestBody
+</body>
+
+@code {
+    [Parameter]
+    public IAccountPageVM VM { get; set; } = new AccountPageVM();
+
+    void Do(Record r)
+    {
+        VM.TestBody = r.TransactionDateTime.ToString();
+    }
+}
