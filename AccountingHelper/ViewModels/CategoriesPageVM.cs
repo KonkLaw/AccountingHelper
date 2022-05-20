@@ -1,21 +1,20 @@
-﻿namespace AccountingHelper.ViewModels;
+﻿using AccountingHelper.Logic;
+
+namespace AccountingHelper.ViewModels;
 
 class CategoriesPageVM : ICategoriesPageVM
 {
-    public List<string> Categories { get; }
+    public CategoryModel? SelectedCategory { get; set; }
+    public IReadOnlyList<CategoryModel> Categories { get; }
 
-    public CategoriesPageVM()
+    public CategoriesPageVM(Storage storage)
     {
-        Categories = new List<string>
-        {
-            "Здоровье",
-            "Еда/Продукты",
-            "Транспорт",
-        };
+        Categories = storage.History.Categories;
     }
 }
 
 interface ICategoriesPageVM
 {
-    List<string> Categories { get; }
+    CategoryModel? SelectedCategory { get; set; }
+    IReadOnlyList<CategoryModel> Categories { get; }
 }

@@ -89,4 +89,6 @@ static class ParsingHelper
 class Storage
 {
     public List<AccountFile> list;
+
+    public History History { get; set; }
 }

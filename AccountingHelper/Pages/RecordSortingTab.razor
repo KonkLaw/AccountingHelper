@@ -27,8 +27,7 @@
             </tr>
             @foreach (Record r in group.Records)
             {
-                <tr @onclick="() => { Do(r); }">
-                @*<tr>*@
+                <tr>
                     <td>@r.TransactionDateTime.ToString("dd-MM-yyyy hh:mm:ss")</td>
                     <td>@r.OperationName</td>
                     <td>@r.Amount</td>
@@ -59,9 +58,4 @@
 @code {
     [Parameter]
     public IAccountPageVM VM { get; set; } = new AccountPageVM();
-
-    void Do(Record r)
-    {
-        VM.TestBody = r.TransactionDateTime.ToString();
-    }
 }

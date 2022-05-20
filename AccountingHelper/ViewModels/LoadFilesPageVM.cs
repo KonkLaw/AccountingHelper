@@ -1,6 +1,4 @@
 ﻿using AccountingHelper.Logic;
-using AccountingHelper.Pages;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Text;
 
@@ -8,17 +6,21 @@ namespace AccountingHelper.ViewModels;
 
 class LoadFilesPageVM : ILoadFilesPageVM
 {
-    private readonly IServiceProvider serviceProvider;
+    private readonly Storage storage;
 
     public List<AccountFile> LoadedFiles { get; }
 
-    public LoadFilesPageVM(IServiceProvider provider)
+    public string HistoryFileInfo
+        => storage.History == null ? "(Empty)" : storage.History.Name;
+
+    public LoadFilesPageVM(Storage storage)
     {
         LoadedFiles = new List<AccountFile>();
-        this.serviceProvider = provider;
+        this.storage = storage;
+        storage.list = LoadedFiles;
     }
 
-    public async Task LoadFile(InputFileChangeEventArgs e)
+    public async Task AddFile(InputFileChangeEventArgs e)
     {
         AccountFile file = await ParseFile(e);
         LoadedFiles.Add(file);
@@ -47,23 +49,16 @@ class LoadFilesPageVM : ILoadFilesPageVM
         return new AccountFile(new AccountDescription(e.File.Name, currency), records);
     }
 
-    public void ClearFiles()
+    public void CreateHistoryFile()
     {
-        LoadedFiles.Clear();
-    }
-
-    public void Next()
-    {
-        Storage storage = serviceProvider.GetService<Storage>()!;
-        storage.list = LoadedFiles;
-        serviceProvider.GetService<NavigationManager>()!.NavigateTo(nameof(SelectionPage));
+        storage.History = History.CreateNewHistory();
     }
 }
 
 internal interface ILoadFilesPageVM
 {
+    string HistoryFileInfo { get; }
     List<AccountFile> LoadedFiles { get; }
-    Task LoadFile(InputFileChangeEventArgs e);
-    void ClearFiles();
-    void Next();
+    Task AddFile(InputFileChangeEventArgs e);
+    void CreateHistoryFile();
 }

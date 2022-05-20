@@ -4,9 +4,11 @@
 
 @inject ICategoriesPageVM vm;
 
-<select name="Cars">  
+<select size=@vm.Categories.Count>
     @foreach(var category in vm.Categories)
     {
-        <option value="BMW">@category</option>
+        <option value=@category>@category.DisplayName</option>
     }
 </select>  
+
+<h5>Here are going to be Add/Edit functionality</h5>

@@ -38,3 +38,5 @@ public class RecordSelectionGroup
         LastSelected = lastSelected;
     }
 }
+
+record CategoryModel(string Id, string DisplayName);

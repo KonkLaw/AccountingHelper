@@ -10,9 +10,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton<Storage>(new Storage());
 
-builder.Services.AddScoped<ILoadFilesPageVM>(sp => new LoadFilesPageVM(sp));
+builder.Services.AddScoped<ILoadFilesPageVM>(sp => new LoadFilesPageVM(sp.GetService<Storage>()!));
+builder.Services.AddScoped<ICategoriesPageVM>(sp => new CategoriesPageVM(sp.GetService<Storage>()!));
 builder.Services.AddScoped<ISelectionPageVM>(sp => new SelectionPageVM(sp));
-builder.Services.AddScoped<ICategoriesPageVM>(sp => new CategoriesPageVM());
 builder.Services.AddScoped<ISortingPageVM>(
     sp => new SortingPageVM(sp.GetService<Storage>()!));
 

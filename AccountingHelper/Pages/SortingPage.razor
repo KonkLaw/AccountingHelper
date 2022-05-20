@@ -10,7 +10,7 @@
     @foreach (AccountFile file in vm.Files)
     {
         <TabPage Text=@file.Description.Name>
-            <RecordSortingTab vm=@(new AccountPageVM(file)) />
+            <RecordSortingTab VM=@(new AccountPageVM(file)) />
         </TabPage>
     }
 </TabControl>
