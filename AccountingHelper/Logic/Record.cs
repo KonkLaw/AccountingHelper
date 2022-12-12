@@ -1,24 +1,6 @@
 ﻿namespace AccountingHelper.Logic;
 
-public record Record(
-    DateTime TransactionDateTime,
-    string OperationName,
-    decimal Amount,
-    string Curency,
-    DateTime AccountData,
-    float MoneyBack,
-    float AccountAmount,
-    string Category);
 
-public record AccountDescription(string Name, string Currency);
-
-public readonly record struct RecordGroup(
-    string Name,
-    IReadOnlyList<Record> Records);
-
-public record class AccountFile(
-    AccountDescription Description,
-    IReadOnlyList<RecordGroup> RecordGroups);
 
 // =========== Selection
 

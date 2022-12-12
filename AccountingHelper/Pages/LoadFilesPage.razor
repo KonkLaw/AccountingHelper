@@ -14,5 +14,12 @@
 </div>
 <p></p>
 <button @onclick=vm.ClearFiles>Clear Files</button>
+
+<p></p>
+<InputFile OnChange="@vm.LoadHistory"/>
+
+<p></p>
+<button @onclick="vm.SaveAndUseEmptyFile">Save and use empty file</button>
+
 <p></p>
 <button @onclick=vm.Next>Next</button>
