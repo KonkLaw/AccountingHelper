@@ -9,8 +9,8 @@ public record Operation(
     decimal Amount,
     string Currency,
     DateTime AccountDate,
-    float MoneyBack,
-    float AccountAmount,
+    float Fee,
+    decimal AccountAmount,
     string Category);
 
 public readonly record struct OperationsGroup(

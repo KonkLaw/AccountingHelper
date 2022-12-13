@@ -1,12 +1,13 @@
-﻿<Window x:Class="AccountHelperWpf.Views.OpenFiles"
+﻿<Window x:Class="AccountHelperWpf.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AccountHelperWpf.Views"
+        xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
         mc:Ignorable="d"
-        Title="Open Files" Height="450" Width="800">
+        d:DataContext="{d:DesignInstance viewModels:MainWindowModel}"
+        Title="MainWindow" Height="990" Width="800">
     <Grid>
-        
+        <ContentControl Content="{Binding ViewContent}"></ContentControl>
     </Grid>
 </Window>

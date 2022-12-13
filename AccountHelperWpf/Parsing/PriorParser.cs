@@ -87,7 +87,7 @@ static class PriorParser
             parts[3],
             DateTime.ParseExact(parts[4], "dd.MM.yyyy", CultureInfo.InvariantCulture),
             float.Parse(parts[5], NumberFormatHelper.NumberFormat),
-            float.Parse(parts[6], NumberFormatHelper.NumberFormat),
+            decimal.Parse(parts[6], NumberFormatHelper.NumberFormat),
             parts[8]);
     }
 }

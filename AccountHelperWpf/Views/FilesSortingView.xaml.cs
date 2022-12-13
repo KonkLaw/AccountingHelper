@@ -10,15 +10,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace AccountHelperWpf.Views;
 /// <summary>
-/// Interaction logic for OpenFiles.xaml
+/// Interaction logic for SortingView.xaml
 /// </summary>
-public partial class OpenFiles : Window
+public partial class FilesSortingView : UserControl
 {
-    public OpenFiles()
+    public FilesSortingView()
     {
         InitializeComponent();
     }
