@@ -21,11 +21,11 @@ class SortedOperation : BaseNotifyProperty
         }
     }
 
-    public ObservableCollection<CategoryVm> Categories { get; }
+    public ReadOnlyObservableCollection<CategoryVm> Categories { get; }
 
     public SortedOperation(
         Operation operation,
-        ObservableCollection<CategoryVm> categories,
+        ReadOnlyObservableCollection<CategoryVm> categories,
         ICategoryChangedListener categoryChangedListener)
     {
         Operation = operation;

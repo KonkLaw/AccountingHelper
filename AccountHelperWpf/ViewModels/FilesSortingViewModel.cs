@@ -15,7 +15,7 @@ class FilesSortingViewModel
         Tabs.Add(viewResolver.ResolveTabItem("Categories", categoriesVm));
         foreach (AccountFile accountFile in accountFiles)
         {
-            Tabs.Add(viewResolver.ResolveTabItem(accountFile.Description.Name, new FileSortingViewModel(accountFile, categoriesVm.Categories)));
+            Tabs.Add(viewResolver.ResolveTabItem(accountFile.Description.Name, new FileSortingViewModel(accountFile, categoriesVm.GetCategories())));
         }
     }
 }

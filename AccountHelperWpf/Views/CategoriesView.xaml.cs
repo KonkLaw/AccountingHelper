@@ -13,5 +13,14 @@ public partial class CategoriesView : UserControl
     }
     
     private void DataGrid_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        => ((DataGrid)sender).CancelEdit(DataGridEditingUnit.Row);
+    {
+        DataGrid dataGrid = (DataGrid)sender;
+
+
+        
+
+        object? qwe = dataGrid.SelectedItem;
+
+        dataGrid.CancelEdit(DataGridEditingUnit.Row);
+    }
 }

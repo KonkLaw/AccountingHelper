@@ -1,26 +1,26 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using AccountHelperWpf.Common;
 
 namespace AccountHelperWpf.ViewModels;
 
 class CategoriesViewModel
 {
-    public ObservableCollection<CategoryVm> Categories { get; } = new ();
-
+    private readonly ReadOnlyObservableCollection<CategoryVm> collection;
+    public IEnumerable<CategoryVm> Categories { get; }
 
     public CategoriesViewModel()
     {
-        Categories.CollectionChanged += CaterogiesOnCollectionChanged;
+        ObservableCollection<CategoryVm> categories = new ();
+        Categories = categories;
+        collection = new ReadOnlyObservableCollection<CategoryVm>(categories);
     }
 
-    private void CaterogiesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        ;
-    }
+    public ReadOnlyObservableCollection<CategoryVm> GetCategories() => collection;
 }
 
-class CategoryVm : BaseNotifyProperty
+class CategoryVm : BaseNotifyProperty, IComparable<CategoryVm>, IComparable
 {
     private string name = string.Empty;
     public string Name
@@ -35,6 +35,15 @@ class CategoryVm : BaseNotifyProperty
         get => description;
         set => SetProperty(ref description, value);
     }
+
+    public int CompareTo(CategoryVm? other)
+    {
+        if (other == null)
+            return 1;
+        return Name.CompareTo(other.Name);
+    }
+
+    public int CompareTo(object? obj) => CompareTo(obj as CategoryVm);
 
     public override string ToString() => name;
 }

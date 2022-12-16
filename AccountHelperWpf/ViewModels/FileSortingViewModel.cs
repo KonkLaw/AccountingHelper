@@ -11,7 +11,7 @@ namespace AccountHelperWpf.ViewModels;
 class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
 {
     private readonly string currency;
-    private readonly ObservableCollection<CategoryVm> categories;
+    private readonly ReadOnlyObservableCollection<CategoryVm> categories;
     public IReadOnlyList<SortedOperationsGroup> OperationsGroups { get; }
 
     private string summary = string.Empty;
@@ -21,7 +21,7 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
         private set => SetProperty(ref summary, value);
     }
 
-    public FileSortingViewModel(AccountFile accountFile, ObservableCollection<CategoryVm> categories)
+    public FileSortingViewModel(AccountFile accountFile, ReadOnlyObservableCollection<CategoryVm> categories)
     {
         currency = accountFile.Description.Currency;
         this.categories = categories;
