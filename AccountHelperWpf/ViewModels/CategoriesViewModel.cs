@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AccountHelperWpf.Common;
 
@@ -8,7 +7,7 @@ namespace AccountHelperWpf.ViewModels;
 class CategoriesViewModel
 {
     private readonly ReadOnlyObservableCollection<CategoryVm> collection;
-    public IEnumerable<CategoryVm> Categories { get; }
+    public ObservableCollection<CategoryVm> Categories { get; }
 
     public CategoriesViewModel()
     {
@@ -40,10 +39,10 @@ class CategoryVm : BaseNotifyProperty, IComparable<CategoryVm>, IComparable
     {
         if (other == null)
             return 1;
-        return Name.CompareTo(other.Name);
+        return string.Compare(Name, other.Name, StringComparison.Ordinal);
     }
 
     public int CompareTo(object? obj) => CompareTo(obj as CategoryVm);
 
-    public override string ToString() => name;
+    public override string ToString() => Name;
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -21,6 +22,12 @@ class OpenFilesViewModel : IFileRemover
         this.viewResolver = viewResolver;
         AddFile = new DelegateCommand(OnAddFile);
         NextStep = new DelegateCommand(OnNextStep) { IsEnabled = false };
+
+
+        // test
+        string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\test.csv";
+        LoadedFiles.Add(new LoadedFileInfo(path, PriorParser.ParseFile(path), this));
+        NextStep.IsEnabled = true;
     }
 
     private void OnAddFile()

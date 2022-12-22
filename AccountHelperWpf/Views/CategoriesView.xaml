@@ -8,6 +8,12 @@
              d:DataContext="{d:DesignInstance viewModels:CategoriesViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DataGrid ItemsSource="{Binding Categories}" IsVisibleChanged="DataGrid_OnIsVisibleChanged" />
+        <DataGrid Name="DataGrid" ItemsSource="{Binding Categories}" IsVisibleChanged="DataGrid_OnIsVisibleChanged">
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <EventSetter Event="LostFocus" Handler="CellLostFocus" />
+                </Style>
+            </DataGrid.CellStyle>
+        </DataGrid>
     </Grid>
 </UserControl>
