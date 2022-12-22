@@ -42,7 +42,6 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        
-        <TextBlock Margin="5,30,5,5" Grid.Row="1"  Text="{Binding Summary}"></TextBlock>
+        <TextBlock Margin="5,30,5,5" Grid.Row="1" Text="{Binding Summary}" />
     </Grid>
 </UserControl>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
 {
     private readonly string currency;
     private readonly ReadOnlyObservableCollection<CategoryVm> categories;
+    private readonly Action updatedHandler;
     public IReadOnlyList<SortedOperationsGroup> OperationsGroups { get; }
 
     private string summary = string.Empty;
@@ -21,10 +23,24 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
         private set => SetProperty(ref summary, value);
     }
 
-    public FileSortingViewModel(AccountFile accountFile, ReadOnlyObservableCollection<CategoryVm> categories)
+    private bool isSorted;
+    public bool IsSorted
+    {
+        get => isSorted;
+        private set
+        {
+            if (isSorted == value)
+                return;
+            isSorted = value;
+            updatedHandler();
+        }
+    }
+
+    public FileSortingViewModel(AccountFile accountFile, ReadOnlyObservableCollection<CategoryVm> categories, Action updatedHandler)
     {
         currency = accountFile.Description.Currency;
         this.categories = categories;
+        this.updatedHandler = updatedHandler;
         OperationsGroups = accountFile.OperationsGroups.Select(
             og => new SortedOperationsGroup(og, this.categories, this)).ToList();
         UpdateSummary();
@@ -36,17 +52,22 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
     {
         decimal notDefinedAmount = 0;
         Dictionary<CategoryVm, Sum> categoryToSum = categories.ToDictionary(c => c, _ => new Sum());
-
+        bool allSorted = true;
         foreach (SortedOperationsGroup operationsGroup in OperationsGroups)
         {
             foreach (SortedOperation operation in operationsGroup.Operations)
             {
                 if (operation.Category == null)
+                {
                     notDefinedAmount += operation.Operation.AccountAmount;
+                    allSorted = false;
+                }
                 else
                     categoryToSum[operation.Category].Amount += operation.Operation.AccountAmount;
             }
         }
+
+        IsSorted = allSorted;
 
         StringBuilder stringBuilder = new();
         foreach (KeyValuePair<CategoryVm, Sum> categoryAndSum in categoryToSum)

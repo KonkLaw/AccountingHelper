@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AccountHelperWpf.Common;
 
@@ -9,9 +10,9 @@ class CategoriesViewModel
     private readonly ReadOnlyObservableCollection<CategoryVm> collection;
     public ObservableCollection<CategoryVm> Categories { get; }
 
-    public CategoriesViewModel()
+    public CategoriesViewModel(List<CategoryVm> loadedCategories)
     {
-        ObservableCollection<CategoryVm> categories = new ();
+        ObservableCollection<CategoryVm> categories = new (loadedCategories);
         Categories = categories;
         collection = new ReadOnlyObservableCollection<CategoryVm>(categories);
     }

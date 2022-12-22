@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -57,7 +58,11 @@ class OpenFilesViewModel : IFileRemover
         AccountFile[] accountFiles = LoadedFiles.Select(f => f.AccountFile).ToArray();
         OpenWindowHelper.OpenMainWindow(new MainWindowModel(
             viewResolver,
-            new FilesSortingViewModel(viewResolver, accountFiles)));
+            new FilesSortingViewModel(viewResolver, accountFiles, new List<CategoryVm>()
+            {
+                new () { Name = "Транспорт", Description = "qwe1"},
+                new () { Name = "Подарки", Description = "asd1"}
+            })));
     }
 
     public void RemoveFile(LoadedFileInfo file)
