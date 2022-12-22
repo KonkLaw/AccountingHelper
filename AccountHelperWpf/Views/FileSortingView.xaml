@@ -12,7 +12,8 @@
             <RowDefinition />
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+        
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="True" PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding OperationsGroups, Mode=OneTime}" Width="Auto">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -41,6 +42,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <TextBlock Grid.Row="1"  Text="{Binding Summary}"></TextBlock>
+        
+        <TextBlock Margin="5,30,5,5" Grid.Row="1"  Text="{Binding Summary}"></TextBlock>
     </Grid>
 </UserControl>
