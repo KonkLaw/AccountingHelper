@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
 using AccountHelperWpf.BaseObjects;
 using AccountHelperWpf.Common;
 using AccountHelperWpf.Parsing;
+using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf.ViewModels;
 
@@ -36,6 +38,8 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
         }
     }
 
+    public ICommand SetForAllCommand { get; }
+
     public FileSortingViewModel(AccountFile accountFile, ReadOnlyObservableCollection<CategoryVm> categories, Action updatedHandler)
     {
         currency = accountFile.Description.Currency;
@@ -43,7 +47,25 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
         this.updatedHandler = updatedHandler;
         OperationsGroups = accountFile.OperationsGroups.Select(
             og => new SortedOperationsGroup(og, this.categories, this)).ToList();
+        SetForAllCommand = new DelegateCommand(SetForAllHandler);
         UpdateSummary();
+    }
+
+    private void SetForAllHandler()
+    {
+        // TODO
+        var window = new ObjectSelectorWindow(categories);
+        window.ShowDialog();
+        if (window.SelectedItem == null)
+            return;
+        CategoryVm selectedItem = (CategoryVm)window.SelectedItem;
+        foreach (SortedOperationsGroup operationsGroup in OperationsGroups)
+        {
+            foreach (SortedOperation operation in operationsGroup.Operations)
+            {
+                operation.Category ??= selectedItem;
+            }
+        }
     }
 
     public void CategoryChanged() => UpdateSummary();

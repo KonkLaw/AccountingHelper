@@ -10,6 +10,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
+            <RowDefinition Height="40"/>
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
         
@@ -42,6 +43,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <TextBlock Margin="5,30,5,5" Grid.Row="1" Text="{Binding Summary}" />
+        <Button Grid.Row="1" HorizontalAlignment="Left" Margin="10" Content="Set For All" Command="{Binding SetForAllCommand}"/>
+        <TextBlock Margin="5,30,5,5" Grid.Row="2" Text="{Binding Summary}" />
     </Grid>
 </UserControl>
