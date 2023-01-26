@@ -15,6 +15,7 @@ public partial class OpenFilesWindow : Window
         viewResolver.RegisterViewModel<FileSortingView, FileSortingViewModel>(() => new FileSortingView());
         viewResolver.RegisterViewModel<FilesSortingView, FilesSortingViewModel>(() => new FilesSortingView());
         viewResolver.RegisterViewModel<CategoriesView, CategoriesViewModel>(() => new CategoriesView());
+        viewResolver.RegisterViewModel<HistoryView, HistoryViewModel>(() => new HistoryView());
         DataContext = new OpenFilesViewModel(viewResolver);
     }
 }

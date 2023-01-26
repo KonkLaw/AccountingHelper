@@ -22,13 +22,14 @@
                             <TextBox Text="{Binding Name, Mode=OneTime}" />
                             <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Operations}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Operation.TransactionDateTime}" Header="Transaction Date Time" />
-                                    <DataGridTextColumn Binding="{Binding Operation.OperationName}" Header="Description" />
-                                    <DataGridTextColumn Binding="{Binding Operation.Amount}" Header="Amount" />
-                                    <DataGridTextColumn Binding="{Binding Operation.Currency}" Header="Currency" />
-                                    <DataGridTextColumn Binding="{Binding Operation.Fee}" Header="Fee" />
-                                    <DataGridTextColumn Binding="{Binding Operation.AccountAmount}" Header="Account Amount" />
-                                    <DataGridTemplateColumn Header="Categories" CanUserSort="True" SortMemberPath="Category">
+                                    <DataGridTextColumn Width="120" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}"
+                                                        Header="Transaction Date Time" />
+                                    <DataGridTextColumn Width="330" Binding="{Binding Operation.OperationName}" Header="Description" />
+                                    <DataGridTextColumn Width="60" Binding="{Binding Operation.Amount}" Header="Amount" />
+                                    <DataGridTextColumn Width="40" Binding="{Binding Operation.Currency}" Header="Currency" />
+                                    <DataGridTextColumn Width="30" Binding="{Binding Operation.Fee}" Header="Fee" />
+                                    <DataGridTextColumn Width="80" Binding="{Binding Operation.AccountAmount}" Header="Account Amount" />
+                                    <DataGridTemplateColumn Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <ComboBox ItemsSource="{Binding Categories, Mode=OneTime}"
@@ -36,6 +37,7 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
+                                    <DataGridTextColumn Width="200" Binding="{Binding Description}" Header="Comment" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
@@ -44,6 +46,6 @@
             </ItemsControl>
         </ScrollViewer>
         <Button Grid.Row="1" HorizontalAlignment="Left" Margin="10" Content="Set For All" Command="{Binding SetForAllCommand}"/>
-        <TextBlock Margin="5,30,5,5" Grid.Row="2" Text="{Binding Summary}" />
+        <TextBox Margin="5,30,5,5" Grid.Row="2" Text="{Binding Summary, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
     </Grid>
 </UserControl>

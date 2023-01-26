@@ -72,42 +72,82 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
 
     private void UpdateSummary()
     {
-        decimal notDefinedAmount = 0;
-        Dictionary<CategoryVm, Sum> categoryToSum = categories.ToDictionary(c => c, _ => new Sum());
+        CategorySummary notAssigned = new ("Not Assigned");
+        Dictionary<CategoryVm, CategorySummary> categoriesSummary = categories.ToDictionary(c => c, c => new CategorySummary(c.Name));
         bool allSorted = true;
+
         foreach (SortedOperationsGroup operationsGroup in OperationsGroups)
         {
             foreach (SortedOperation operation in operationsGroup.Operations)
             {
                 if (operation.Category == null)
                 {
-                    notDefinedAmount += operation.Operation.AccountAmount;
+                    notAssigned.Add(operation);
                     allSorted = false;
                 }
                 else
-                    categoryToSum[operation.Category].Amount += operation.Operation.AccountAmount;
+                    categoriesSummary[operation.Category].Add(operation);
             }
         }
 
         IsSorted = allSorted;
 
         StringBuilder stringBuilder = new();
-        foreach (KeyValuePair<CategoryVm, Sum> categoryAndSum in categoryToSum)
+        foreach (CategorySummary categorySummary in categoriesSummary.Values)
         {
-            stringBuilder.Append(categoryAndSum.Key);
-            stringBuilder.Append(" = ");
-            stringBuilder.Append(categoryAndSum.Value.Amount);
-            stringBuilder.Append(' ');
-            stringBuilder.Append(currency);
-            stringBuilder.Append("; ");
+            stringBuilder.Append(categorySummary.GetSummary());
+            stringBuilder.AppendLine();
         }
-        stringBuilder.Append("Not Assigned = ");
-        stringBuilder.Append(notDefinedAmount);
+        stringBuilder.Append(notAssigned.GetSummary());
 
         Summary = stringBuilder.ToString();
     }
 
-    class Sum { public decimal Amount; }
+    class CategorySummary
+    {
+        private readonly string categoryName;
+        private readonly List<SortedOperation> operations = new ();
+
+        public CategorySummary(string categoryName)
+        {
+            this.categoryName = categoryName;
+        }
+
+        public void Add(SortedOperation operation) => operations.Add(operation);
+
+        public StringBuilder GetSummary()
+        {
+            StringBuilder result = new();
+            result.Append("#");
+            result.Append(categoryName);
+            result.Append(" ");
+
+            decimal sum = 0;
+            StringBuilder detailed = new();
+            foreach (SortedOperation operation in operations)
+            {
+                sum += operation.Operation.AccountAmount;
+                if (string.IsNullOrEmpty(operation.Description))
+                    continue;
+
+                detailed.Append(operation.Operation.AccountAmount);
+                detailed.Append(" ");
+                detailed.Append(operation.Description);
+                detailed.Append(",");
+            }
+            result.Append(sum);
+
+            if (detailed.Length != 0)
+            {
+                detailed.Remove(detailed.Length - 1, 1);
+                result.Append(" = (");
+                result.Append(detailed);
+                result.Append(")");
+            }
+            
+            return result;
+        }
+    }
 }
 
 interface ICategoryChangedListener

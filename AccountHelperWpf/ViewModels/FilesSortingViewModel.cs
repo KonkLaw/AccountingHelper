@@ -10,6 +10,7 @@ namespace AccountHelperWpf.ViewModels;
 
 class FilesSortingViewModel
 {
+    private readonly IViewResolver viewResolver;
     public ObservableCollection<TabItem> Tabs { get; } = new ();
     public DelegateCommand Next { get; }
 
@@ -17,6 +18,7 @@ class FilesSortingViewModel
 
     public FilesSortingViewModel(IViewResolver viewResolver, AccountFile[] accountFiles, List<CategoryVm> categories)
     {
+        this.viewResolver = viewResolver;
         Next = new DelegateCommand(NextHandler);
         CategoriesViewModel categoriesVm = new (categories);
         Tabs.Add(viewResolver.ResolveTabItem("Categories", categoriesVm));
@@ -27,6 +29,7 @@ class FilesSortingViewModel
             filesVm.Add(fileSortingViewModel);
             Tabs.Add(viewResolver.ResolveTabItem(accountFile.Description.Name, fileSortingViewModel));
         }
+        Tabs.Add(viewResolver.ResolveTabItem("History", new HistoryViewModel()));
         UpdateNextButtonState();
     }
 

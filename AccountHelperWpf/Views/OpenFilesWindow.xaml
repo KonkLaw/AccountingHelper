@@ -20,5 +20,6 @@
         </ItemsControl>
         <Button Content="Load operations file" Command="{Binding AddFile, Mode=OneTime}" MaxWidth="150"/>
         <Button Content="Next Step" Command="{Binding NextStep, Mode=OneTime}" MaxWidth="150"/>
+        <Button Content="Load history files"/>
     </StackPanel>
 </Window>

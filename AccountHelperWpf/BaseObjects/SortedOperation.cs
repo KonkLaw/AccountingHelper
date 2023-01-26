@@ -21,6 +21,17 @@ class SortedOperation : BaseNotifyProperty
         }
     }
 
+    private string description = string.Empty;
+    public string Description
+    {
+        get => description;
+        set
+        {
+            if (SetProperty(ref description, value))
+                categoryChangedListener.CategoryChanged();
+        }
+    }
+
     public ReadOnlyObservableCollection<CategoryVm> Categories { get; }
 
     public SortedOperation(
