@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using AccountHelperWpf.Parsing;
 using AccountHelperWpf.ViewModels;
 
@@ -7,17 +6,17 @@ namespace AccountHelperWpf.BaseObjects;
 
 class SortedOperationsGroup
 {
-    public List<SortedOperation> Operations { get; }
+    public List<OperationViewModel> Operations { get; }
     public string Name { get; }
 
     public SortedOperationsGroup(
         OperationsGroup operationGroup, ReadOnlyObservableCollection<CategoryVm> categories, ICategoryChangedListener categoryChangedListener)
     {
         Name = operationGroup.Name;
-        Operations = new List<SortedOperation>(operationGroup.Operations.Count);
-        foreach (Operation operation in operationGroup.Operations)
+        Operations = new List<OperationViewModel>(operationGroup.Operations.Count);
+        foreach (BaseOperation operation in operationGroup.Operations)
         {
-            Operations.Add(new SortedOperation(operation, categories, categoryChangedListener));
+            Operations.Add(new OperationViewModel(operation, categories, categoryChangedListener));
         }
     }
 }

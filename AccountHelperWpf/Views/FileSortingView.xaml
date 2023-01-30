@@ -19,16 +19,13 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
-                            <TextBox Text="{Binding Name, Mode=OneTime}" />
+                            <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
                             <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Operations}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="120" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}"
                                                         Header="Transaction Date Time" />
-                                    <DataGridTextColumn Width="330" Binding="{Binding Operation.OperationName}" Header="Description" />
                                     <DataGridTextColumn Width="60" Binding="{Binding Operation.Amount}" Header="Amount" />
-                                    <DataGridTextColumn Width="40" Binding="{Binding Operation.Currency}" Header="Currency" />
-                                    <DataGridTextColumn Width="30" Binding="{Binding Operation.Fee}" Header="Fee" />
-                                    <DataGridTextColumn Width="80" Binding="{Binding Operation.AccountAmount}" Header="Account Amount" />
+                                    <DataGridTextColumn Width="330" Binding="{Binding Operation.Description}" Header="Description" />
                                     <DataGridTemplateColumn Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>

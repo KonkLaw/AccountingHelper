@@ -5,10 +5,10 @@ using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.BaseObjects;
 
-class SortedOperation : BaseNotifyProperty
+class OperationViewModel : BaseNotifyProperty
 {
     private readonly ICategoryChangedListener categoryChangedListener;
-    public Operation Operation { get; }
+    public BaseOperation Operation { get; }
 
     private CategoryVm? category;
     public CategoryVm? Category
@@ -34,8 +34,8 @@ class SortedOperation : BaseNotifyProperty
 
     public ReadOnlyObservableCollection<CategoryVm> Categories { get; }
 
-    public SortedOperation(
-        Operation operation,
+    public OperationViewModel(
+        BaseOperation operation,
         ReadOnlyObservableCollection<CategoryVm> categories,
         ICategoryChangedListener categoryChangedListener)
     {

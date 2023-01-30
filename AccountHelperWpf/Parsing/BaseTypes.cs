@@ -1,21 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace AccountHelperWpf.Parsing;
 
-namespace AccountHelperWpf.Parsing;
+public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string Description);
 
-public record Operation(
-    DateTime TransactionDateTime,
-    string OperationName,
-    decimal Amount,
+public record PriorOperation(DateTime TransactionDateTime, decimal Amount, string Description,
+    string Category,
     string Currency,
-    DateTime AccountDate,
-    float Fee,
-    decimal AccountAmount,
-    string Category);
+    decimal Fee,
+    decimal InitialAmount,
+    DateOnly AccountDate)
+    : BaseOperation(TransactionDateTime, Amount, Description);
+
+record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
+    string OtherDescription,
+    DateOnly DateAccounting,
+    string Currency,
+    string OperationType,
+    decimal SaldoBeforeTransaction)
+    : BaseOperation(TransactionDateTime, Amount, Description);
 
 public readonly record struct OperationsGroup(
     string Name,
-    IReadOnlyList<Operation> Operations);
+    IReadOnlyList<BaseOperation> Operations);
 
 public record AccountDescription(string Name, string Currency);
 

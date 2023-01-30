@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -61,7 +59,7 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
         CategoryVm selectedItem = (CategoryVm)window.SelectedItem;
         foreach (SortedOperationsGroup operationsGroup in OperationsGroups)
         {
-            foreach (SortedOperation operation in operationsGroup.Operations)
+            foreach (OperationViewModel operation in operationsGroup.Operations)
             {
                 operation.Category ??= selectedItem;
             }
@@ -78,7 +76,7 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
 
         foreach (SortedOperationsGroup operationsGroup in OperationsGroups)
         {
-            foreach (SortedOperation operation in operationsGroup.Operations)
+            foreach (OperationViewModel operation in operationsGroup.Operations)
             {
                 if (operation.Category == null)
                 {
@@ -106,14 +104,14 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
     class CategorySummary
     {
         private readonly string categoryName;
-        private readonly List<SortedOperation> operations = new ();
+        private readonly List<OperationViewModel> operations = new ();
 
         public CategorySummary(string categoryName)
         {
             this.categoryName = categoryName;
         }
 
-        public void Add(SortedOperation operation) => operations.Add(operation);
+        public void Add(OperationViewModel operationViewModel) => operations.Add(operationViewModel);
 
         public StringBuilder GetSummary()
         {
@@ -124,13 +122,13 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
 
             decimal sum = 0;
             StringBuilder detailed = new();
-            foreach (SortedOperation operation in operations)
+            foreach (OperationViewModel operation in operations)
             {
-                sum += operation.Operation.AccountAmount;
+                sum += operation.Operation.Amount;
                 if (string.IsNullOrEmpty(operation.Description))
                     continue;
 
-                detailed.Append(operation.Operation.AccountAmount);
+                detailed.Append(operation.Operation.Amount);
                 detailed.Append(" ");
                 detailed.Append(operation.Description);
                 detailed.Append(",");

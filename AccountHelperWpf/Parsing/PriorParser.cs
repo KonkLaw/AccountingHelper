@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
-using System.Text;
 
 namespace AccountHelperWpf.Parsing;
 
@@ -10,22 +7,23 @@ static class PriorParser
 {
     private const string ColumnSeparator = ";";
 
-    public static AccountFile ParseFile(string filePath)
+    public static AccountFile? TryParse(StreamReader reader, string name)
     {
+        string firstLine = reader.ReadLine()!;
+        if (firstLine != "Выписка по контракту")
+            return null;
+
         var lines = new List<string>();
-        using (Stream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
-        using (StreamReader reader = new (fs, EncodingHelper.RusEncoding))
+        while (true)
         {
-            while (true)
-            {
-                string? line = reader.ReadLine();
-                if (line == null)
-                    break;
-                lines.Add(line);
-            }
+            string? line = reader.ReadLine();
+            if (line == null)
+                break;
+            lines.Add(line);
         }
+
         List<OperationsGroup> records = ParseLines(lines, out string currency);
-        return new AccountFile(new AccountDescription(Path.GetFileName(filePath), currency), records);
+        return new AccountFile(new AccountDescription(name, currency), records);
     }
 
     private static List<OperationsGroup> ParseLines(List<string> lines, out string currency)
@@ -50,7 +48,7 @@ static class PriorParser
             lineIndex = groupBeginIndex.Value;
             string groupName = lines[lineIndex];
             lineIndex++; // skip one line with header
-            List<Operation> operationsGroup = new();
+            List<BaseOperation> operationsGroup = new();
             while (true)
             {
                 lineIndex++;
@@ -77,30 +75,18 @@ static class PriorParser
         return null;
     }
 
-    private static Operation ParseOperationLine(string line)
+    private static PriorOperation ParseOperationLine(string line)
     {
         string[] parts = line.Split(ColumnSeparator);
-        return new Operation(
+        return new PriorOperation(
             DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-            parts[1],
-            decimal.Parse(parts[2], NumberFormatHelper.NumberFormat),
-            parts[3],
-            DateTime.ParseExact(parts[4], "dd.MM.yyyy", CultureInfo.InvariantCulture),
-            float.Parse(parts[5], NumberFormatHelper.NumberFormat),
             decimal.Parse(parts[6], NumberFormatHelper.NumberFormat),
-            parts[8]);
-    }
-}
-
-file static class EncodingHelper
-{
-    public static readonly Encoding RusEncoding;
-
-    static EncodingHelper()
-    {
-        // Required to for loading of Russian encoding.
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        RusEncoding = Encoding.GetEncoding("windows-1251");
+            parts[1],
+            parts[8],
+            parts[3],
+            decimal.Parse(parts[5], NumberFormatHelper.NumberFormat),
+            decimal.Parse(parts[2], NumberFormatHelper.NumberFormat),
+            DateOnly.ParseExact(parts[4], "dd.MM.yyyy", CultureInfo.InvariantCulture));
     }
 }
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -26,8 +24,10 @@ class OpenFilesViewModel : IFileRemover
 
 
         // test
-        string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\test.csv";
-        LoadedFiles.Add(new LoadedFileInfo(path, PriorParser.ParseFile(path), this));
+        string path1 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\test.csv";
+        LoadedFiles.Add(new LoadedFileInfo(path1, ParserChooser.ParseFile(path1), this));
+        string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\history_csv_20230126_160849.csv";
+        LoadedFiles.Add(new LoadedFileInfo(path1, ParserChooser.ParseFile(path2), this));
         NextStep.IsEnabled = true;
     }
 
@@ -47,7 +47,7 @@ class OpenFilesViewModel : IFileRemover
                 return;
             }
 
-            AccountFile loadedFile = PriorParser.ParseFile(fullPath);
+            AccountFile loadedFile = ParserChooser.ParseFile(fullPath);
             LoadedFiles.Add(new LoadedFileInfo(fullPath, loadedFile, this));
             NextStep.IsEnabled = true;
         }
@@ -58,7 +58,7 @@ class OpenFilesViewModel : IFileRemover
         AccountFile[] accountFiles = LoadedFiles.Select(f => f.AccountFile).ToArray();
         OpenWindowHelper.OpenMainWindow(new MainWindowModel(
             viewResolver,
-            new FilesSortingViewModel(viewResolver, accountFiles, new List<CategoryVm>()
+            new FilesSortingViewModel(viewResolver, accountFiles, new List<CategoryVm>
             {
                 new () { Name = "Транспорт", Description = "qwe1"},
                 new () { Name = "Подарки", Description = "asd1"}
