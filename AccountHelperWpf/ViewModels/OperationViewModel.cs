@@ -1,13 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using AccountHelperWpf.Common;
 using AccountHelperWpf.Parsing;
-using AccountHelperWpf.ViewModels;
 
-namespace AccountHelperWpf.BaseObjects;
+namespace AccountHelperWpf.ViewModels;
 
 class OperationViewModel : BaseNotifyProperty
 {
-    private readonly ICategoryChangedListener categoryChangedListener;
+    private readonly ISummaryChangedListener summaryChangedListener;
     public BaseOperation Operation { get; }
 
     private CategoryVm? category;
@@ -17,7 +16,7 @@ class OperationViewModel : BaseNotifyProperty
         set
         {
             if (SetProperty(ref category, value))
-                categoryChangedListener.CategoryChanged();
+                summaryChangedListener.Changed();
         }
     }
 
@@ -28,7 +27,7 @@ class OperationViewModel : BaseNotifyProperty
         set
         {
             if (SetProperty(ref description, value))
-                categoryChangedListener.CategoryChanged();
+                summaryChangedListener.Changed();
         }
     }
 
@@ -37,10 +36,10 @@ class OperationViewModel : BaseNotifyProperty
     public OperationViewModel(
         BaseOperation operation,
         ReadOnlyObservableCollection<CategoryVm> categories,
-        ICategoryChangedListener categoryChangedListener)
+        ISummaryChangedListener summaryChangedListener)
     {
         Operation = operation;
         Categories = categories;
-        this.categoryChangedListener = categoryChangedListener;
+        this.summaryChangedListener = summaryChangedListener;
     }
 }

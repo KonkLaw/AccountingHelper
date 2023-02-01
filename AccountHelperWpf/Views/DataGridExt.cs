@@ -1,8 +1,7 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows.Controls;
 using System.Windows.Data;
-using AccountHelperWpf.BaseObjects;
+using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Views;
 
@@ -20,6 +19,12 @@ public class DataGridExt : DataGrid
                 continue;
             wellKnownProperties.Add(((Binding)dataGridBoundColumn.Binding).Path.Path);
         }
+
+        if (ItemsSource == null)
+            return;
+
+        if (!ItemsSource.GetEnumerator().MoveNext())
+            return;
 
         OperationViewModel firstItem = (OperationViewModel)((IEnumerable<object>)ItemsSource).First();
         Type operationType = firstItem.Operation.GetType();

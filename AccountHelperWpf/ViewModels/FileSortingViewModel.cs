@@ -1,20 +1,17 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
 using System.Windows.Input;
-using AccountHelperWpf.BaseObjects;
 using AccountHelperWpf.Common;
 using AccountHelperWpf.Parsing;
 using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf.ViewModels;
 
-class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
+class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 {
-    private readonly string currency;
     private readonly ReadOnlyObservableCollection<CategoryVm> categories;
     private readonly Action updatedHandler;
-    public IReadOnlyList<SortedOperationsGroup> OperationsGroups { get; }
+    public IReadOnlyList<SortedOperationsGroupVM> OperationsGroups { get; set; }
 
     private string summary = string.Empty;
     public string Summary
@@ -38,26 +35,28 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
 
     public ICommand SetForAllCommand { get; }
 
+    public ICommand ResetFilters { get; }
+
     public FileSortingViewModel(AccountFile accountFile, ReadOnlyObservableCollection<CategoryVm> categories, Action updatedHandler)
     {
-        currency = accountFile.Description.Currency;
         this.categories = categories;
         this.updatedHandler = updatedHandler;
+
         OperationsGroups = accountFile.OperationsGroups.Select(
-            og => new SortedOperationsGroup(og, this.categories, this)).ToList();
+            operationGroup => new SortedOperationsGroupVM(operationGroup, categories, this)).ToList();
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
+        ResetFilters = new DelegateCommand(ResetFiltersHandler);
         UpdateSummary();
     }
 
     private void SetForAllHandler()
     {
-        // TODO
-        var window = new ObjectSelectorWindow(categories);
+        ObjectSelectorWindow window = new (categories);
         window.ShowDialog();
         if (window.SelectedItem == null)
             return;
         CategoryVm selectedItem = (CategoryVm)window.SelectedItem;
-        foreach (SortedOperationsGroup operationsGroup in OperationsGroups)
+        foreach (SortedOperationsGroupVM operationsGroup in OperationsGroups)
         {
             foreach (OperationViewModel operation in operationsGroup.Operations)
             {
@@ -66,7 +65,14 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
         }
     }
 
-    public void CategoryChanged() => UpdateSummary();
+    private void ResetFiltersHandler()
+    {
+        foreach (SortedOperationsGroupVM sortedOperationsGroup in OperationsGroups)
+            sortedOperationsGroup.ResetFilter();
+        Changed();
+    }
+
+    public void Changed() => UpdateSummary();
 
     private void UpdateSummary()
     {
@@ -74,7 +80,7 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
         Dictionary<CategoryVm, CategorySummary> categoriesSummary = categories.ToDictionary(c => c, c => new CategorySummary(c.Name));
         bool allSorted = true;
 
-        foreach (SortedOperationsGroup operationsGroup in OperationsGroups)
+        foreach (SortedOperationsGroupVM operationsGroup in OperationsGroups)
         {
             foreach (OperationViewModel operation in operationsGroup.Operations)
             {
@@ -148,7 +154,7 @@ class FileSortingViewModel : BaseNotifyProperty, ICategoryChangedListener
     }
 }
 
-interface ICategoryChangedListener
+interface ISummaryChangedListener
 {
-    void CategoryChanged();
+    void Changed();
 }

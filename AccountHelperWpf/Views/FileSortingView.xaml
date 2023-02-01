@@ -16,12 +16,17 @@
         </Grid.RowDefinitions>
         
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="True" PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
-            <ItemsControl ItemsSource="{Binding OperationsGroups, Mode=OneTime}" Width="Auto">
+            <ItemsControl ItemsSource="{Binding OperationsGroups}" Width="Auto">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
                             <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
-                            <views:DataGridExt AutoGenerateColumns="False" ItemsSource="{Binding Operations}">
+                            <views:DataGridExt AutoGenerateColumns="False" ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}">
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Set As last transaction" Command="{Binding SetLastCommand}"/>
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}"
                                                         Header="Transaction Date Time" />
@@ -43,7 +48,10 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <Button Grid.Row="1" HorizontalAlignment="Left" Margin="10" Content="Set For All" Command="{Binding SetForAllCommand}"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button HorizontalAlignment="Left" Margin="10" Content="Set For All" Command="{Binding SetForAllCommand}"/>
+            <Button HorizontalAlignment="Left" Margin="10" Content="Reset filters" Command="{Binding ResetFilters}"/>
+        </StackPanel>
         <TextBox Margin="5,30,5,5" Grid.Row="2" Text="{Binding Summary, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
     </Grid>
 </UserControl>
