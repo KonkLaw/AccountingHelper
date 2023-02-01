@@ -3,7 +3,7 @@
 public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string Description);
 
 public record PriorOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-    string Category,
+    string CategoryName,
     string Currency,
     decimal Fee,
     decimal InitialAmount,
@@ -11,11 +11,11 @@ public record PriorOperation(DateTime TransactionDateTime, decimal Amount, strin
     : BaseOperation(TransactionDateTime, Amount, Description);
 
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-    string OtherDescription,
     DateOnly DateAccounting,
     string Currency,
     string OperationType,
-    decimal SaldoBeforeTransaction)
+    decimal SaldoBeforeTransaction,
+    string OtherDescription)
     : BaseOperation(TransactionDateTime, Amount, Description);
 
 public readonly record struct OperationsGroup(

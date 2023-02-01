@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
+             xmlns:views="clr-namespace:AccountHelperWpf.Views"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModels:FileSortingViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -20,7 +21,7 @@
                     <DataTemplate>
                         <StackPanel>
                             <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
-                            <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Operations}">
+                            <views:DataGridExt AutoGenerateColumns="False" ItemsSource="{Binding Operations}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="120" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}"
                                                         Header="Transaction Date Time" />
@@ -34,9 +35,9 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Width="200" Binding="{Binding Description}" Header="Comment" />
+                                    <DataGridTextColumn Width="200" Binding="{Binding Description}" Header="Pinned Comment" />
                                 </DataGrid.Columns>
-                            </DataGrid>
+                            </views:DataGridExt>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

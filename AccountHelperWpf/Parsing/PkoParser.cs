@@ -40,6 +40,6 @@ static class PkoParser
         string description = lines[7];
 
         return new PkoOperation(
-            dateOperation, amount, description, otherDescription, dateAccounting, currency, operationType, saldoBeforeTransaction);
+            dateOperation, amount, description, dateAccounting, currency, operationType, saldoBeforeTransaction, otherDescription);
     }
 }
