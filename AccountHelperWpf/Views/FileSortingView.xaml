@@ -23,10 +23,10 @@
                             <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
                             <views:DataGridExt AutoGenerateColumns="False" ItemsSource="{Binding Operations}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Width="120" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}"
+                                    <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}"
                                                         Header="Transaction Date Time" />
-                                    <DataGridTextColumn Width="60" Binding="{Binding Operation.Amount}" Header="Amount" />
-                                    <DataGridTextColumn Width="330" Binding="{Binding Operation.Description}" Header="Description" />
+                                    <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" />
+                                    <DataGridTextColumn Width="330" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
                                     <DataGridTemplateColumn Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
