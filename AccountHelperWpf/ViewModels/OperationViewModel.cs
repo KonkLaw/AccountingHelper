@@ -7,6 +7,7 @@ namespace AccountHelperWpf.ViewModels;
 class OperationViewModel : BaseNotifyProperty
 {
     private readonly ISummaryChangedListener summaryChangedListener;
+    private readonly Action<CategoryVm?> categoryChanged;
     public BaseOperation Operation { get; }
 
     private CategoryVm? category;
@@ -15,8 +16,10 @@ class OperationViewModel : BaseNotifyProperty
         get => category;
         set
         {
-            if (SetProperty(ref category, value))
-                summaryChangedListener.Changed();
+            if (!SetProperty(ref category, value))
+                return;
+            categoryChanged(value);
+            summaryChangedListener.Changed();
         }
     }
 
@@ -33,13 +36,14 @@ class OperationViewModel : BaseNotifyProperty
 
     public ReadOnlyObservableCollection<CategoryVm> Categories { get; }
 
-    public OperationViewModel(
-        BaseOperation operation,
+    public OperationViewModel(BaseOperation operation,
         ReadOnlyObservableCollection<CategoryVm> categories,
-        ISummaryChangedListener summaryChangedListener)
+        ISummaryChangedListener summaryChangedListener,
+        Action<CategoryVm?> categoryChanged)
     {
         Operation = operation;
         Categories = categories;
         this.summaryChangedListener = summaryChangedListener;
+        this.categoryChanged = categoryChanged;
     }
 }

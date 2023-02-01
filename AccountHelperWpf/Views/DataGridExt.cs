@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using AccountHelperWpf.ViewModels;
@@ -7,6 +9,21 @@ namespace AccountHelperWpf.Views;
 
 public class DataGridExt : DataGrid
 {
+    public static readonly DependencyProperty SelectedItemsListProperty =
+        DependencyProperty.Register (nameof(SelectedItemsList), typeof (IList), typeof (DataGridExt), new PropertyMetadata (null));
+
+    public IList SelectedItemsList
+    {
+        get => (IList)GetValue(SelectedItemsListProperty);
+        set => SetValue(SelectedItemsListProperty, value);
+    }
+
+    protected override void OnSelectionChanged(SelectionChangedEventArgs e)
+    {
+        base.OnSelectionChanged(e);
+        SelectedItemsList = SelectedItems;
+    }
+
     protected override void OnInitialized(EventArgs e)
     {
         base.OnInitialized(e);

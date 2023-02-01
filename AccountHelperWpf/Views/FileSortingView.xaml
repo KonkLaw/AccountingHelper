@@ -21,7 +21,7 @@
                     <DataTemplate>
                         <StackPanel>
                             <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
-                            <views:DataGridExt AutoGenerateColumns="False" ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}">
+                            <views:DataGridExt AutoGenerateColumns="False" SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}" ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}">
                                 <DataGrid.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Header="Set As last transaction" Command="{Binding SetLastCommand}"/>
