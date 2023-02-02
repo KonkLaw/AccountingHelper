@@ -90,16 +90,4 @@ static class PriorParser
     }
 }
 
-file class NumberFormatHelper
-{
-    public static readonly NumberFormatInfo NumberFormat;
-
-    static NumberFormatHelper()
-    {
-        NumberFormat = (NumberFormatInfo)CultureInfo.InstalledUICulture.NumberFormat.Clone();
-        NumberFormat.NumberDecimalSeparator = ",";
-        NumberFormat.NumberGroupSeparator = " ";
-    }
-}
-
 class ParsingException : Exception { }

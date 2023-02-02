@@ -12,10 +12,11 @@ public partial class OpenFilesWindow : Window
     {
         InitializeComponent();
         ViewResolver viewResolver = new ();
-        viewResolver.RegisterViewModel<FileSortingView, FileSortingViewModel>(() => new FileSortingView());
-        viewResolver.RegisterViewModel<FilesSortingView, FilesSortingViewModel>(() => new FilesSortingView());
-        viewResolver.RegisterViewModel<CategoriesView, CategoriesViewModel>(() => new CategoriesView());
-        viewResolver.RegisterViewModel<HistoryView, HistoryViewModel>(() => new HistoryView());
+        viewResolver.RegisterView<FileSortingView, FileSortingViewModel>(() => new FileSortingView());
+        viewResolver.RegisterView<FilesSortingView, FilesSortingViewModel>(() => new FilesSortingView());
+        viewResolver.RegisterView<CategoriesView, CategoriesViewModel>(() => new CategoriesView());
+        viewResolver.RegisterView<HistoryView, HistoryViewModel>(() => new HistoryView());
+        viewResolver.RegisterWindow<PkoBlockedOperationsWindow, PkoBlockedOperationParserVM>(() => new PkoBlockedOperationsWindow());
         DataContext = new OpenFilesViewModel(viewResolver);
     }
 }

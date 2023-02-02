@@ -24,9 +24,9 @@ class OpenFilesViewModel : IFileRemover
 
         // test
         string path1 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\test.csv";
-        LoadedFiles.Add(new LoadedFileInfo(path1, ParserChooser.ParseFile(path1), this));
+        LoadedFiles.Add(new LoadedFileInfo(path1, ParserChooser.ParseFile(path1, viewResolver), this));
         string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\history_csv_20230126_160849.csv";
-        LoadedFiles.Add(new LoadedFileInfo(path1, ParserChooser.ParseFile(path2), this));
+        LoadedFiles.Add(new LoadedFileInfo(path1, ParserChooser.ParseFile(path2, viewResolver), this));
         NextStep.IsEnabled = true;
     }
 
@@ -46,7 +46,10 @@ class OpenFilesViewModel : IFileRemover
                 return;
             }
 
-            AccountFile loadedFile = ParserChooser.ParseFile(fullPath);
+            AccountFile loadedFile = ParserChooser.ParseFile(fullPath, viewResolver);
+
+
+
             LoadedFiles.Add(new LoadedFileInfo(fullPath, loadedFile, this));
             NextStep.IsEnabled = true;
         }

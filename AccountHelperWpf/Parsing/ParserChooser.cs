@@ -1,12 +1,13 @@
 ﻿using System.IO;
-using System.IO.Pipes;
 using System.Text;
+using AccountHelperWpf.Common;
+using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Parsing;
 
-public class ParserChooser
+class ParserChooser
 {
-    public static AccountFile ParseFile(string filePath)
+    public static AccountFile ParseFile(string filePath, IViewResolver viewResolver)
     {
         string fileName = Path.GetFileName(filePath);
         using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read))
@@ -19,9 +20,22 @@ public class ParserChooser
             fileStream.Position = 0;
 
             reader = new (fileStream, EncodingHelper.PolandEncoding);
-            result = PkoParser.TryParse(reader, fileName);
-            if (result != null)
-                return result;
+
+            OperationsGroup? operationsGroup = PkoParser.TryParse(reader);
+            if (operationsGroup != null)
+            {
+                PkoBlockedOperationParserVM pkoBlockedOperationsVM = new ();
+                viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
+
+                var operationsGroups = new List<OperationsGroup>
+                {
+                    operationsGroup.Value
+                };
+                if (pkoBlockedOperationsVM.Operations != null)
+                    operationsGroups.Add(pkoBlockedOperationsVM.Operations.Value);
+
+                return new AccountFile(new AccountDescription(fileName, "zl"), operationsGroups);
+            }
         }
 
         throw new Exception("File wasn't recognized by any parser.");

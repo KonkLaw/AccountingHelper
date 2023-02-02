@@ -18,6 +18,10 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
     string OtherDescription)
     : BaseOperation(TransactionDateTime, Amount, Description);
 
+record PkoBlockedOperation(DateTime TransactionDateTime, decimal Amount, string Description,
+    string OtherDescription)
+    : BaseOperation(TransactionDateTime, Amount, Description);
+
 public readonly record struct OperationsGroup(
     string Name,
     IReadOnlyList<BaseOperation> Operations);

@@ -6,6 +6,7 @@ namespace AccountHelperWpf.Common;
 class ViewResolver : IViewResolver
 {
     private readonly Dictionary<Type, Func<FrameworkElement>> viewModelToView = new();
+    private readonly Dictionary<Type, Func<Window>> viewModelToWindow = new();
 
     public FrameworkElement ResolveView(object viewModel)
     {
@@ -24,8 +25,16 @@ class ViewResolver : IViewResolver
         };
     }
 
-    public void RegisterViewModel<TView, TViewModel>(Func<TView> creator) where TView : FrameworkElement
+    public void ResolveAndShowDialog(object viewModel)
     {
-        viewModelToView.Add(typeof(TViewModel), creator);
+        Window window = viewModelToWindow[viewModel.GetType()]();
+        window.DataContext = viewModel;
+        window.ShowDialog();
     }
+
+    public void RegisterView<TView, TViewModel>(Func<TView> creator) where TView : FrameworkElement
+        => viewModelToView.Add(typeof(TViewModel), creator);
+
+    public void RegisterWindow<TView, TViewModel>(Func<TView> creator) where TView : Window
+        => viewModelToWindow.Add(typeof(TViewModel), creator);
 }
