@@ -14,6 +14,14 @@ public record PriorOperation(DateTime TransactionDateTime, decimal Amount, strin
         DateOnly AccountDate)
     : BaseOperation(TransactionDateTime, Amount, Description);
 
+public record PriorBlockedOperation(DateTime TransactionDateTime, decimal Amount, string Description,
+        [property: Width(150)]
+        string CategoryName,
+        string Currency,
+        decimal InitialAmount,
+        string InitialCurrency)
+    : BaseOperation(TransactionDateTime, Amount, Description);
+
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
         [property: StringFormat("dd-MM-yyyy")]
         DateOnly DateAccounting,

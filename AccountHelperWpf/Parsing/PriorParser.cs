@@ -31,6 +31,7 @@ static class PriorParser
         const string currencyLinePrefix = "Валюта счета: ";
         const string operationsGroupBegin = "Операции по";
         const string operationsGroupEnd = "Всего по контракту";
+        const string operationsBlockedBegin = "Заблокированные суммы по .....";
 
         int lineIndex = 0;
         List<OperationsGroup> groups = new();
@@ -47,7 +48,7 @@ static class PriorParser
 
             lineIndex = groupBeginIndex.Value;
             string groupName = lines[lineIndex];
-            lineIndex++; // skip one line with header
+            lineIndex++; // skip one line
             List<BaseOperation> operationsGroup = new();
             while (true)
             {
@@ -59,6 +60,25 @@ static class PriorParser
             }
             groups.Add(new OperationsGroup(groupName, operationsGroup));
         }
+
+        int? blockedIndex = FindNextLine(lines, lineIndex, operationsBlockedBegin);
+        if (blockedIndex != null)
+        {
+            lineIndex = blockedIndex.Value;
+            string groupName = lines[lineIndex];
+            lineIndex++; // skip one line
+            List<BaseOperation> operationsGroup = new();
+            while (true)
+            {
+                lineIndex++;
+                if (lineIndex >= lines.Count)
+                    break;
+                string line = lines[lineIndex];
+                operationsGroup.Add(ParseBlockedOperationLine(line));
+            }
+            groups.Add(new OperationsGroup(groupName,operationsGroup));
+        }
+
         return groups;
     }
 
@@ -78,15 +98,33 @@ static class PriorParser
     private static PriorOperation ParseOperationLine(string line)
     {
         string[] parts = line.Split(ColumnSeparator);
+        DateTime transactionDateTime = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+        string description = parts[1];
+        decimal initialAmount = decimal.Parse(parts[2], NumberFormatHelper.NumberFormat);
+        string currency = parts[3];
+        DateOnly accountDateTime = DateOnly.ParseExact(parts[4], "dd.MM.yyyy", CultureInfo.InvariantCulture);
+        decimal fee = decimal.Parse(parts[5], NumberFormatHelper.NumberFormat);
+        decimal amount = decimal.Parse(parts[6], NumberFormatHelper.NumberFormat);
+        string categoryName = parts[8];
         return new PriorOperation(
-            DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-            decimal.Parse(parts[6], NumberFormatHelper.NumberFormat),
-            parts[1],
-            parts[8],
-            parts[3],
-            decimal.Parse(parts[5], NumberFormatHelper.NumberFormat),
-            decimal.Parse(parts[2], NumberFormatHelper.NumberFormat),
-            DateOnly.ParseExact(parts[4], "dd.MM.yyyy", CultureInfo.InvariantCulture));
+            transactionDateTime, amount, description, categoryName, currency, fee, initialAmount, accountDateTime);
+    }
+
+    private static PriorBlockedOperation ParseBlockedOperationLine(string line)
+    {
+        string[] parts = line.Split(ColumnSeparator);
+
+        DateTime transactionDateTime = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+        string description = parts[1];
+        decimal initialAmount = decimal.Parse(parts[2], NumberFormatHelper.NumberFormat);
+        string initialCurrency = parts[3];
+        // sign inverted !!!
+        decimal amount = -decimal.Parse(parts[4], NumberFormatHelper.NumberFormat);
+        string currency = parts[5];
+        string categoryName = parts[7];
+
+        return new PriorBlockedOperation(
+            transactionDateTime, amount, description, categoryName, currency, initialAmount, initialCurrency);
     }
 }
 
