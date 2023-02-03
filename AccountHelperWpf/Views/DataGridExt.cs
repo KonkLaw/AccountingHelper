@@ -63,15 +63,20 @@ public class DataGridExt : DataGrid
 
             if (shouldAdd)
             {
-                WidthAttribute? attribute = propertyInfo.GetCustomAttribute<WidthAttribute>();
+                WidthAttribute? widthAttribute = propertyInfo.GetCustomAttribute<WidthAttribute>();
+                StringFormatAttribute? formatAttribute = propertyInfo.GetCustomAttribute<StringFormatAttribute>();
+
                 DataGridTextColumn column = new ()
                 {
                     IsReadOnly = true,
                     Header = propertyInfo.Name,
-                    Binding = new Binding(prefix + propertyInfo.Name),
+                    Binding = new Binding(prefix + propertyInfo.Name)
                 };
-                if (attribute != null)
-                    column.Width = attribute.Width;
+                if (widthAttribute != null)
+                    column.Width = widthAttribute.Width;
+                if (formatAttribute != null)
+                    column.Binding.StringFormat = formatAttribute.Format;
+
                 Columns.Add(column);
             }
         }

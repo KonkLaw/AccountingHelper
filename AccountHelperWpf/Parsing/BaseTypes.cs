@@ -10,10 +10,12 @@ public record PriorOperation(DateTime TransactionDateTime, decimal Amount, strin
         string Currency,
         decimal Fee,
         decimal InitialAmount,
+        [property: StringFormat("dd-MM-yyyy")]
         DateOnly AccountDate)
     : BaseOperation(TransactionDateTime, Amount, Description);
 
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
+        [property: StringFormat("dd-MM-yyyy")]
         DateOnly DateAccounting,
         string Currency,
         [property: Width(160)]
