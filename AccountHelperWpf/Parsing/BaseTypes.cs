@@ -1,21 +1,25 @@
-﻿namespace AccountHelperWpf.Parsing;
+﻿using AccountHelperWpf.Common;
+
+namespace AccountHelperWpf.Parsing;
 
 public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string Description);
 
 public record PriorOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-    string CategoryName,
-    string Currency,
-    decimal Fee,
-    decimal InitialAmount,
-    DateOnly AccountDate)
+        [property: Width(150)]
+        string CategoryName,
+        string Currency,
+        decimal Fee,
+        decimal InitialAmount,
+        DateOnly AccountDate)
     : BaseOperation(TransactionDateTime, Amount, Description);
 
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-    DateOnly DateAccounting,
-    string Currency,
-    string OperationType,
-    decimal SaldoBeforeTransaction,
-    string OtherDescription)
+        DateOnly DateAccounting,
+        string Currency,
+        [property: Width(160)]
+        string OperationType,
+        decimal SaldoBeforeTransaction,
+        string OtherDescription)
     : BaseOperation(TransactionDateTime, Amount, Description);
 
 record PkoBlockedOperation(DateTime TransactionDateTime, decimal Amount, string Description,

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using AccountHelperWpf.Common;
 using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Views;
@@ -62,15 +63,17 @@ public class DataGridExt : DataGrid
 
             if (shouldAdd)
             {
+                WidthAttribute? attribute = propertyInfo.GetCustomAttribute<WidthAttribute>();
                 DataGridTextColumn column = new ()
                 {
                     IsReadOnly = true,
                     Header = propertyInfo.Name,
                     Binding = new Binding(prefix + propertyInfo.Name),
                 };
+                if (attribute != null)
+                    column.Width = attribute.Width;
                 Columns.Add(column);
             }
-
         }
     }
 }

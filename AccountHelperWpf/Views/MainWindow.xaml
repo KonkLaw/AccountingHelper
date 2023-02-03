@@ -6,7 +6,7 @@
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:MainWindowModel}"
-        Title="MainWindow" Height="990" Width="1100">
+        Title="MainWindow" Height="990" Width="1500">
     <Grid>
         <ContentControl Content="{Binding ViewContent}"></ContentControl>
     </Grid>

@@ -29,7 +29,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn x:Name="CommentColumn" Width="200" Binding="{Binding Description}" Header="Pinned Comment" />
+                <DataGridTextColumn x:Name="CommentColumn" Width="120" Binding="{Binding Description}" Header="Pinned Comment" />
             </DataGrid.Columns>
         </local:DataGridExt>
     </StackPanel>
