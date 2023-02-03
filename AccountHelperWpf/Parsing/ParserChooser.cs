@@ -31,8 +31,8 @@ class ParserChooser
                 {
                     operationsGroup.Value
                 };
-                if (pkoBlockedOperationsVM.Operations != null)
-                    operationsGroups.Add(pkoBlockedOperationsVM.Operations.Value);
+                if (pkoBlockedOperationsVM.OperationsGroup.HasValue)
+                    operationsGroups.Insert(0, pkoBlockedOperationsVM.OperationsGroup.Value);
 
                 return new AccountFile(new AccountDescription(fileName, "zl"), operationsGroups);
             }

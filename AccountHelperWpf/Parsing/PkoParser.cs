@@ -1,7 +1,5 @@
-﻿using System.Dynamic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace AccountHelperWpf.Parsing;
 
@@ -15,7 +13,6 @@ static class PkoParser
         const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\",\"\",\"\",\"\",\"\"";
         if (firstLine != knownFirstString)
             return null;
-
         do
         {
             string line = reader.ReadLine()!;

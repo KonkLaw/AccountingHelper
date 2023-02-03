@@ -29,14 +29,14 @@ class SortedOperationsGroupVM : BaseNotifyProperty
         set => SetProperty(ref selectedOperation, value);
     }
 
-    public ICommand SetLastCommand { get; }
-
     private IList? selectedItems;
     public IList? SelectedItems
     {
         get => selectedItems;
         set => SetProperty(ref selectedItems, value);
     }
+
+    public ICommand SetLastCommand { get; }
 
     public SortedOperationsGroupVM(
         OperationsGroup operationGroup,

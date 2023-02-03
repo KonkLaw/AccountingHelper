@@ -21,7 +21,7 @@
                                                         Header="Transaction Date Time" />
                 <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" />
                 <DataGridTextColumn Width="330" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
-                <DataGridTemplateColumn Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
+                <DataGridTemplateColumn x:Name="CategoriesColumn" Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ComboBox ItemsSource="{Binding Categories, Mode=OneTime}"
@@ -29,7 +29,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Width="200" Binding="{Binding Description}" Header="Pinned Comment" />
+                <DataGridTextColumn x:Name="CommentColumn" Width="200" Binding="{Binding Description}" Header="Pinned Comment" />
             </DataGrid.Columns>
         </local:DataGridExt>
     </StackPanel>

@@ -4,12 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
+        xmlns:views="clr-namespace:AccountHelperWpf.Views"
         mc:Ignorable="d"
-        Title="PkoBlockedOperationsWindow" Height="450" Width="800"
-        ResizeMode="NoResize"
+        Title="PkoBlockedOperationsWindow" Height="750" Width="1000"
         d:DataContext="{d:DesignInstance viewModels:PkoBlockedOperationParserVM}">
     <StackPanel>
         <TextBox TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" Text="{Binding Text}" Height="250"/>
-        <Button Content="TryParse" Command="{Binding TryParse}"/>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="TryParse" Command="{Binding TryParse}"/>
+            <Button Content="Clear" Command="{Binding Clear}"/>
+        </StackPanel>
+        <views:OperationsGrid IsReadOnly="True" DataContext="{Binding Operations}"/>
     </StackPanel>
 </Window>
