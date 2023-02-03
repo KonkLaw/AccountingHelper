@@ -24,10 +24,10 @@ public class DataGridExt : DataGrid
         SelectedItemsList = SelectedItems;
     }
 
-    protected override void OnInitialized(EventArgs e)
+    protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
     {
-        base.OnInitialized(e);
-
+        base.OnItemsSourceChanged(oldValue, newValue);
+        
         List<string> wellKnownProperties = new ();
         foreach (DataGridColumn dataGridColumn in Columns)
         {

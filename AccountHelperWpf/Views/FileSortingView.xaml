@@ -19,31 +19,7 @@
             <ItemsControl ItemsSource="{Binding OperationsGroups}" Width="Auto">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel>
-                            <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
-                            <views:DataGridExt AutoGenerateColumns="False" SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}" ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}">
-                                <DataGrid.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Set As last transaction" Command="{Binding SetLastCommand}"/>
-                                    </ContextMenu>
-                                </DataGrid.ContextMenu>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}"
-                                                        Header="Transaction Date Time" />
-                                    <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" />
-                                    <DataGridTextColumn Width="330" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
-                                    <DataGridTemplateColumn Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <ComboBox ItemsSource="{Binding Categories, Mode=OneTime}"
-                                                          SelectedItem="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTextColumn Width="200" Binding="{Binding Description}" Header="Pinned Comment" />
-                                </DataGrid.Columns>
-                            </views:DataGridExt>
-                        </StackPanel>
+                        <views:OperationsGrid/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
