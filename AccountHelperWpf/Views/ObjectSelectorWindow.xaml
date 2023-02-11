@@ -12,7 +12,7 @@
         </Grid.RowDefinitions>
         <ListBox Grid.Row="0" Name="ListBox" x:FieldModifier="private"/>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="Ok" MinWidth="30" Margin="5" Click="Button_Click" />
+            <Button Content="Ok" Margin="5" Click="Button_Click" />
         </StackPanel>
     </Grid>
 </Window>
