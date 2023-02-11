@@ -26,14 +26,11 @@ class FilesSortingViewModel
             filesVm.Add(fileSortingViewModel);
             Tabs.Add(viewResolver.ResolveTabItem(accountFile.Description.Name, fileSortingViewModel));
         }
-        Tabs.Add(viewResolver.ResolveTabItem("History", new HistoryViewModel()));
+        //Tabs.Add(viewResolver.ResolveTabItem("History", new HistoryViewModel()));
         UpdateNextButtonState();
     }
 
     private void UpdateNextButtonState() => Next.IsEnabled = filesVm.All(f => f.IsSorted);
 
-    private void NextHandler()
-    {
-        
-    }
+    private void NextHandler() { }
 }
