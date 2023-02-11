@@ -18,8 +18,8 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Content="Load operations file" Command="{Binding AddFile, Mode=OneTime}" />
-        <Button Content="Next Step" Command="{Binding NextStep, Mode=OneTime}" />
-        <Button Content="Load history files"/>
+        <Button Content="Load operations file" Width="140" Margin="5" Command="{Binding AddFile, Mode=OneTime}" />
+        <Button Content="Next Step" Width="140" Margin="5" Command="{Binding NextStep, Mode=OneTime}" />
+        <Button Content="Load history files" Width="140" Margin="5" />
     </StackPanel>
 </Window>

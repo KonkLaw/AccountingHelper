@@ -11,8 +11,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
         
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="True" PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
@@ -28,6 +28,6 @@
             <Button HorizontalAlignment="Left" Margin="10" Content="Set For All" Command="{Binding SetForAllCommand}"/>
             <Button HorizontalAlignment="Left" Margin="10" Content="Reset filters" Command="{Binding ResetFilters}"/>
         </StackPanel>
-        <TextBox Margin="5,30,5,5" Grid.Row="2" Text="{Binding Summary, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
+        <TextBox Margin="5" Grid.Row="2" Text="{Binding Summary, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
     </Grid>
 </UserControl>
