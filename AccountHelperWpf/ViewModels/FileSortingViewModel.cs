@@ -10,7 +10,7 @@ namespace AccountHelperWpf.ViewModels;
 class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 {
     private readonly ReadOnlyObservableCollection<CategoryVm> categories;
-    private readonly Action updatedHandler;
+    private readonly Action sortedChangedHandler;
     public IReadOnlyList<SortedOperationsGroupVM> OperationsGroups { get; set; }
 
     private string summary = string.Empty;
@@ -29,23 +29,25 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
             if (isSorted == value)
                 return;
             isSorted = value;
-            updatedHandler();
+            sortedChangedHandler();
         }
     }
 
     public ICommand SetForAllCommand { get; }
-
     public ICommand ResetFilters { get; }
+    public ICommand RemoveFile { get; }
 
-    public FileSortingViewModel(AccountFile accountFile, ReadOnlyObservableCollection<CategoryVm> categories, Action updatedHandler)
+    public FileSortingViewModel(AccountFile accountFile,
+        ReadOnlyObservableCollection<CategoryVm> categories,
+        Action sortedChangedHandler, Action<object> removeHandler)
     {
         this.categories = categories;
-        this.updatedHandler = updatedHandler;
-
+        this.sortedChangedHandler = sortedChangedHandler;
         OperationsGroups = accountFile.OperationsGroups.Select(
             operationGroup => new SortedOperationsGroupVM(operationGroup, categories, this)).ToList();
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFilters = new DelegateCommand(ResetFiltersHandler);
+        RemoveFile = new DelegateCommand(() => removeHandler(this));
         UpdateSummary();
     }
 

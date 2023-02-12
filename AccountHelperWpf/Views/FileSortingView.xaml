@@ -25,8 +25,9 @@
             </ItemsControl>
         </ScrollViewer>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <Button HorizontalAlignment="Left" Margin="10" Content="Set For All" Command="{Binding SetForAllCommand}"/>
-            <Button HorizontalAlignment="Left" Margin="10" Content="Reset filters" Command="{Binding ResetFilters}"/>
+            <Button HorizontalAlignment="Left" Margin="7" Content="Set For All" Command="{Binding SetForAllCommand}"/>
+            <Button HorizontalAlignment="Left" Margin="7" Content="Reset filters" Command="{Binding ResetFilters}"/>
+            <Button HorizontalAlignment="Left" Margin="7" Content="Remove this file" Command="{Binding RemoveFile}"/>
         </StackPanel>
         <TextBox Margin="5" Grid.Row="2" Text="{Binding Summary, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
     </Grid>

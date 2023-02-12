@@ -11,8 +11,10 @@ class MainWindowModel : BaseNotifyProperty
         set => SetProperty(ref viewContent, value);
     }
 
-    public MainWindowModel(IViewResolver viewResolver, object initialViewModel)
-    {
-        viewContent = viewResolver.ResolveView(initialViewModel);
-    }
+    public MainWindowModel(IViewResolver viewResolver) =>
+        viewContent = viewResolver.ResolveView(new FilesSortingViewModel(viewResolver, new List<CategoryVm>
+        {
+            new () { Name = "Подарки", Description = "Подарки"},
+            new () { Name = "Здоровье", Description = "Траты на здоровье"}
+        }));
 }

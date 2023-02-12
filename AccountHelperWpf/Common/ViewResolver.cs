@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using AccountHelperWpf.ViewModels;
+using AccountHelperWpf.Views;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace AccountHelperWpf.Common;
@@ -8,6 +10,15 @@ class ViewResolver : IViewResolver
     private readonly Dictionary<Type, Func<FrameworkElement>> viewModelToView = new();
     private readonly Dictionary<Type, Func<Window>> viewModelToWindow = new();
     private Window? dialogWindow;
+
+    public ViewResolver()
+    {
+        RegisterView<FileSortingView, FileSortingViewModel>(() => new FileSortingView());
+        RegisterView<FilesSortingView, FilesSortingViewModel>(() => new FilesSortingView());
+        RegisterView<CategoriesView, CategoriesViewModel>(() => new CategoriesView());
+        RegisterView<HistoryView, HistoryViewModel>(() => new HistoryView());
+        RegisterWindow<PkoBlockedOperationsWindow, PkoBlockedOperationParserVM>(() => new PkoBlockedOperationsWindow());
+    }
 
     public FrameworkElement ResolveView(object viewModel)
     {
@@ -22,7 +33,8 @@ class ViewResolver : IViewResolver
         return new TabItem
         {
             Header = header,
-            Content = ResolveView(contentViewModel)
+            Content = ResolveView(contentViewModel),
+            Width = 150
         };
     }
 
