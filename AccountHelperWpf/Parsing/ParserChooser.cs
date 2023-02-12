@@ -24,7 +24,7 @@ class ParserChooser
             OperationsGroup? operationsGroup = PkoParser.TryParse(reader);
             if (operationsGroup != null)
             {
-                PkoBlockedOperationParserVM pkoBlockedOperationsVM = new ();
+                PkoBlockedOperationParserVM pkoBlockedOperationsVM = new (viewResolver);
                 viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
 
                 var operationsGroups = new List<OperationsGroup>

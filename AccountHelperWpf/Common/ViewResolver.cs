@@ -7,6 +7,7 @@ class ViewResolver : IViewResolver
 {
     private readonly Dictionary<Type, Func<FrameworkElement>> viewModelToView = new();
     private readonly Dictionary<Type, Func<Window>> viewModelToWindow = new();
+    private Window? dialogWindow;
 
     public FrameworkElement ResolveView(object viewModel)
     {
@@ -29,7 +30,16 @@ class ViewResolver : IViewResolver
     {
         Window window = viewModelToWindow[viewModel.GetType()]();
         window.DataContext = viewModel;
+        dialogWindow = window;
         window.ShowDialog();
+        dialogWindow = null;
+    }
+
+    public void ShowWarning(string message)
+    {
+        MessageBox.Show(dialogWindow ?? Application.Current!.MainWindow!,
+            message, string.Empty, MessageBoxButton.OK,
+            MessageBoxImage.Warning);
     }
 
     public void RegisterView<TView, TViewModel>(Func<TView> creator) where TView : FrameworkElement

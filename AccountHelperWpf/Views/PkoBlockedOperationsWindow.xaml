@@ -6,12 +6,12 @@
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
         xmlns:views="clr-namespace:AccountHelperWpf.Views"
         mc:Ignorable="d"
-        Title="PkoBlockedOperationsWindow" Height="700" Width="800"
+        Title="PkoBlockedOperationsWindow" Height="750" Width="800"
         d:DataContext="{d:DesignInstance viewModels:PkoBlockedOperationParserVM}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -19,15 +19,15 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" Text="{Binding Text}" Height="250"/>
+            <TextBox Grid.Column="0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" Text="{Binding Text}" Margin="0, 10"/>
             <StackPanel Grid.Column="1">
                 <TextBlock Text="Example" HorizontalAlignment="Center"/>
                 <Image Source="../Resources/Untitled.png" MaxWidth="1240"/>
             </StackPanel>
         </Grid>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <Button Content="TryParse" Command="{Binding TryParse}"/>
-            <Button Content="Clear" Command="{Binding Clear}"/>
+            <Button Margin="4" Content="TryParse" Command="{Binding TryParse}"/>
+            <Button Margin="4" Content="Clear" Command="{Binding Clear}"/>
         </StackPanel>
         <views:OperationsGrid Grid.Row="2" IsReadOnly="True" DataContext="{Binding Operations}"/>
     </Grid>

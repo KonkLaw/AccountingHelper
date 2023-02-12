@@ -39,25 +39,25 @@ static class PkoParser
             dateOperation, amount, description, dateAccounting, currency, operationType, saldoBeforeTransaction, otherDescription);
     }
 
-    public static OperationsGroup? TryParseBlocked(string? text)
-        => string.IsNullOrEmpty(text) ? null : PkoBlockedParser.Parse(text);
+    public static void TryParseBlocked(string textToParse, out OperationsGroup? operationsGroup, out string? errorMessage)
+        => PkoBlockedParser.TryParse(textToParse, out operationsGroup, out errorMessage);
 
     class PkoBlockedParser
     {
         private static readonly string BigLineSeparator = Environment.NewLine + '\t' + Environment.NewLine;
-        private static readonly string EndSearchLine = BigLineSeparator + "Sum:";
         private static readonly string[] Days = Enum.GetNames(typeof(DayOfWeek));
         private readonly string text;
         private int index;
 
         private PkoBlockedParser(string text) => this.text = text;
 
-        public static OperationsGroup? Parse(string text)
+        public static void TryParse(string textToParse, out OperationsGroup? result, out string? errorMessage)
         {
-            List<BaseOperation> operations = new PkoBlockedParser(text).Parse();
+            List<BaseOperation> operations = new PkoBlockedParser(textToParse).TryParse(out errorMessage);
             if (operations.Count == 0)
-                return null;
-            return new OperationsGroup("Blocked operations", operations);
+                result = null;
+            else
+                result = new OperationsGroup("Blocked operations", operations);
         }
 
         private bool TryMoveToNewDay(out int currentDayIndex)
@@ -81,29 +81,40 @@ static class PkoParser
             return true;
         }
 
-        private List<BaseOperation> Parse()
+        private List<BaseOperation> TryParse(out string? errorMessage)
         {
             List<BaseOperation> operations = new ();
-            while (true)
-            {
-                if (!TryMoveToNewDay(out int currentDayIndex))
-                    break;
 
-                string day = Days[currentDayIndex];
-                index += day.Length;
-                ReadDate(out DateTime dateTime);
+            try
+            {
+                errorMessage = null;
 
                 while (true)
                 {
-                    PkoBlockedOperation operation = ReadRecord(text, ref index, dateTime);
-                    operations.Add(operation);
-
-                    if (text.AsSpan(index, EndSearchLine.Length).Equals(EndSearchLine.AsSpan(), StringComparison.InvariantCulture))
-                        return operations;
-
-                    if (!text.AsSpan(index, BigLineSeparator.Length).Equals(BigLineSeparator.AsSpan(), StringComparison.InvariantCulture))
+                    if (!TryMoveToNewDay(out int currentDayIndex))
                         break;
+
+                    string day = Days[currentDayIndex];
+                    index += day.Length;
+                    ReadDate(out DateTime dateTime);
+
+                    while (true)
+                    {
+                        PkoBlockedOperation operation = ReadRecord(text, ref index, dateTime);
+                        operations.Add(operation);
+
+                        if (index < 0)
+                            return operations;
+
+                        if (!text.AsSpan(index, BigLineSeparator.Length).Equals(BigLineSeparator.AsSpan(),
+                                StringComparison.InvariantCulture))
+                            break;
+                    }
                 }
+            }
+            catch
+            {
+                errorMessage = "Some exception during parsing. Result may be not full.";
             }
 
             return operations;
@@ -121,33 +132,32 @@ static class PkoParser
         {
             index += BigLineSeparator.Length;
 
-            int endIndex = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
+            int endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
             string description = text.Substring(index, endIndex - index);
             index = endIndex;
-
             index += BigLineSeparator.Length;
 
-            endIndex = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
-            ReadOnlySpan<char> otherDescription1 = text.AsSpan(index, endIndex - index);
-            index = endIndex + Environment.NewLine.Length;
-
-            endIndex = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
-            ReadOnlySpan<char> otherDescription2 = text.AsSpan(index, endIndex - index);
+            endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
+            ReadOnlySpan<char> additionalDescription1 = text.AsSpan(index, endIndex - index);
             index = endIndex;
-
             index += BigLineSeparator.Length;
 
-            endIndex = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
-            ReadOnlySpan<char> otherDescription3 = text.AsSpan(index, endIndex - index);
+            endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
+            ReadOnlySpan<char> additionalDescription2 = text.AsSpan(index, endIndex - index);
             index = endIndex;
-
             index += BigLineSeparator.Length;
 
             endIndex = text.IndexOf(' ', index);
             decimal amount = decimal.Parse(text.AsSpan(index, endIndex - index), NumberFormatHelper.NumberFormat);
             index = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
+
             
-            return new PkoBlockedOperation(dateTime, amount, description, string.Concat(otherDescription1.ToString(), " ", otherDescription2.ToString(), " ", otherDescription3.ToString()));
+            return new PkoBlockedOperation(dateTime, amount, description,
+                string.Concat(
+                    additionalDescription1.ToString().Replace(Environment.NewLine, " "),
+                    " ",
+                    additionalDescription2.ToString().Replace(Environment.NewLine, " ")
+                    ));
         }
     }
 }

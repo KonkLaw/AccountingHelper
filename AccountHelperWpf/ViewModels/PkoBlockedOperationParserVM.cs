@@ -7,6 +7,7 @@ namespace AccountHelperWpf.ViewModels;
 
 class PkoBlockedOperationParserVM : BaseNotifyProperty
 {
+    private readonly IViewResolver viewResolver;
     public OperationsGroup? OperationsGroup { get; set; }
 
     private SortedOperationsGroupVM? operations;
@@ -26,8 +27,9 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
     public ICommand TryParse { get; }
     public ICommand Clear { get; }
 
-    public PkoBlockedOperationParserVM()
+    public PkoBlockedOperationParserVM(IViewResolver viewResolver)
     {
+        this.viewResolver = viewResolver;
         TryParse = new DelegateCommand(TryParseHandler);
         Clear = new DelegateCommand(ClearOperations);
     }
@@ -40,10 +42,23 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
 
     private void TryParseHandler()
     {
-        OperationsGroup = PkoParser.TryParseBlocked(Text);
-        if (OperationsGroup != null)
+        if (string.IsNullOrEmpty(text))
         {
-            Operations = new SortedOperationsGroupVM(OperationsGroup.Value, new ReadOnlyObservableCollection<CategoryVm>(new ObservableCollection<CategoryVm>()), new Fake());
+            ClearOperations();
+            return;
+        }
+
+        PkoParser.TryParseBlocked(text, out OperationsGroup? operationsBlocked, out string? errorMessage);
+        if (errorMessage != null)
+            viewResolver.ShowWarning(errorMessage);
+            
+        OperationsGroup = operationsBlocked;
+        if (OperationsGroup != null && OperationsGroup.Value.Operations.Count > 0)
+        {
+            Operations = new SortedOperationsGroupVM(
+                OperationsGroup.Value,
+                new ReadOnlyObservableCollection<CategoryVm>(new ObservableCollection<CategoryVm>()),
+                new Fake());
         }
     }
 
