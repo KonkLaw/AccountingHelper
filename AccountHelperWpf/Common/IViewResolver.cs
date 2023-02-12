@@ -9,4 +9,5 @@ internal interface IViewResolver
     TabItem ResolveTabItem(string header, object contentViewModel);
     void ResolveAndShowDialog(object viewModel);
     void ShowWarning(string message);
+    bool ShowYesNoDialog(string question);
 }

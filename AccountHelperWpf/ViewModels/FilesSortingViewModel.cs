@@ -50,7 +50,11 @@ class FilesSortingViewModel
         }
     }
 
-    private void RemoveHandler(object viewModel) => Tabs.Remove(Tabs.First(tab => ((FrameworkElement)tab.Content).DataContext == viewModel));
+    private void RemoveHandler(object viewModel)
+    {
+        if (viewResolver.ShowYesNoDialog("Are you sure you want to remove current file from sorting?"))
+            Tabs.Remove(Tabs.First(tab => ((FrameworkElement)tab.Content).DataContext == viewModel));
+    }
 
     private void UpdateNextButtonState() => Next.IsEnabled = filesVm.All(f => f.vm.IsSorted);
 

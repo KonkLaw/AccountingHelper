@@ -48,10 +48,13 @@ class ViewResolver : IViewResolver
     }
 
     public void ShowWarning(string message)
+        => MessageBox.Show(GetWindow(), message, string.Empty, MessageBoxButton.OK, MessageBoxImage.Warning);
+
+    public bool ShowYesNoDialog(string question)
     {
-        MessageBox.Show(dialogWindow ?? Application.Current!.MainWindow!,
-            message, string.Empty, MessageBoxButton.OK,
-            MessageBoxImage.Warning);
+        MessageBoxResult result = MessageBox.Show(
+            GetWindow(), question, string.Empty, MessageBoxButton.YesNo, MessageBoxImage.Question);
+        return result == MessageBoxResult.Yes;
     }
 
     public void RegisterView<TView, TViewModel>(Func<TView> creator) where TView : FrameworkElement
@@ -59,4 +62,6 @@ class ViewResolver : IViewResolver
 
     public void RegisterWindow<TView, TViewModel>(Func<TView> creator) where TView : Window
         => viewModelToWindow.Add(typeof(TViewModel), creator);
+
+    private Window GetWindow() => dialogWindow ?? Application.Current!.MainWindow!;
 }
