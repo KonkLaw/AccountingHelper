@@ -57,7 +57,7 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
         {
             Operations = new SortedOperationsGroupVM(
                 OperationsGroup.Value,
-                new ReadOnlyObservableCollection<CategoryVm>(new ObservableCollection<CategoryVm>()),
+                new ReadOnlyObservableCollection<CategoryViewModel>(new ObservableCollection<CategoryViewModel>()),
                 new Fake());
         }
     }

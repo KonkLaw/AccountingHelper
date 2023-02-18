@@ -20,14 +20,13 @@ class FilesSortingViewModel
 
     private readonly List<(string fullPath, FileSortingViewModel vm)> filesVm = new ();
 
-    public FilesSortingViewModel(IViewResolver viewResolver, List<CategoryVm> categories)
+    public FilesSortingViewModel(IViewResolver viewResolver, List<CategoryViewModel> categories)
     {
         this.viewResolver = viewResolver;
         Next = new DelegateCommand(NextHandler);
         LoadFile = new DelegateCommand(LoadFileHandler);
         categoriesViewModel = new CategoriesViewModel(categories);
         Tabs.Add(viewResolver.ResolveTabItem("Categories", categoriesViewModel));
-        //Tabs.Add(viewResolver.ResolveTabItem("History", new HistoryViewModel()));
         UpdateNextButtonState();
     }
 
@@ -44,7 +43,7 @@ class FilesSortingViewModel
                 return;
             }
             AccountFile accountFile = ParserChooser.ParseFile(fullPath, viewResolver);
-            FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesViewModel.GetCategories(), SortedChangedHandler, RemoveHandler);
+            FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesViewModel, SortedChangedHandler, RemoveHandler);
             Tabs.Add(viewResolver.ResolveTabItem(accountFile.Description.Name, fileSortingViewModel));
             filesVm.Add((fullPath, fileSortingViewModel));
         }

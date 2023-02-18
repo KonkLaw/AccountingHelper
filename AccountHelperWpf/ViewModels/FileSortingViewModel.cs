@@ -9,7 +9,7 @@ namespace AccountHelperWpf.ViewModels;
 
 class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 {
-    private readonly ReadOnlyObservableCollection<CategoryVm> categories;
+    private readonly CategoriesViewModel categoriesViewModel;
     private readonly Action sortedChangedHandler;
     public IReadOnlyList<SortedOperationsGroupVM> OperationsGroups { get; set; }
 
@@ -38,13 +38,14 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
     public ICommand RemoveFile { get; }
 
     public FileSortingViewModel(AccountFile accountFile,
-        ReadOnlyObservableCollection<CategoryVm> categories,
+        CategoriesViewModel categoriesViewModel,
         Action sortedChangedHandler, Action<object> removeHandler)
     {
-        this.categories = categories;
+        this.categoriesViewModel = categoriesViewModel;
+        categoriesViewModel.Changed += UpdateSummary;
         this.sortedChangedHandler = sortedChangedHandler;
         OperationsGroups = accountFile.OperationsGroups.Select(
-            operationGroup => new SortedOperationsGroupVM(operationGroup, categories, this)).ToList();
+            operationGroup => new SortedOperationsGroupVM(operationGroup, categoriesViewModel.GetCategories(), this)).ToList();
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFilters = new DelegateCommand(ResetFiltersHandler);
         RemoveFile = new DelegateCommand(() => removeHandler(this));
@@ -53,11 +54,11 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 
     private void SetForAllHandler()
     {
-        ObjectSelectorWindow window = new (categories);
+        ObjectSelectorWindow window = new (categoriesViewModel.GetCategories());
         window.ShowDialog();
         if (window.SelectedItem == null)
             return;
-        CategoryVm selectedItem = (CategoryVm)window.SelectedItem;
+        CategoryViewModel selectedItem = (CategoryViewModel)window.SelectedItem;
         foreach (SortedOperationsGroupVM operationsGroup in OperationsGroups)
         {
             foreach (OperationViewModel operation in operationsGroup.Operations)
@@ -69,6 +70,7 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 
     private void ResetFiltersHandler()
     {
+        categoriesViewModel.Changed -= UpdateSummary;
         foreach (SortedOperationsGroupVM sortedOperationsGroup in OperationsGroups)
             sortedOperationsGroup.ResetFilter();
         Changed();
@@ -79,7 +81,7 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
     private void UpdateSummary()
     {
         CategorySummary notAssigned = new ("Not Assigned");
-        Dictionary<CategoryVm, CategorySummary> categoriesSummary = categories.ToDictionary(c => c, c => new CategorySummary(c.Name));
+        Dictionary<CategoryViewModel, CategorySummary> categoriesSummary = categoriesViewModel.GetCategories().ToDictionary(c => c, c => new CategorySummary(c.Name));
         bool allSorted = true;
 
         foreach (SortedOperationsGroupVM operationsGroup in OperationsGroups)
@@ -108,51 +110,48 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 
         Summary = stringBuilder.ToString();
     }
+}
 
-    class CategorySummary
+class CategorySummary
+{
+    private readonly string categoryName;
+    private readonly List<OperationViewModel> operations = new ();
+
+    public CategorySummary(string categoryName) => this.categoryName = categoryName;
+
+    public void Add(OperationViewModel operationViewModel) => operations.Add(operationViewModel);
+
+    public StringBuilder GetSummary()
     {
-        private readonly string categoryName;
-        private readonly List<OperationViewModel> operations = new ();
+        StringBuilder result = new();
+        result.Append("#");
+        result.Append(categoryName);
+        result.Append(" ");
 
-        public CategorySummary(string categoryName)
+        decimal sum = 0;
+        StringBuilder detailed = new();
+        foreach (OperationViewModel operation in operations)
         {
-            this.categoryName = categoryName;
+            sum += operation.Operation.Amount;
+            if (string.IsNullOrEmpty(operation.Description))
+                continue;
+
+            detailed.Append(operation.Operation.Amount);
+            detailed.Append(" ");
+            detailed.Append(operation.Description);
+            detailed.Append(",");
         }
+        result.Append(sum.ToString(sum % 1 == 0 ? "G0" : "G"));
 
-        public void Add(OperationViewModel operationViewModel) => operations.Add(operationViewModel);
-
-        public StringBuilder GetSummary()
+        if (detailed.Length != 0)
         {
-            StringBuilder result = new();
-            result.Append("#");
-            result.Append(categoryName);
-            result.Append(" ");
-
-            decimal sum = 0;
-            StringBuilder detailed = new();
-            foreach (OperationViewModel operation in operations)
-            {
-                sum += operation.Operation.Amount;
-                if (string.IsNullOrEmpty(operation.Description))
-                    continue;
-
-                detailed.Append(operation.Operation.Amount);
-                detailed.Append(" ");
-                detailed.Append(operation.Description);
-                detailed.Append(",");
-            }
-            result.Append(sum);
-
-            if (detailed.Length != 0)
-            {
-                detailed.Remove(detailed.Length - 1, 1);
-                result.Append(" = (");
-                result.Append(detailed);
-                result.Append(")");
-            }
+            detailed.Remove(detailed.Length - 1, 1);
+            result.Append(" = (");
+            result.Append(detailed);
+            result.Append(")");
+        }
             
-            return result;
-        }
+        return result;
     }
 }
 

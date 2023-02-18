@@ -1,24 +1,60 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using AccountHelperWpf.Common;
 
 namespace AccountHelperWpf.ViewModels;
 
 class CategoriesViewModel
 {
-    private readonly ReadOnlyObservableCollection<CategoryVm> collection;
-    public ObservableCollection<CategoryVm> Categories { get; }
+    private readonly ReadOnlyObservableCollection<CategoryViewModel> collection;
+    public ObservableCollection<CategoryViewModel> Categories { get; }
+    public event Action? Changed;
 
-    public CategoriesViewModel(List<CategoryVm> loadedCategories)
+    public CategoriesViewModel(List<CategoryViewModel> loadedCategories)
     {
-        ObservableCollection<CategoryVm> categories = new (loadedCategories);
-        Categories = categories;
-        collection = new ReadOnlyObservableCollection<CategoryVm>(categories);
+        Categories = new (loadedCategories);
+        collection = new ReadOnlyObservableCollection<CategoryViewModel>(Categories);
+
+
+        Categories.CollectionChanged += CategoriesCollectionChanged;
+        foreach (CategoryViewModel categoryViewModel in Categories)
+        {
+            categoryViewModel.PropertyChanged += CategoryChanged;
+        }
     }
 
-    public ReadOnlyObservableCollection<CategoryVm> GetCategories() => collection;
+    private void CategoriesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+            case NotifyCollectionChangedAction.Remove:
+            case NotifyCollectionChangedAction.Replace:
+                if (e.NewItems!= null)
+                    foreach (CategoryViewModel categoryViewModel in e.NewItems)
+                    {
+                        categoryViewModel.PropertyChanged += CategoryChanged;
+                    }
+                if (e.OldItems != null)
+                    foreach (CategoryViewModel categoryViewModel in e.OldItems)
+                    {
+                        categoryViewModel.PropertyChanged -= CategoryChanged;
+                    }
+                break;
+            // TODO: handle clear;
+        }
+        Notify();
+    }
+
+    private void CategoryChanged(object? sender, PropertyChangedEventArgs e) => Notify();
+
+    private void Notify() => Changed?.Invoke();
+
+    public ReadOnlyObservableCollection<CategoryViewModel> GetCategories() => collection;
 }
 
-class CategoryVm : BaseNotifyProperty, IComparable<CategoryVm>, IComparable
+class CategoryViewModel : BaseNotifyProperty, IComparable<CategoryViewModel>, IComparable
 {
     private string name = string.Empty;
     public string Name
@@ -34,14 +70,10 @@ class CategoryVm : BaseNotifyProperty, IComparable<CategoryVm>, IComparable
         set => SetProperty(ref description, value);
     }
 
-    public int CompareTo(CategoryVm? other)
-    {
-        if (other == null)
-            return 1;
-        return string.Compare(Name, other.Name, StringComparison.Ordinal);
-    }
+    public int CompareTo(CategoryViewModel? other)
+        => other == null ? 1 : string.Compare(Name, other.Name, StringComparison.Ordinal);
 
-    public int CompareTo(object? obj) => CompareTo(obj as CategoryVm);
+    public int CompareTo(object? obj) => CompareTo(obj as CategoryViewModel);
 
     public override string ToString() => Name;
 }

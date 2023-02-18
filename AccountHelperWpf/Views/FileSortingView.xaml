@@ -12,7 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="60"/>
-            <RowDefinition Height="120"/>
+            <RowDefinition Height="150"/>
         </Grid.RowDefinitions>
         
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="True" PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
@@ -29,6 +29,8 @@
             <Button HorizontalAlignment="Left" Margin="7" Content="Reset filters" Command="{Binding ResetFilters}"/>
             <Button HorizontalAlignment="Left" Margin="7" Content="Remove this file" Command="{Binding RemoveFile}"/>
         </StackPanel>
-        <TextBox Margin="5" Grid.Row="2" Text="{Binding Summary, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
+        <ScrollViewer Grid.Row="2">
+            <TextBox Margin="5" Text="{Binding Summary, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
+        </ScrollViewer>
     </Grid>
 </UserControl>

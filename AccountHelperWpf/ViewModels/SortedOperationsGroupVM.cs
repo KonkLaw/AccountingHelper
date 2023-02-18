@@ -9,9 +9,9 @@ namespace AccountHelperWpf.ViewModels;
 class SortedOperationsGroupVM : BaseNotifyProperty
 {
     private readonly OperationsGroup operationGroup;
-    private readonly ReadOnlyObservableCollection<CategoryVm> categories;
+    private readonly ReadOnlyObservableCollection<CategoryViewModel> categories;
     private readonly ISummaryChangedListener listener;
-    private readonly Action<CategoryVm?> categoryChanged;
+    private readonly Action<CategoryViewModel?> categoryChanged;
 
     public string Name => operationGroup.Name;
 
@@ -40,7 +40,7 @@ class SortedOperationsGroupVM : BaseNotifyProperty
 
     public SortedOperationsGroupVM(
         OperationsGroup operationGroup,
-        ReadOnlyObservableCollection<CategoryVm> categories,
+        ReadOnlyObservableCollection<CategoryViewModel> categories,
         ISummaryChangedListener listener)
     {
         this.operationGroup = operationGroup;
@@ -64,7 +64,7 @@ class SortedOperationsGroupVM : BaseNotifyProperty
         return filteredOperations;
     }
 
-    private void CategoryChanged(CategoryVm? category)
+    private void CategoryChanged(CategoryViewModel? category)
     {
         if (SelectedItems == null)
             return;

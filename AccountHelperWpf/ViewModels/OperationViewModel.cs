@@ -7,11 +7,11 @@ namespace AccountHelperWpf.ViewModels;
 class OperationViewModel : BaseNotifyProperty
 {
     private readonly ISummaryChangedListener summaryChangedListener;
-    private readonly Action<CategoryVm?> categoryChanged;
+    private readonly Action<CategoryViewModel?> categoryChanged;
     public BaseOperation Operation { get; }
 
-    private CategoryVm? category;
-    public CategoryVm? Category
+    private CategoryViewModel? category;
+    public CategoryViewModel? Category
     {
         get => category;
         set
@@ -34,12 +34,12 @@ class OperationViewModel : BaseNotifyProperty
         }
     }
 
-    public ReadOnlyObservableCollection<CategoryVm> Categories { get; }
+    public ReadOnlyObservableCollection<CategoryViewModel> Categories { get; }
 
     public OperationViewModel(BaseOperation operation,
-        ReadOnlyObservableCollection<CategoryVm> categories,
+        ReadOnlyObservableCollection<CategoryViewModel> categories,
         ISummaryChangedListener summaryChangedListener,
-        Action<CategoryVm?> categoryChanged)
+        Action<CategoryViewModel?> categoryChanged)
     {
         Operation = operation;
         Categories = categories;
