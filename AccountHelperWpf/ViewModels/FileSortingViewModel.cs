@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Text;
+﻿using System.Text;
 using System.Windows.Input;
 using AccountHelperWpf.Common;
 using AccountHelperWpf.Parsing;
@@ -9,41 +8,31 @@ namespace AccountHelperWpf.ViewModels;
 
 class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 {
+    private readonly AccountFile accountFile;
     private readonly CategoriesViewModel categoriesViewModel;
-    private readonly Action sortedChangedHandler;
-    public IReadOnlyList<SortedOperationsGroupVM> OperationsGroups { get; set; }
+    private readonly TabInfo tabInfo;
 
     private string summary = string.Empty;
+
     public string Summary
     {
         get => summary;
         private set => SetProperty(ref summary, value);
     }
 
-    private bool isSorted;
-    public bool IsSorted
-    {
-        get => isSorted;
-        private set
-        {
-            if (isSorted == value)
-                return;
-            isSorted = value;
-            sortedChangedHandler();
-        }
-    }
+    public IReadOnlyList<SortedOperationsGroupVM> OperationsGroups { get; }
 
     public ICommand SetForAllCommand { get; }
     public ICommand ResetFilters { get; }
     public ICommand RemoveFile { get; }
 
     public FileSortingViewModel(AccountFile accountFile,
-        CategoriesViewModel categoriesViewModel,
-        Action sortedChangedHandler, Action<object> removeHandler)
+        CategoriesViewModel categoriesViewModel, Action<object> removeHandler)
     {
+        this.accountFile = accountFile;
         this.categoriesViewModel = categoriesViewModel;
+        tabInfo = new TabInfo(accountFile.Description.Name, this);
         categoriesViewModel.Changed += UpdateSummary;
-        this.sortedChangedHandler = sortedChangedHandler;
         OperationsGroups = accountFile.OperationsGroups.Select(
             operationGroup => new SortedOperationsGroupVM(operationGroup, categoriesViewModel.GetCategories(), this)).ToList();
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
@@ -51,6 +40,10 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
         RemoveFile = new DelegateCommand(() => removeHandler(this));
         UpdateSummary();
     }
+
+    public TabInfo GetTabItem() => tabInfo;
+
+    public void Changed() => UpdateSummary();
 
     private void SetForAllHandler()
     {
@@ -76,8 +69,6 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
         Changed();
     }
 
-    public void Changed() => UpdateSummary();
-
     private void UpdateSummary()
     {
         CategorySummary notAssigned = new ("Not Assigned");
@@ -98,7 +89,7 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
             }
         }
 
-        IsSorted = allSorted;
+        tabInfo.IsSorted = allSorted;
 
         StringBuilder stringBuilder = new();
         foreach (CategorySummary categorySummary in categoriesSummary.Values)

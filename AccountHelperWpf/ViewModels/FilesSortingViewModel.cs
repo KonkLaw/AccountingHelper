@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using AccountHelperWpf.Common;
 using AccountHelperWpf.Parsing;
@@ -12,22 +11,17 @@ class FilesSortingViewModel
 {
     private readonly IViewResolver viewResolver;
     private readonly CategoriesViewModel categoriesViewModel;
-
-    public ObservableCollection<TabItem> Tabs { get; } = new ();
-    public DelegateCommand Next { get; }
-
-    public ICommand LoadFile { get; }
-
     private readonly List<(string fullPath, FileSortingViewModel vm)> filesVm = new ();
+
+    public ObservableCollection<TabInfo> Tabs { get; } = new ();
+    public ICommand LoadFile { get; }
 
     public FilesSortingViewModel(IViewResolver viewResolver, List<CategoryViewModel> categories)
     {
         this.viewResolver = viewResolver;
-        Next = new DelegateCommand(NextHandler);
         LoadFile = new DelegateCommand(LoadFileHandler);
         categoriesViewModel = new CategoriesViewModel(categories);
-        Tabs.Add(viewResolver.ResolveTabItem("Categories", categoriesViewModel));
-        UpdateNextButtonState();
+        Tabs.Add(new TabInfo("Categories", categoriesViewModel) { IsSorted = true });
     }
 
     private void LoadFileHandler()
@@ -43,8 +37,8 @@ class FilesSortingViewModel
                 return;
             }
             AccountFile accountFile = ParserChooser.ParseFile(fullPath, viewResolver);
-            FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesViewModel, SortedChangedHandler, RemoveHandler);
-            Tabs.Add(viewResolver.ResolveTabItem(accountFile.Description.Name, fileSortingViewModel));
+            FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesViewModel, RemoveHandler);
+            Tabs.Add(fileSortingViewModel.GetTabItem());
             filesVm.Add((fullPath, fileSortingViewModel));
         }
     }
@@ -54,9 +48,4 @@ class FilesSortingViewModel
         if (viewResolver.ShowYesNoDialog("Are you sure you want to remove current file from sorting?"))
             Tabs.Remove(Tabs.First(tab => ((FrameworkElement)tab.Content).DataContext == viewModel));
     }
-
-    private void UpdateNextButtonState() => Next.IsEnabled = filesVm.All(f => f.vm.IsSorted);
-
-    private void SortedChangedHandler() { }
-    private void NextHandler() { }
 }
