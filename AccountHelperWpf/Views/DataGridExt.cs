@@ -66,12 +66,24 @@ public class DataGridExt : DataGrid
                 WidthAttribute? widthAttribute = propertyInfo.GetCustomAttribute<WidthAttribute>();
                 StringFormatAttribute? formatAttribute = propertyInfo.GetCustomAttribute<StringFormatAttribute>();
 
+
+                string propertyPath = prefix + propertyInfo.Name;
+
+                Style style = new (typeof(DataGridCell));
+                style.Setters.Add(new Setter
+                {
+                    Property = ToolTipService.ToolTipProperty,
+                    Value = new Binding(propertyPath)
+                });
+
                 DataGridTextColumn column = new ()
                 {
                     IsReadOnly = true,
                     Header = propertyInfo.Name,
-                    Binding = new Binding(prefix + propertyInfo.Name)
+                    Binding = new Binding(propertyPath),
+                    CellStyle = style
                 };
+
                 if (widthAttribute != null)
                     column.Width = widthAttribute.Width;
                 if (formatAttribute != null)
