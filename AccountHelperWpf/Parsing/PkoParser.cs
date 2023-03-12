@@ -20,6 +20,17 @@ static class PkoParser
             operations.Add(ParseString(line));
         } while (!reader.EndOfStream);
 
+        List<(int orderId, BaseOperation operation)> list = operations.Select((operation, index) => (index, operation)).ToList();
+        var comparer = new DelegateComparer<(int, BaseOperation)>((i1, i2) =>
+        {
+            int result = Comparer<DateTime>.Default.Compare(i2.Item2.TransactionDateTime, i1.Item2.TransactionDateTime);
+            return result == 0 ? Comparer<int>.Default.Compare(i1.Item1, i2.Item1) : result;
+        });
+        list.Sort(comparer);
+        operations.Clear();
+        foreach ((int orderId, BaseOperation operation) valueTuple in list)
+            operations.Add(valueTuple.operation);
+
         return new OperationsGroup("Non Blocked operations", operations);
     }
 
@@ -166,5 +177,14 @@ static class PkoParser
                     additionalDescription2.ToString().Replace(Environment.NewLine, " ")
                     ));
         }
+    }
+
+    class DelegateComparer<TKey> : IComparer<TKey>
+    {
+        private readonly Func<TKey?, TKey?, int> function;
+
+        public DelegateComparer(Func<TKey?, TKey?, int> function) => this.function = function;
+
+        public int Compare(TKey? x, TKey? y) => function(x, y);
     }
 }
