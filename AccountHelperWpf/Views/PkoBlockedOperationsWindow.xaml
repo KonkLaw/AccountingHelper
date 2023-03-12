@@ -6,7 +6,7 @@
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
         xmlns:views="clr-namespace:AccountHelperWpf.Views"
         mc:Ignorable="d"
-        Title="PkoBlockedOperationsWindow" Height="750" Width="800"
+        Title="Copy info about blocked operations" Height="750" Width="800"
         d:DataContext="{d:DesignInstance viewModels:PkoBlockedOperationParserVM}">
     <Grid>
         <Grid.RowDefinitions>
@@ -21,7 +21,8 @@
             </Grid.ColumnDefinitions>
             <TextBox Grid.Column="0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" Text="{Binding Text}" Margin="0, 10"/>
             <StackPanel Grid.Column="1">
-                <TextBlock Text="Example" HorizontalAlignment="Center"/>
+                <TextBlock Text="You can optionally add information about blocked operation. Example of information to copy:" HorizontalAlignment="Left"/>
+                <TextBlock Text="" HorizontalAlignment="Center"/>
                 <Image Source="../Resources/Untitled.png" MaxWidth="1240"/>
             </StackPanel>
         </Grid>
