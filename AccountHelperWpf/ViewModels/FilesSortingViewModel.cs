@@ -46,6 +46,9 @@ class FilesSortingViewModel
     private void RemoveHandler(object viewModel)
     {
         if (viewResolver.ShowYesNoDialog("Are you sure you want to remove current file from sorting?"))
-            Tabs.Remove(Tabs.First(tab => ((FrameworkElement)tab.Content).DataContext == viewModel));
+        {
+            TabInfo tabToRemove = Tabs.First(tab => tab.Content == viewModel);
+            Tabs.Remove(tabToRemove);
+        }
     }
 }
