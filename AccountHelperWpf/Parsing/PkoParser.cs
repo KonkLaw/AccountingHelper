@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace AccountHelperWpf.Parsing;
 
@@ -10,8 +11,8 @@ static class PkoParser
         List<BaseOperation> operations = new();
 
         string firstLine = reader.ReadLine()!;
-        const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\",\"\",\"\",\"\",\"\"";
-        if (firstLine != knownFirstString)
+        const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\",";
+        if (!firstLine.AsSpan(0, knownFirstString.Length).SequenceEqual(knownFirstString))
             return null;
         do
         {
@@ -32,11 +33,17 @@ static class PkoParser
         decimal amount = decimal.Parse(lines[3]);
         string currency = lines[4];
         decimal saldoBeforeTransaction = decimal.Parse(lines[5]);
-        string otherDescription = string.Concat(lines[6], " ; ", lines[8], " ; ", lines[9], " ; ", lines[10]);
         string description = lines[7];
 
+        StringBuilder otherDescription = new(lines[6]);
+        for (int i = 8; i < lines.Length; i++)
+        {
+            otherDescription.Append(" ; ");
+            otherDescription.Append(lines[i]);
+        }
+
         return new PkoOperation(
-            dateOperation, amount, description, dateAccounting, currency, operationType, saldoBeforeTransaction, otherDescription);
+            dateOperation, amount, description, dateAccounting, currency, operationType, saldoBeforeTransaction, otherDescription.ToString());
     }
 
     public static void TryParseBlocked(string textToParse, out OperationsGroup? operationsGroup, out string? errorMessage)
