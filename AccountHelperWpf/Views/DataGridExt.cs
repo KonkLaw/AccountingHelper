@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,9 +29,13 @@ public class DataGridExt : DataGrid
     protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
     {
         base.OnItemsSourceChanged(oldValue, newValue);
-        
+        CorrectColumns(ItemsSource, Columns);
+    }
+
+    private static void CorrectColumns(IEnumerable? itemsSource, ObservableCollection<DataGridColumn> columns)
+    {
         List<string> wellKnownProperties = new ();
-        foreach (DataGridColumn dataGridColumn in Columns)
+        foreach (DataGridColumn dataGridColumn in columns)
         {
             DataGridBoundColumn? dataGridBoundColumn = dataGridColumn as DataGridBoundColumn;
             if (dataGridBoundColumn == null)
@@ -38,13 +43,14 @@ public class DataGridExt : DataGrid
             wellKnownProperties.Add(((Binding)dataGridBoundColumn.Binding).Path.Path);
         }
 
-        if (ItemsSource == null)
+        if (itemsSource == null)
+            return;
+        IEnumerator enumerator = itemsSource.GetEnumerator();
+
+        if (!enumerator.MoveNext())
             return;
 
-        if (!ItemsSource.GetEnumerator().MoveNext())
-            return;
-
-        OperationViewModel firstItem = (OperationViewModel)((IEnumerable<object>)ItemsSource).First();
+        OperationViewModel firstItem = (OperationViewModel)enumerator.Current!;
         Type operationType = firstItem.Operation.GetType();
         string prefix = nameof(OperationViewModel.Operation) + ".";
 
@@ -89,7 +95,7 @@ public class DataGridExt : DataGrid
                 if (formatAttribute != null)
                     column.Binding.StringFormat = formatAttribute.Format;
 
-                Columns.Add(column);
+                columns.Add(column);
             }
         }
     }

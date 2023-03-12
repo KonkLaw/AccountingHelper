@@ -15,7 +15,7 @@
             <RowDefinition Height="150"/>
         </Grid.RowDefinitions>
         
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="True" PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" CanContentScroll="True" PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding OperationsGroups}" Width="Auto">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
