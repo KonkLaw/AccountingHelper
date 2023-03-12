@@ -36,7 +36,12 @@ class FilesSortingViewModel
                 viewResolver.ShowWarning("File already added");
                 return;
             }
-            AccountFile accountFile = ParserChooser.ParseFile(fullPath, viewResolver);
+            AccountFile? accountFile = ParserChooser.ParseFile(fullPath, viewResolver);
+            if (accountFile == null)
+            {
+                viewResolver.ShowWarning("Sorry, the fle wasn't recognized as any known bank report.");
+                return;
+            }
             FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesViewModel, RemoveHandler);
             Tabs.Add(fileSortingViewModel.GetTabItem());
             filesVm.Add((fullPath, fileSortingViewModel));

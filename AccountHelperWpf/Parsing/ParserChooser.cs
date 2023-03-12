@@ -7,7 +7,7 @@ namespace AccountHelperWpf.Parsing;
 
 class ParserChooser
 {
-    public static AccountFile ParseFile(string filePath, IViewResolver viewResolver)
+    public static AccountFile? ParseFile(string filePath, IViewResolver viewResolver)
     {
         string fileName = Path.GetFileName(filePath);
         using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read))
@@ -38,7 +38,7 @@ class ParserChooser
             }
         }
 
-        throw new Exception("File wasn't recognized by any parser.");
+        return null;
     }
 }
 
