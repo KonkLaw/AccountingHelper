@@ -11,7 +11,7 @@ class FilesSortingViewModel
 {
     private readonly IViewResolver viewResolver;
     private readonly CategoriesViewModel categoriesViewModel;
-    private readonly List<(string fullPath, FileSortingViewModel vm)> filesVm = new ();
+    private readonly Dictionary<string, FileSortingViewModel> filesVm = new ();
 
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
     public ICommand LoadFile { get; }
@@ -31,7 +31,7 @@ class FilesSortingViewModel
         if (dialogResult.HasValue && dialogResult.Value)
         {
             string fullPath = fileDialog.FileName;
-            if (filesVm.Any(f => f.fullPath == fullPath))
+            if (filesVm.ContainsKey(fullPath))
             {
                 viewResolver.ShowWarning("File already added");
                 return;
@@ -44,7 +44,7 @@ class FilesSortingViewModel
             }
             FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesViewModel, RemoveHandler);
             Tabs.Add(fileSortingViewModel.GetTabItem());
-            filesVm.Add((fullPath, fileSortingViewModel));
+            filesVm.Add(fullPath, fileSortingViewModel);
         }
     }
 
@@ -54,6 +54,8 @@ class FilesSortingViewModel
         {
             TabInfo tabToRemove = Tabs.First(tab => tab.Content == viewModel);
             Tabs.Remove(tabToRemove);
+            string fileToDell = filesVm.First(p => p.Value == viewModel).Key;
+            filesVm.Remove(fileToDell);
         }
     }
 }
