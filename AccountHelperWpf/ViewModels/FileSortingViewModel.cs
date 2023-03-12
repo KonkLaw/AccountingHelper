@@ -126,18 +126,19 @@ class CategorySummary
             sum += operation.Operation.Amount;
             if (string.IsNullOrEmpty(operation.Description))
                 continue;
-
-            detailed.Append(operation.Operation.Amount);
+            if (detailed.Length != 0)
+                detailed.Append(" ");
+            detailed.Append(operation.Operation.Amount.ToGoodString());
             detailed.Append(" ");
             detailed.Append(operation.Description);
             detailed.Append(",");
         }
-        result.Append(sum.ToString(sum % 1 == 0 ? "G0" : "G"));
+        result.Append(sum.ToGoodString());
 
         if (detailed.Length != 0)
         {
             detailed.Remove(detailed.Length - 1, 1);
-            result.Append(" = (");
+            result.Append("(");
             result.Append(detailed);
             result.Append(")");
         }
