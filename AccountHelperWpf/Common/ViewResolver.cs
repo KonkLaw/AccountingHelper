@@ -6,22 +6,12 @@ namespace AccountHelperWpf.Common;
 
 class ViewResolver : IViewResolver
 {
-    private readonly Dictionary<Type, Func<FrameworkElement>> viewModelToView = new();
     private readonly Dictionary<Type, Func<Window>> viewModelToWindow = new();
     private Window? dialogWindow;
 
     public ViewResolver()
     {
-        RegisterView<FilesSortingView, FilesSortingViewModel>(() => new FilesSortingView());
         RegisterWindow<PkoBlockedOperationsWindow, PkoBlockedOperationParserVM>(() => new PkoBlockedOperationsWindow());
-    }
-
-    public FrameworkElement ResolveView(object viewModel)
-    {
-        Func<FrameworkElement> viewCreator = viewModelToView[viewModel.GetType()];
-        FrameworkElement view = viewCreator();
-        view.DataContext = viewModel;
-        return view;
     }
 
     public void ResolveAndShowDialog(object viewModel)
@@ -42,9 +32,6 @@ class ViewResolver : IViewResolver
             GetWindow(), question, string.Empty, MessageBoxButton.YesNo, MessageBoxImage.Question);
         return result == MessageBoxResult.Yes;
     }
-
-    public void RegisterView<TView, TViewModel>(Func<TView> creator) where TView : FrameworkElement
-        => viewModelToView.Add(typeof(TViewModel), creator);
 
     public void RegisterWindow<TView, TViewModel>(Func<TView> creator) where TView : Window
         => viewModelToWindow.Add(typeof(TViewModel), creator);

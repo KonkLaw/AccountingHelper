@@ -4,11 +4,39 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:MainWindowModel}"
         Title="MainWindow" Height="990" Width="1500"
         WindowState="Maximized">
+
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Closing">
+            <b:InvokeCommandAction Command="{Binding WindowClosing}" CommandParameter="{Binding}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers><Window.Resources>
+        <viewUtils:TabContentTemplateSelector x:Key="TabContentTemplateSelector"/>
+        <viewUtils:BackColorConverter x:Key="Converter" />
+    </Window.Resources>
+
+
     <Grid>
-        <ContentControl Content="{Binding ViewContent}"></ContentControl>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button Content="Load Operation File" Margin="7" Command="{Binding LoadOperationFile}"/>
+            <Button Content="Load Association" Margin="7" Command="{Binding LoadAssociation}"/>
+        </StackPanel>
+        <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}" ContentTemplateSelector="{StaticResource TabContentTemplateSelector}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Header}" MinWidth="150" TextAlignment="Center" Foreground="{Binding IsSorted, Converter={StaticResource Converter}}" FontWeight="Bold"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+        </TabControl>
     </Grid>
 </Window>
