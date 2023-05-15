@@ -13,9 +13,11 @@
 
     <b:Interaction.Triggers>
         <b:EventTrigger EventName="Closing">
-            <b:InvokeCommandAction Command="{Binding WindowClosing}" CommandParameter="{Binding}" />
+            <b:InvokeCommandAction Command="{Binding WindowClosing}" PassEventArgsToCommand="True"/>
         </b:EventTrigger>
-    </b:Interaction.Triggers><Window.Resources>
+    </b:Interaction.Triggers>
+
+    <Window.Resources>
         <viewUtils:TabContentTemplateSelector x:Key="TabContentTemplateSelector"/>
         <viewUtils:BackColorConverter x:Key="Converter" />
     </Window.Resources>
@@ -29,7 +31,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal">
             <Button Content="Load Operation File" Margin="7" Command="{Binding LoadOperationFile}"/>
-            <Button Content="Load Association" Margin="7" Command="{Binding LoadAssociation}"/>
+            <Button Content="Save Association" Margin="7" Command="{Binding SaveAssociation}"/>
         </StackPanel>
         <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}" ContentTemplateSelector="{StaticResource TabContentTemplateSelector}">
             <TabControl.ItemTemplate>

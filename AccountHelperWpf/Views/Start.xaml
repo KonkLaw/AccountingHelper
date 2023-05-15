@@ -1,0 +1,17 @@
+﻿<Window x:Class="AccountHelperWpf.Views.Start"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
+        mc:Ignorable="d"
+        Title="Load history?" Height="130" Width="350"
+        d:DataContext="{d:DesignInstance viewModels:StartVM}">
+    <StackPanel>
+        <Label Content="Do you have history file?" HorizontalAlignment="Center" Margin="5"/>
+        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+            <Button Content="Start with empty history" Command="{Binding StartWithEmptyCommand}" Margin="5"/>
+            <Button Content="Load History" Margin="5"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

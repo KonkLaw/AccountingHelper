@@ -1,4 +1,4 @@
-﻿namespace AccountHelperWpf.Common;
+﻿namespace AccountHelperWpf.Utils;
 
 static class Converters
 {

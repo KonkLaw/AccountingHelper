@@ -51,11 +51,11 @@ public partial class CategoriesView : UserControl
         if (string.IsNullOrEmpty(text))
             return;
             
-        ObservableCollection<CategoryViewModel> categories = ((CategoriesViewModel)DataContext).Categories;
+        ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
 
         if (categories.Any(c => c.Name == text))
         {
-            var categoryVm = (CategoryViewModel)DataGrid.SelectedItem;
+            var categoryVm = (CategoryVM)DataGrid.SelectedItem;
             categoryVm.Name = GetUniqueName(categories, text);
         }
         DataGrid.CommitEdit(DataGridEditingUnit.Row, true);
@@ -66,15 +66,15 @@ public partial class CategoriesView : UserControl
         if (string.IsNullOrEmpty(text) && newLineForced)
             return;
 
-        var categoryVm = (CategoryViewModel)DataGrid.SelectedItem;
+        var categoryVm = (CategoryVM)DataGrid.SelectedItem;
         if (!string.IsNullOrEmpty(categoryVm.Name))
             return;
 
-        ObservableCollection<CategoryViewModel> categories = ((CategoriesViewModel)DataContext).Categories;
+        ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
         categoryVm.Name = GetUniqueName(categories,"Empty");
     }
 
-    private static string GetUniqueName(ObservableCollection<CategoryViewModel> categories, string text)
+    private static string GetUniqueName(ObservableCollection<CategoryVM> categories, string text)
     {
         string original = text;
         int counter = 1;

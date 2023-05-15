@@ -4,8 +4,8 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using AccountHelperWpf.Common;
 using AccountHelperWpf.ViewModels;
+using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.Views;
 
@@ -37,8 +37,7 @@ public class DataGridExt : DataGrid
         List<string> wellKnownProperties = new ();
         foreach (DataGridColumn dataGridColumn in columns)
         {
-            DataGridBoundColumn? dataGridBoundColumn = dataGridColumn as DataGridBoundColumn;
-            if (dataGridBoundColumn == null)
+            if (dataGridColumn is not DataGridBoundColumn dataGridBoundColumn)
                 continue;
             wellKnownProperties.Add(((Binding)dataGridBoundColumn.Binding).Path.Path);
         }
@@ -50,9 +49,9 @@ public class DataGridExt : DataGrid
         if (!enumerator.MoveNext())
             return;
 
-        OperationViewModel firstItem = (OperationViewModel)enumerator.Current!;
+        OperationVM firstItem = (OperationVM)enumerator.Current!;
         Type operationType = firstItem.Operation.GetType();
-        string prefix = nameof(OperationViewModel.Operation) + ".";
+        string prefix = nameof(OperationVM.Operation) + ".";
 
         PropertyInfo[] properties = operationType.GetProperties();
         foreach (PropertyInfo propertyInfo in properties)

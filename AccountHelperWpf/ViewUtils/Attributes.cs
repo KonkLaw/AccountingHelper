@@ -1,4 +1,4 @@
-﻿namespace AccountHelperWpf.Common;
+﻿namespace AccountHelperWpf.ViewUtils;
 
 [AttributeUsage(AttributeTargets.Property)]
 public class WidthAttribute : Attribute

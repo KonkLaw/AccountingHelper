@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AccountHelperWpf.Common;
+namespace AccountHelperWpf.ViewUtils;
 
 class BaseNotifyProperty : INotifyPropertyChanged
 {

@@ -12,8 +12,10 @@ class TabContentTemplateSelector : DataTemplateSelector
 
         if (content is FileSortingViewModel)
             return (DataTemplate)Application.Current!.FindResource("FileSortingTemplate")!;
-        if (content is CategoriesViewModel)
+        if (content is CategoriesVM)
             return (DataTemplate)Application.Current!.FindResource("CategoriesTemplate")!;
+        if (content is AssociationsVM)
+            return (DataTemplate)Application.Current!.FindResource("AssociationsTemplate")!;
 
         throw new InvalidOperationException();
     }

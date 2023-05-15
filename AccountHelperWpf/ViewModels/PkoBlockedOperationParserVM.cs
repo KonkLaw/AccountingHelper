@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using AccountHelperWpf.Common;
 using AccountHelperWpf.Parsing;
+using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
 
@@ -10,8 +10,8 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
     private readonly IViewResolver viewResolver;
     public OperationsGroup? OperationsGroup { get; set; }
 
-    private SortedOperationsGroupVM? operations;
-    public SortedOperationsGroupVM? Operations
+    private OperationsGroupVM? operations;
+    public OperationsGroupVM? Operations
     {
         get => operations;
         private set => SetProperty(ref operations, value);
@@ -55,15 +55,12 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
         OperationsGroup = operationsBlocked;
         if (OperationsGroup != null && OperationsGroup.Value.Operations.Count > 0)
         {
-            Operations = new SortedOperationsGroupVM(
+            Operations = new OperationsGroupVM(
                 OperationsGroup.Value,
-                new ReadOnlyObservableCollection<CategoryViewModel>(new ObservableCollection<CategoryViewModel>()),
-                new Fake());
+                new ReadOnlyObservableCollection<CategoryVM>(new ObservableCollection<CategoryVM>()),
+                SummaryChanged, null);
         }
     }
 
-    class Fake : ISummaryChangedListener
-    {
-        public void Changed() { }
-    }
+    private void SummaryChanged() { }
 }

@@ -15,7 +15,5 @@ public partial class App : Application
     }
 
     private void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-    {
-        MessageBox.Show(e.Exception.ToString());
-    }
+        => MessageBox.Show(e.Exception.ToString());
 }

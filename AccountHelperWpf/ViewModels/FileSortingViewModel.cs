@@ -1,15 +1,16 @@
 ﻿using System.Text;
 using System.Windows.Input;
-using AccountHelperWpf.Common;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.Parsing;
+using AccountHelperWpf.Utils;
 using AccountHelperWpf.Views;
+using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
 
-class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
+class FileSortingViewModel : BaseNotifyProperty
 {
-    private readonly AccountFile accountFile;
-    private readonly CategoriesViewModel categoriesViewModel;
+    private readonly CategoriesVM categoriesVM;
     private readonly TabInfo tabInfo;
 
     private string summary = string.Empty;
@@ -20,41 +21,43 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
         private set => SetProperty(ref summary, value);
     }
 
-    public IReadOnlyList<SortedOperationsGroupVM> OperationsGroups { get; }
+    public IReadOnlyList<OperationsGroupVM> OperationsGroups { get; }
 
     public ICommand SetForAllCommand { get; }
     public ICommand ResetFilters { get; }
     public ICommand RemoveFile { get; }
+    public ICommand ApproveAll { get; }
 
     public FileSortingViewModel(AccountFile accountFile,
-        CategoriesViewModel categoriesViewModel, Action<object> removeHandler)
+        CategoriesVM categoriesVM,
+        Action<object> removeHandler,
+        AssociationStorage associationsStorage)
     {
-        this.accountFile = accountFile;
-        this.categoriesViewModel = categoriesViewModel;
+        this.categoriesVM = categoriesVM;
         tabInfo = new TabInfo(accountFile.Description.Name, this);
-        categoriesViewModel.Changed += UpdateSummary;
+        categoriesVM.Changed += UpdateSummary;
         OperationsGroups = accountFile.OperationsGroups.Select(
-            operationGroup => new SortedOperationsGroupVM(operationGroup, categoriesViewModel.GetCategories(), this)).ToList();
+            operationGroup => new OperationsGroupVM(
+                operationGroup, categoriesVM.GetCategories(), UpdateSummary, associationsStorage)).ToList();
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFilters = new DelegateCommand(ResetFiltersHandler);
         RemoveFile = new DelegateCommand(() => removeHandler(this));
+        ApproveAll = new DelegateCommand(ApproveHandler);
         UpdateSummary();
     }
 
     public TabInfo GetTabItem() => tabInfo;
 
-    public void Changed() => UpdateSummary();
-
     private void SetForAllHandler()
     {
-        ObjectSelectorWindow window = new (categoriesViewModel.GetCategories());
+        ObjectSelectorWindow window = new (categoriesVM.GetCategories());
         window.ShowDialog();
         if (window.SelectedItem == null)
             return;
-        CategoryViewModel selectedItem = (CategoryViewModel)window.SelectedItem;
-        foreach (SortedOperationsGroupVM operationsGroup in OperationsGroups)
+        CategoryVM selectedItem = (CategoryVM)window.SelectedItem;
+        foreach (OperationsGroupVM operationsGroup in OperationsGroups)
         {
-            foreach (OperationViewModel operation in operationsGroup.Operations)
+            foreach (OperationVM operation in operationsGroup.Operations)
             {
                 operation.Category ??= selectedItem;
             }
@@ -63,21 +66,33 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 
     private void ResetFiltersHandler()
     {
-        categoriesViewModel.Changed -= UpdateSummary;
-        foreach (SortedOperationsGroupVM sortedOperationsGroup in OperationsGroups)
+        categoriesVM.Changed -= UpdateSummary;
+        foreach (OperationsGroupVM sortedOperationsGroup in OperationsGroups)
             sortedOperationsGroup.ResetFilter();
-        Changed();
+        UpdateSummary();
+    }
+
+    private void ApproveHandler()
+    {
+        foreach (OperationsGroupVM operationsGroupVM in OperationsGroups)
+        {
+            foreach (OperationVM operationVM in operationsGroupVM.Operations)
+            {
+                operationVM.ApprovementStatus = ApprovementStatus.Approved;
+            }
+        }
     }
 
     private void UpdateSummary()
     {
         CategorySummary notAssigned = new ("Not Assigned");
-        Dictionary<CategoryViewModel, CategorySummary> categoriesSummary = categoriesViewModel.GetCategories().ToDictionary(c => c, c => new CategorySummary(c.Name));
+        Dictionary<CategoryVM, CategorySummary> categoriesSummary = categoriesVM.
+            GetCategories().ToDictionary(c => c, c => new CategorySummary(c!.Name));
         bool allSorted = true;
 
-        foreach (SortedOperationsGroupVM operationsGroup in OperationsGroups)
+        foreach (OperationsGroupVM operationsGroup in OperationsGroups)
         {
-            foreach (OperationViewModel operation in operationsGroup.Operations)
+            foreach (OperationVM operation in operationsGroup.Operations)
             {
                 if (operation.Category == null)
                 {
@@ -106,48 +121,43 @@ class FileSortingViewModel : BaseNotifyProperty, ISummaryChangedListener
 class CategorySummary
 {
     private readonly string categoryName;
-    private readonly List<OperationViewModel> operations = new ();
+    private readonly List<OperationVM> operations = new ();
 
     public CategorySummary(string categoryName) => this.categoryName = categoryName;
 
-    public void Add(OperationViewModel operationViewModel) => operations.Add(operationViewModel);
+    public void Add(OperationVM operationVM) => operations.Add(operationVM);
 
     public StringBuilder GetSummary()
     {
         StringBuilder result = new();
-        result.Append("#");
+        result.Append('#');
         result.Append(categoryName);
-        result.Append(" ");
+        result.Append(' ');
 
         decimal sum = 0;
         StringBuilder detailed = new();
-        foreach (OperationViewModel operation in operations)
+        foreach (OperationVM operation in operations)
         {
             sum += operation.Operation.Amount;
             if (string.IsNullOrEmpty(operation.Description))
                 continue;
             if (detailed.Length != 0)
-                detailed.Append(" ");
+                detailed.Append(' ');
             detailed.Append(operation.Operation.Amount.ToGoodString());
-            detailed.Append(" ");
+            detailed.Append(' ');
             detailed.Append(operation.Description);
-            detailed.Append(",");
+            detailed.Append(',');
         }
         result.Append(sum.ToGoodString());
 
         if (detailed.Length != 0)
         {
             detailed.Remove(detailed.Length - 1, 1);
-            result.Append("(");
+            result.Append('(');
             result.Append(detailed);
-            result.Append(")");
+            result.Append(')');
         }
             
         return result;
     }
-}
-
-interface ISummaryChangedListener
-{
-    void Changed();
 }

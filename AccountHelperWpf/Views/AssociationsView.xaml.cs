@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,11 +15,11 @@ using System.Windows.Shapes;
 
 namespace AccountHelperWpf.Views;
 /// <summary>
-/// Interaction logic for HistoryView.xaml
+/// Interaction logic for AssociationsView.xaml
 /// </summary>
-public partial class HistoryView : UserControl
+public partial class AssociationsView : UserControl
 {
-    public HistoryView()
+    public AssociationsView()
     {
         InitializeComponent();
     }

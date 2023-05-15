@@ -5,7 +5,12 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountingHelper", "AccountingHelper\AccountingHelper.csproj", "{77B661B1-21C3-4A65-A20B-C23E651DF171}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountHelperWpf", "AccountHelperWpf\AccountHelperWpf.csproj", "{865CB189-AF30-48AE-8C96-826FB4BDE807}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountHelperWpf", "AccountHelperWpf\AccountHelperWpf.csproj", "{865CB189-AF30-48AE-8C96-826FB4BDE807}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1BC2E3B1-9D11-411E-8098-4A4CBD7BEA7E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
