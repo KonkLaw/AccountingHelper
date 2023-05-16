@@ -17,7 +17,7 @@ class MainWindowModel : BaseNotifyProperty
     private readonly AssociationStorage associationStorage;
     private readonly Dictionary<string, FileSortingViewModel> filesVm = new ();
 
-    public ICommand LoadOperationFile { get; }
+    public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociation { get; }
     public ICommand WindowClosing { get; }
 
@@ -32,12 +32,12 @@ class MainWindowModel : BaseNotifyProperty
         InitAssociations(Tabs, initData);
         associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
 
-        LoadOperationFile = new DelegateCommand(LoadOperationFileHandler);
+        LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociation = new DelegateCommand(saveController.Save);
         WindowClosing = new DelegateCommand<CancelEventArgs>(WindowClosingHandler);
     }
 
-    private void LoadOperationFileHandler()
+    private void LoadOperationFile()
     {
         OpenFileDialog fileDialog = new() { Filter = "csv|*.csv" };
         bool? dialogResult = fileDialog.ShowDialog();

@@ -24,14 +24,12 @@ class FileSortingViewModel : BaseNotifyProperty
     public IReadOnlyList<OperationsGroupVM> OperationsGroups { get; }
 
     public ICommand SetForAllCommand { get; }
-    public ICommand ResetFilters { get; }
-    public ICommand RemoveFile { get; }
-    public ICommand ApproveAll { get; }
+    public ICommand ResetFiltersCommand { get; }
+    public ICommand RemoveFileCommand { get; }
+    public ICommand ApproveAllCommand { get; }
 
-    public FileSortingViewModel(AccountFile accountFile,
-        CategoriesVM categoriesVM,
-        Action<object> removeHandler,
-        AssociationStorage associationsStorage)
+    public FileSortingViewModel(
+        AccountFile accountFile, CategoriesVM categoriesVM, Action<object> removeHandler, AssociationStorage associationsStorage)
     {
         this.categoriesVM = categoriesVM;
         tabInfo = new TabInfo(accountFile.Description.Name, this);
@@ -40,9 +38,9 @@ class FileSortingViewModel : BaseNotifyProperty
             operationGroup => new OperationsGroupVM(
                 operationGroup, categoriesVM.GetCategories(), UpdateSummary, associationsStorage)).ToList();
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
-        ResetFilters = new DelegateCommand(ResetFiltersHandler);
-        RemoveFile = new DelegateCommand(() => removeHandler(this));
-        ApproveAll = new DelegateCommand(ApproveHandler);
+        ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
+        RemoveFileCommand = new DelegateCommand(() => removeHandler(this));
+        ApproveAllCommand = new DelegateCommand(ApproveHandler);
         UpdateSummary();
     }
 
@@ -78,7 +76,7 @@ class FileSortingViewModel : BaseNotifyProperty
         {
             foreach (OperationVM operationVM in operationsGroupVM.Operations)
             {
-                operationVM.ApprovementStatus = ApprovementStatus.Approved;
+                operationVM.IsApproved = true;
             }
         }
     }

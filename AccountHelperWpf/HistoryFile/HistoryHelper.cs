@@ -43,7 +43,7 @@ class DataConverter
         }).ToList();
         List<AssociationVM> associations = historyData.Associations!.Select(a => new AssociationVM(
             a.OperationDescription!,
-            categories.Find(c => c.Name == a.OperationDescription!)!)).ToList();
+            categories.Find(c => c.Name == a.Category!)!)).ToList();
         return new InitData(
             new ObservableCollection<CategoryVM>(categories),
             new ObservableCollection<AssociationVM>(associations),

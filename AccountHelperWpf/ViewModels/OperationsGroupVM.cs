@@ -62,7 +62,17 @@ class OperationsGroupVM : BaseNotifyProperty
         List<OperationVM> filteredOperations = new (operationGroup.Operations.Count);
         foreach (BaseOperation operation in operationGroup.Operations)
         {
-            OperationVM operationVM = new (operation, categories, Approve);
+            OperationVM operationVM = new(operation, categories, Approve);
+
+            if (associationStorage != null)
+            {
+                CategoryVM? categoryVM = associationStorage.TryGetCategory(operation.Description);
+                if (categoryVM != null)
+                {
+                    operationVM.Category = categoryVM;
+                    operationVM.IsApproved = false;
+                }
+            }
             filteredOperations.Add(operationVM);
             operationVM.PropertyChanged += OperationViewModelOnPropertyChanged;
             if (operation == lastIncluded)
@@ -76,7 +86,7 @@ class OperationsGroupVM : BaseNotifyProperty
         if (SelectedItems == null)
             return;
         foreach (OperationVM operationViewModel in SelectedItems)
-            operationViewModel.ApprovementStatus = ApprovementStatus.Approved;
+            operationViewModel.IsApproved = true;
     }
 
     private void OperationViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

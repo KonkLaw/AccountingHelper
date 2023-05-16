@@ -19,11 +19,11 @@ class OperationVM : BaseNotifyProperty
 
     public ICommand Approve { get; }
 
-    private ApprovementStatus approvementStatus;
-    public ApprovementStatus ApprovementStatus
+    private bool isApproved = true;
+    public bool IsApproved
     {
-        get => approvementStatus;
-        set => SetProperty(ref approvementStatus, value);
+        get => isApproved;
+        set => SetProperty(ref isApproved, value);
     }
 
     private string description = string.Empty;
@@ -47,11 +47,4 @@ class OperationVM : BaseNotifyProperty
     }
 
     private void ApproveHandler() => approve(this);
-}
-
-public enum ApprovementStatus
-{
-    NotRequired,
-    Approved,
-    NotApproved
 }

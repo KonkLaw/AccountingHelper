@@ -10,8 +10,8 @@
     <StackPanel>
         <Label Content="Do you have history file?" HorizontalAlignment="Center" Margin="5"/>
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-            <Button Content="Start with empty history" Command="{Binding StartWithEmptyCommand}" Margin="5"/>
-            <Button Content="Load History" Margin="5"/>
+            <Button Content="Start with empty history" Margin="5" Command="{Binding StartWithEmptyCommand}"/>
+            <Button Content="Load History" Margin="5" Command="{Binding LoadFileCommand}"/>
         </StackPanel>
     </StackPanel>
 </Window>

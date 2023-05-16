@@ -31,7 +31,7 @@
                         <DataTemplate DataType="{x:Type viewModels:OperationVM}">
                             <Button Content="OK"
                                     Command="{Binding Approve}"
-                                    Visibility="{Binding ApprovementStatus, Converter={StaticResource Converter}}"/>
+                                    Visibility="{Binding IsApproved, Converter={StaticResource Converter}}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

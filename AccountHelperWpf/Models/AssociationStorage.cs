@@ -50,4 +50,10 @@ class AssociationStorage
         excludedOperations.PrependBeforeBigger(operationDescription, string.Compare);
         saveController.MarkChanged();
     }
+
+    public CategoryVM? TryGetCategory(string operationDescription)
+    {
+        AssociationVM? associationVM = associations.FirstOrDefault(a => a.OperationDescription == operationDescription);
+        return associationVM?.CategoryVM;
+    }
 }
