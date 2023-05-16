@@ -63,15 +63,11 @@ class OperationsGroupVM : BaseNotifyProperty
         foreach (BaseOperation operation in operationGroup.Operations)
         {
             OperationVM operationVM = new(operation, categories, Approve);
-
-            if (associationStorage != null)
+            CategoryVM? categoryVM = associationStorage?.TryGetCategory(operation.Description);
+            if (categoryVM != null)
             {
-                CategoryVM? categoryVM = associationStorage.TryGetCategory(operation.Description);
-                if (categoryVM != null)
-                {
-                    operationVM.Category = categoryVM;
-                    operationVM.IsApproved = false;
-                }
+                operationVM.Category = categoryVM;
+                operationVM.IsApproved = false;
             }
             filteredOperations.Add(operationVM);
             operationVM.PropertyChanged += OperationViewModelOnPropertyChanged;

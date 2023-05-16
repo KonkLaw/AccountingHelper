@@ -28,7 +28,7 @@ class MainWindowModel : BaseNotifyProperty
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
 
-        InitCategories(out categoriesVM, Tabs, initData, saveController);
+        InitCategories(out categoriesVM, Tabs, initData, viewResolver);
         InitAssociations(Tabs, initData);
         associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
 
@@ -55,7 +55,7 @@ class MainWindowModel : BaseNotifyProperty
                 viewResolver.ShowWarning("Sorry, the fle wasn't recognized as any known bank report.");
                 return;
             }
-            FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesVM, RemoveHandler, associationStorage);
+            FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesVM, RemoveHandler, associationStorage, saveController);
             Tabs.Insert(Tabs.Count - 2, fileSortingViewModel.GetTabItem());
             filesVm.Add(fullPath, fileSortingViewModel);
         }
@@ -75,9 +75,9 @@ class MainWindowModel : BaseNotifyProperty
     }
 
     private static void InitCategories(
-        out CategoriesVM categoriesVM, ObservableCollection<TabInfo> tabs, InitData initData, ISaveController saveController)
+        out CategoriesVM categoriesVM, ObservableCollection<TabInfo> tabs, InitData initData, IViewResolver viewResolver)
     {
-        categoriesVM = new CategoriesVM(initData.Categories, saveController);
+        categoriesVM = new CategoriesVM(initData.Categories, viewResolver);
         tabs.Add(new TabInfo("Categories", categoriesVM) { IsSorted = true });
     }
 

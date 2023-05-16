@@ -11,6 +11,7 @@ namespace AccountHelperWpf.ViewModels;
 class FileSortingViewModel : BaseNotifyProperty
 {
     private readonly CategoriesVM categoriesVM;
+    private readonly ISaveController saveController;
     private readonly TabInfo tabInfo;
 
     private string summary = string.Empty;
@@ -29,11 +30,16 @@ class FileSortingViewModel : BaseNotifyProperty
     public ICommand ApproveAllCommand { get; }
 
     public FileSortingViewModel(
-        AccountFile accountFile, CategoriesVM categoriesVM, Action<object> removeHandler, AssociationStorage associationsStorage)
+        AccountFile accountFile,
+        CategoriesVM categoriesVM,
+        Action<object> removeHandler,
+        AssociationStorage associationsStorage,
+        ISaveController saveController)
     {
         this.categoriesVM = categoriesVM;
+        this.saveController = saveController;
         tabInfo = new TabInfo(accountFile.Description.Name, this);
-        categoriesVM.Changed += UpdateSummary;
+        categoriesVM.Changed += CategoriesVMOnChanged;
         OperationsGroups = accountFile.OperationsGroups.Select(
             operationGroup => new OperationsGroupVM(
                 operationGroup, categoriesVM.GetCategories(), UpdateSummary, associationsStorage)).ToList();
@@ -41,6 +47,12 @@ class FileSortingViewModel : BaseNotifyProperty
         ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
         RemoveFileCommand = new DelegateCommand(() => removeHandler(this));
         ApproveAllCommand = new DelegateCommand(ApproveHandler);
+        UpdateSummary();
+    }
+
+    private void CategoriesVMOnChanged()
+    {
+        saveController.MarkChanged();
         UpdateSummary();
     }
 

@@ -8,7 +8,12 @@
              d:DataContext="{d:DesignInstance viewModels:CategoriesVM}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DataGrid Name="DataGrid" ItemsSource="{Binding Categories}" IsVisibleChanged="DataGrid_OnIsVisibleChanged">
+        <DataGrid Name="DataGrid" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedItem}" IsVisibleChanged="DataGrid_OnIsVisibleChanged">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Remove Category" Command="{Binding RemoveCommand}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <EventSetter Event="LostFocus" Handler="CellLostFocus" />
