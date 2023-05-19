@@ -39,6 +39,7 @@ class CategoriesVM : BaseNotifyProperty
             categoryViewModel.PropertyChanged += CategoryChanged;
             categoryViewModel.NameChanging += CategoryViewModelOnNameChanging;
         }
+        SelectedItem = Categories.FirstOrDefault();
     }
 
     private void RemoveCategory(object? qwe)
