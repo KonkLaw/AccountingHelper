@@ -39,10 +39,10 @@ class FileSortingViewModel : BaseNotifyProperty
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
         tabInfo = new TabInfo(accountFile.Description.Name, this);
-        categoriesVM.Changed += CategoriesVMOnChanged;
+        categoriesVM.CategoryOrListChanged += CategoriesVMOnCategoryOrListChanged;
         OperationsGroups = accountFile.OperationsGroups.Select(
             operationGroup => new OperationsGroupVM(
-                operationGroup, categoriesVM.GetCategories(), UpdateSummary, associationsStorage)).ToList();
+                operationGroup, categoriesVM, UpdateSummary, associationsStorage)).ToList();
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
         RemoveFileCommand = new DelegateCommand(() => removeHandler(this));
@@ -50,7 +50,7 @@ class FileSortingViewModel : BaseNotifyProperty
         UpdateSummary();
     }
 
-    private void CategoriesVMOnChanged()
+    private void CategoriesVMOnCategoryOrListChanged()
     {
         saveController.MarkChanged();
         UpdateSummary();
@@ -76,7 +76,7 @@ class FileSortingViewModel : BaseNotifyProperty
 
     private void ResetFiltersHandler()
     {
-        categoriesVM.Changed -= UpdateSummary;
+        categoriesVM.CategoryOrListChanged -= UpdateSummary;
         foreach (OperationsGroupVM sortedOperationsGroup in OperationsGroups)
             sortedOperationsGroup.ResetFilter();
         UpdateSummary();

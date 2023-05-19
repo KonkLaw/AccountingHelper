@@ -14,7 +14,7 @@ class OperationsGroupVM : BaseNotifyProperty
     private readonly ReadOnlyObservableCollection<CategoryVM> categories;
     private readonly Action summaryChanged;
     private readonly AssociationStorage? associationStorage;
-
+    private bool isOnRemoving;
     public string Name => operationGroup.Name;
 
     private IReadOnlyList<OperationVM> operations;
@@ -44,17 +44,27 @@ class OperationsGroupVM : BaseNotifyProperty
 
     public OperationsGroupVM(
         OperationsGroup operationGroup,
-        ReadOnlyObservableCollection<CategoryVM> categories,
+        CategoriesVM categoriesVM,
         Action summaryChanged,
         AssociationStorage? associationStorage)
     {
         this.operationGroup = operationGroup;
-        this.categories = categories;
+        categories = categoriesVM.GetCategories();
+        categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
+        categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
         this.summaryChanged = summaryChanged;
         this.associationStorage = associationStorage;
         SetLastCommand = new DelegateCommand(SetLast);
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
         operations = GetFiltered(null);
+    }
+
+    private void CategoriesVMOnOnCategoryRemoving() => isOnRemoving = true;
+
+    private void CategoriesVMOnOnCategoryRemoved()
+    {
+        isOnRemoving = false;
+        summaryChanged();
     }
 
     private List<OperationVM> GetFiltered(BaseOperation? lastIncluded)
@@ -87,15 +97,18 @@ class OperationsGroupVM : BaseNotifyProperty
 
     private void OperationViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(OperationVM.Category))
-        {
-            OperationVM vm = (OperationVM)sender!;
-            if (SelectedItems == null)
-                return;
-            foreach (OperationVM operationViewModel in SelectedItems)
-                operationViewModel.Category = vm.Category;
-            associationStorage?.Update(vm.Operation.Description, vm.Category!);
-        }
+        if (e.PropertyName != nameof(OperationVM.Category))
+            return;
+
+        if (isOnRemoving)
+            return;
+
+        OperationVM vm = (OperationVM)sender!;
+        if (SelectedItems == null)
+            return;
+        foreach (OperationVM operationViewModel in SelectedItems)
+            operationViewModel.Category = vm.Category;
+        associationStorage?.Update(vm.Operation.Description, vm.Category!);
         summaryChanged();
     }
 

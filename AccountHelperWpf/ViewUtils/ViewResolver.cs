@@ -72,5 +72,12 @@ class ViewResolver : IViewResolver
         mainWindow.Show();
     }
 
+    public ExitState? ShowExitWindow()
+    {
+        var dialog = new ExitDialog();
+        dialog.ShowDialog();
+        return dialog.Result;
+    }
+
     private Window GetWindow() => dialogWindow ?? Application.Current!.MainWindow!;
 }

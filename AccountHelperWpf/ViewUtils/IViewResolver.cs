@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using AccountHelperWpf.Models;
+using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf.ViewUtils;
 
@@ -12,4 +13,5 @@ interface IViewResolver
     string? SaveFileDialogTryGetPath(string? defaultExtension);
     string? OpenFileDialogTryGetPath(string filer);
     void ShowMain(InitData initData);
+    ExitState? ShowExitWindow();
 }

@@ -22,7 +22,9 @@ class CategoriesVM : BaseNotifyProperty
         set => SetProperty(ref selectedItem, value);
     }
 
-    public event Action? Changed;
+    public event Action? OnCategoryRemoving;
+    public event Action? OnCategoryRemoved;
+    public event Action? CategoryOrListChanged;
 
     public CategoriesVM(ObservableCollection<CategoryVM> loadedCategories, IViewResolver viewResolver)
     {
@@ -41,9 +43,11 @@ class CategoriesVM : BaseNotifyProperty
 
     private void RemoveCategory(object? qwe)
     {
+        OnCategoryRemoving?.Invoke();
         if (viewResolver.ShowQuestion("Are you sure? All associations will be removed", MessageBoxButton.YesNo) == MessageBoxResult.No)
             return;
         Categories.Remove(SelectedItem!);
+        OnCategoryRemoved?.Invoke();
     }
 
     private void CategoriesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -77,7 +81,7 @@ class CategoriesVM : BaseNotifyProperty
 
     private void CategoryChanged(object? sender, PropertyChangedEventArgs e) => Notify();
 
-    private void Notify() => Changed?.Invoke();
+    private void Notify() => CategoryOrListChanged?.Invoke();
 
     public ReadOnlyObservableCollection<CategoryVM> GetCategories() => collection;
 }

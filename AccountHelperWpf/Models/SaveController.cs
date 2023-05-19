@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using AccountHelperWpf.HistoryFile;
+﻿using AccountHelperWpf.HistoryFile;
+using AccountHelperWpf.Views;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.Models;
@@ -24,12 +24,13 @@ class SaveController : ISaveController
         if (wasSaved)
             return true;
 
-        MessageBoxResult result = viewResolver.ShowQuestion("There are unsaved changes of associations. Save them or cancel exit?", MessageBoxButton.YesNoCancel);
+        ExitState? result = viewResolver.ShowExitWindow();
         return result switch
         {
-            MessageBoxResult.Cancel => true,
-            MessageBoxResult.No => false,
-            MessageBoxResult.Yes => TrySave(),
+            null => false,
+            ExitState.ExitNoSave => true,
+            ExitState.SaveAndExit => TrySave(),
+            ExitState.Cancel => false,
             _ => throw new InvalidOperationException()
         };
     }
