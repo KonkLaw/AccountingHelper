@@ -78,7 +78,7 @@ class FileSortingViewModel : BaseNotifyProperty
     {
         categoriesVM.CategoryOrListChanged -= UpdateSummary;
         foreach (OperationsGroupVM sortedOperationsGroup in OperationsGroups)
-            sortedOperationsGroup.ResetFilter();
+            sortedOperationsGroup.ResetFilters();
         UpdateSummary();
     }
 

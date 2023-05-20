@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using AccountHelperWpf.ViewModels;
@@ -21,10 +20,8 @@ public partial class CategoriesView : UserControl
     private void CellLostFocus(object sender, RoutedEventArgs e)
     {
         var dataGridCell = (DataGridCell)sender;
-        TextBox? textBox = dataGridCell.Content as TextBox;
-
-        Debug.WriteLine($"OnLostFocus IsKeyboardFocusWithin={dataGridCell.IsKeyboardFocusWithin}; IsEditing={dataGridCell.IsEditing}; Content={dataGridCell.Content}; Id={dataGridCell.Column.DisplayIndex}");
-        if (textBox != null && dataGridCell.Column.DisplayIndex == 0)
+        //Debug.WriteLine($"OnLostFocus IsKeyboardFocusWithin={dataGridCell.IsKeyboardFocusWithin}; IsEditing={dataGridCell.IsEditing}; Content={dataGridCell.Content}; Id={dataGridCell.Column.DisplayIndex}");
+        if (dataGridCell.Content is TextBox textBox && dataGridCell.Column.DisplayIndex == 0)
         {
             if (dataGridCell.IsKeyboardFocusWithin && !dataGridCell.IsEditing)
             {

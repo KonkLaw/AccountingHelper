@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.IO.Compression;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 
 namespace AccountHelperWpf.HistoryFile;
 
@@ -9,6 +11,12 @@ static class HistoryStorageHelper
     public const string DefaultExtension = "zip";
 
     private const string HistoryFileName = "history.json";
+
+    private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+        WriteIndented = true
+    };
 
     public static bool TryLoadFromFile(string path, out HistoryData? data, out string error)
     {
@@ -26,7 +34,7 @@ static class HistoryStorageHelper
 
                 using (Stream entryStream = entry.Open())
                 {
-                    data = JsonSerializer.Deserialize<HistoryData>(entryStream);
+                    data = JsonSerializer.Deserialize<HistoryData>(entryStream, Options);
                     error = string.Empty;
                     return true;
                 }
@@ -43,8 +51,7 @@ static class HistoryStorageHelper
                 ZipArchiveEntry entry = archive.CreateEntry(HistoryFileName);
                 using (Stream entryStream = entry.Open())
                 {
-                    JsonSerializerOptions options = new() { WriteIndented = true };
-                    JsonSerializer.Serialize(entryStream, associationData, options);
+                    JsonSerializer.Serialize(entryStream, associationData, Options);
                 }
             }
         }

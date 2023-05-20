@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AccountHelperWpf.Views"
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
-             xmlns:accountHelperWpf="clr-namespace:AccountHelperWpf"
              xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
@@ -18,7 +17,8 @@
         <local:DataGridExt AutoGenerateColumns="False" SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}" ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Set As last transaction" Command="{Binding SetLastCommand}"/>
+                    <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"/>
+                    <MenuItem Header="Set As Last" Command="{Binding SetLastOperationCommand}"/>
                     <MenuItem Header="Exclude from associations" Command="{Binding ExcludeFromAssociations}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
