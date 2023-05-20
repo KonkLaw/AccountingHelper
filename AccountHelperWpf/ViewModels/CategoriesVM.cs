@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using AccountHelperWpf.ViewUtils;
@@ -37,7 +38,6 @@ class CategoriesVM : BaseNotifyProperty
         foreach (CategoryVM? categoryViewModel in Categories)
         {
             categoryViewModel.PropertyChanged += CategoryChanged;
-            categoryViewModel.NameChanging += CategoryViewModelOnNameChanging;
         }
         SelectedItem = Categories.FirstOrDefault();
     }
@@ -61,13 +61,12 @@ class CategoriesVM : BaseNotifyProperty
                 if (e.NewItems!= null)
                     foreach (CategoryVM categoryViewModel in e.NewItems)
                     {
-                        categoryViewModel.NameChanging += CategoryViewModelOnNameChanging;
                         categoryViewModel.PropertyChanged += CategoryChanged;
+                        Debug.WriteLine("Add");
                     }
                 if (e.OldItems != null)
                     foreach (CategoryVM categoryViewModel in e.OldItems)
                     {
-                        categoryViewModel.NameChanging -= CategoryViewModelOnNameChanging;
                         categoryViewModel.PropertyChanged -= CategoryChanged;
                     }
                 break;
@@ -78,8 +77,6 @@ class CategoriesVM : BaseNotifyProperty
         Notify();
     }
 
-    private bool CategoryViewModelOnNameChanging(string newName) => Categories.All(c => c.Name != newName);
-
     private void CategoryChanged(object? sender, PropertyChangedEventArgs e) => Notify();
 
     private void Notify() => CategoryOrListChanged?.Invoke();
@@ -89,22 +86,11 @@ class CategoriesVM : BaseNotifyProperty
 
 class CategoryVM : BaseNotifyProperty, IComparable<CategoryVM>, IComparable
 {
-    public event Func<string, bool>? NameChanging;
-
     private string name = string.Empty;
     public string Name
     {
         get => name;
-        set
-        {
-            if (name == value)
-                return;
-            bool result = true;
-            if (NameChanging != null)
-                result = NameChanging!.Invoke(value);
-            if (result)
-                SetProperty(ref name, value);
-        }
+        set => SetProperty(ref name, value);
     }
 
     private string description = string.Empty;

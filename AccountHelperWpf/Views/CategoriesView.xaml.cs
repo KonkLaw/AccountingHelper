@@ -21,74 +21,54 @@ public partial class CategoriesView : UserControl
     private void CellLostFocus(object sender, RoutedEventArgs e)
     {
         var dataGridCell = (DataGridCell)sender;
-        if (dataGridCell.IsKeyboardFocusWithin || !dataGridCell.IsEditing)
-            return;
+        TextBox? textBox = dataGridCell.Content as TextBox;
 
-        string text;
-        bool newLineForced;
-        if (dataGridCell.Content is TextBox textBox)
+        Debug.WriteLine($"OnLostFocus IsKeyboardFocusWithin={dataGridCell.IsKeyboardFocusWithin}; IsEditing={dataGridCell.IsEditing}; Content={dataGridCell.Content}; Id={dataGridCell.Column.DisplayIndex}");
+        if (textBox != null && dataGridCell.Column.DisplayIndex == 0)
         {
-            text = textBox.Text;
-            newLineForced = false;
+            if (dataGridCell.IsKeyboardFocusWithin && !dataGridCell.IsEditing)
+            {
+                //Debug.WriteLine($"--Lost focus with enter. Text={textBox.Text}");
+                textBox.Text = ProcessUniqueness(textBox.Text);
+            }
+            else if (!dataGridCell.IsKeyboardFocusWithin && dataGridCell.IsEditing)
+            {
+                //Debug.WriteLine($"--Lost focus with mouse. Text={textBox.Text}");
+                textBox.Text = ProcessUniqueness(textBox.Text);
+            }
         }
-        else if (dataGridCell.IsSelected && dataGridCell.Content is TextBlock textBlock)
-        {
-            text = textBlock.Text;
-            newLineForced = true;
-        }
-        else
-            return;
-
-
-        if (dataGridCell.Column.DisplayIndex == 0)
-            ProcessNameColumn(text, newLineForced);
-        else if (dataGridCell.Column.DisplayIndex == 1)
-            ProcessDescription(text, newLineForced);
     }
 
-    private void ProcessNameColumn(string text, bool newLineForced)
+    private string ProcessUniqueness(string text)
     {
-        if (string.IsNullOrEmpty(text))
-            return;
-            
-        ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
+        var categoryVm = (CategoryVM)DataGrid.SelectedItem;
+        if (categoryVm.Name == text)
+            return text;
 
+        ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
         if (categories.Any(c => c.Name == text))
         {
-            var categoryVm = (CategoryVM)DataGrid.SelectedItem;
-            categoryVm.Name = GetUniqueName(categories, text);
+            return GetUniqueName(categories, text);
         }
-        DataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-    }
-
-    private void ProcessDescription(string text, bool newLineForced)
-    {
-        if (string.IsNullOrEmpty(text) && newLineForced)
-            return;
-
-        var categoryVm = (CategoryVM)DataGrid.SelectedItem;
-        if (!string.IsNullOrEmpty(categoryVm.Name))
-            return;
-
-        ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
-        categoryVm.Name = GetUniqueName(categories,"Empty");
+        return text;
     }
 
     private static string GetUniqueName(ObservableCollection<CategoryVM> categories, string text)
     {
         string original = text;
-        int counter = 1;
-        while (true)
+        int counter = 2;
+        do
         {
-            if (categories.Any(c => c.Name == text))
+            string toTest = $"{original}({counter})";
+            if (categories.Any(c => c.Name == toTest))
             {
                 counter++;
-                text = original + '(' + counter.ToString() + ')';
             }
             else
             {
-                return text;
+                return toTest;
             }
-        }
+
+        } while (true);
     }
 }
