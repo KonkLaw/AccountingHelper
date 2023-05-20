@@ -12,10 +12,22 @@
             <RowDefinition />
             <RowDefinition MinHeight="250"/>
         </Grid.RowDefinitions>
-        <DataGrid Grid.Row="0" ItemsSource="{Binding Associations}" />
+        <DataGrid Grid.Row="0" SelectedItem="{Binding SelectedAssociation}" ItemsSource="{Binding Associations}">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+        </DataGrid>
         <StackPanel Grid.Row="1">
             <Label Content="Excluded from auto-mapping operations"/>
-            <ListBox ItemsSource="{Binding ExcludedOperations}" />
+            <ListBox ItemsSource="{Binding ExcludedOperations}" SelectedItem="{Binding SelectedException}">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand}"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
         </StackPanel>
     </Grid>
 </UserControl>

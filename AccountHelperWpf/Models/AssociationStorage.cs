@@ -47,6 +47,9 @@ class AssociationStorage
                 break;
             }
         }
+
+        if (excludedOperations.Contains(operationDescription))
+            return;
         excludedOperations.PrependBeforeBigger(operationDescription, string.Compare);
         saveController.MarkChanged();
     }
