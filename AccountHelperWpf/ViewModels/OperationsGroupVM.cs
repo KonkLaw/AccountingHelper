@@ -25,24 +25,30 @@ class OperationsGroupVM : BaseNotifyProperty
         set => SetProperty(ref operations, value);
     }
 
-    private OperationVM? selectedOperation;
-    public OperationVM? SelectedOperation
-    {
-        get => selectedOperation;
-        set => SetProperty(ref selectedOperation, value);
-    }
-
     private IList? selectedItems;
     public IList? SelectedItems
     {
         get => selectedItems;
-        set => SetProperty(ref selectedItems, value);
+        set
+        {
+            if (SetProperty(ref selectedItems, value))
+                IsSingleSelection = selectedItems != null && selectedItems.Count > 0;
+        }
     }
+
+    private bool isSingleSelection;
+    public bool IsSingleSelection
+    {
+        get => isSingleSelection;
+        set => SetProperty(ref isSingleSelection, value);
+    }
+
     public string Name => operationGroup.Name;
 
     public ICommand ExcludeFromAssociations { get; }
     public ICommand SetLastOperationCommand { get; }
     public ICommand SetFirstOperationCommand { get; }
+    public ICommand ApplyCategoryForSameOperationsCommand { get; }
 
     public OperationsGroupVM(
         OperationsGroup operationGroup,
@@ -59,6 +65,7 @@ class OperationsGroupVM : BaseNotifyProperty
         SetLastOperationCommand = new DelegateCommand(SetLastOperation);
         SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
+        ApplyCategoryForSameOperationsCommand = new DelegateCommand(ApplyCategoryForSameOperations);
         UpdateByFilter();
     }
 
@@ -97,14 +104,14 @@ class OperationsGroupVM : BaseNotifyProperty
 
     private void SetFirstOperation()
     {
-        firstIncluded = selectedOperation!.Operation;
+        firstIncluded = GetSelectedOperation().Operation;
         UpdateByFilter();
         summaryChanged();
     }
 
     private void SetLastOperation()
     {
-        lastIncluded = selectedOperation!.Operation;
+        lastIncluded = GetSelectedOperation().Operation;
         UpdateByFilter();
         summaryChanged();
     }
@@ -117,7 +124,14 @@ class OperationsGroupVM : BaseNotifyProperty
     }
 
     private void ExcludeFromAssociationHandler()
-        => associationStorage?.ExcludeFromAssociations(selectedOperation!.Operation.Description);
+    {
+        if (SelectedItems == null)
+            return;
+        foreach (OperationVM operationViewModel in SelectedItems)
+        {
+            associationStorage?.ExcludeFromAssociations(operationViewModel.Operation.Description);
+        }
+    }
 
     private void UpdateByFilter()
     {
@@ -144,4 +158,16 @@ class OperationsGroupVM : BaseNotifyProperty
         }
         Operations = filteredOperations;
     }
+
+    private void ApplyCategoryForSameOperations()
+    {
+        OperationVM selectedOperation = GetSelectedOperation();
+        foreach (OperationVM operation in Operations)
+        {
+            if (operation.Operation.Description == selectedOperation.Operation.Description)
+                operation.Category = selectedOperation.Category;
+        }
+    }
+
+    private OperationVM GetSelectedOperation() => ((OperationVM)selectedItems![0]!);
 }

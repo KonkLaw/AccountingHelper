@@ -14,11 +14,17 @@
     </UserControl.Resources>
     <StackPanel>
         <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
-        <local:DataGridExt AutoGenerateColumns="False" SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}" ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}">
+        <local:DataGridExt AutoGenerateColumns="False"
+                           SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"
+                           ItemsSource="{Binding Operations}">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"/>
-                    <MenuItem Header="Set As Last" Command="{Binding SetLastOperationCommand}"/>
+                    <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"
+                              IsEnabled="{Binding IsSingleSelection}"/>
+                    <MenuItem Header="Set As Last" Command="{Binding SetLastOperationCommand}"
+                              IsEnabled="{Binding IsSingleSelection}"/>
+                    <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSameOperationsCommand}"
+                              IsEnabled="{Binding IsSingleSelection}"/>
                     <MenuItem Header="Exclude from associations" Command="{Binding ExcludeFromAssociations}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
