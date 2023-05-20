@@ -25,7 +25,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}" Header="Transaction Date Time" />
                 <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" FontWeight="Bold" />
-                <DataGridTextColumn Width="330" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
+                <DataGridTextColumn Width="360" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="{x:Type viewModels:OperationVM}">
