@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
@@ -16,12 +15,7 @@ class CategoriesVM : BaseNotifyProperty
     public ObservableCollection<CategoryVM> Categories { get; }
     public ICommand RemoveCommand { get; }
 
-    private CategoryVM? selectedItem;
-    public CategoryVM? SelectedItem
-    {
-        get => selectedItem;
-        set => SetProperty(ref selectedItem, value);
-    }
+    public int SelectedIndex { get; set; }
 
     public event Action? OnCategoryRemoving;
     public event Action? OnCategoryRemoved;
@@ -39,7 +33,6 @@ class CategoriesVM : BaseNotifyProperty
         {
             categoryViewModel.PropertyChanged += CategoryChanged;
         }
-        SelectedItem = Categories.FirstOrDefault();
     }
 
     private void RemoveCategory(object? qwe)
@@ -47,7 +40,7 @@ class CategoriesVM : BaseNotifyProperty
         OnCategoryRemoving?.Invoke();
         if (viewResolver.ShowQuestion("Are you sure? All associations will be removed", MessageBoxButton.YesNo) == MessageBoxResult.No)
             return;
-        Categories.Remove(SelectedItem!);
+        Categories.RemoveAt(SelectedIndex);
         OnCategoryRemoved?.Invoke();
     }
 

@@ -9,23 +9,10 @@ class AssociationsVM : BaseNotifyProperty
 {
     public ObservableCollection<AssociationVM> Associations { get; }
     public ObservableCollection<string> ExcludedOperations { get; }
-
     public ICommand DeleteAssociationCommand { get; }
     public ICommand DeleteExceptionCommand { get; }
-
-    private AssociationVM? selectedAssociation;
-    public AssociationVM? SelectedAssociation
-    {
-        get => selectedAssociation;
-        set => SetProperty(ref selectedAssociation, value);
-    }
-
-    private string? selectedException;
-    public string? SelectedException
-    {
-        get => selectedException;
-        set => SetProperty(ref selectedException, value);
-    }
+    public int SelectedAssociationIndex { get; set; }
+    public int SelectedExceptionIndex { get; set; }
 
     public AssociationsVM(InitData initData)
     {
@@ -33,10 +20,9 @@ class AssociationsVM : BaseNotifyProperty
         ExcludedOperations = initData.ExcludedOperations;
         DeleteAssociationCommand = new DelegateCommand(DeleteAssociation);
         DeleteExceptionCommand = new DelegateCommand(DeleteException);
-        SelectedAssociation = Associations.FirstOrDefault();
     }
 
-    private void DeleteAssociation() => Associations.Remove(SelectedAssociation!);
+    private void DeleteAssociation() => Associations.RemoveAt(SelectedAssociationIndex);
 
-    private void DeleteException() => ExcludedOperations.Remove(SelectedException!);
+    private void DeleteException() => ExcludedOperations.RemoveAt(SelectedExceptionIndex!);
 }
