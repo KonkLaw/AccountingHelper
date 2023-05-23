@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.Parsing;
+using AccountHelperWpf.Utils;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
@@ -48,6 +49,7 @@ class OperationsGroupVM : BaseNotifyProperty
     public ICommand ExcludeFromAssociations { get; }
     public ICommand SetLastOperationCommand { get; }
     public ICommand SetFirstOperationCommand { get; }
+    public ICommand SetNullCategoryCommand { get; }
     public ICommand ApplyCategoryForSameOperationsCommand { get; }
 
     public OperationsGroupVM(
@@ -65,6 +67,7 @@ class OperationsGroupVM : BaseNotifyProperty
         SetLastOperationCommand = new DelegateCommand(SetLastOperation);
         SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
+        SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
         ApplyCategoryForSameOperationsCommand = new DelegateCommand(ApplyCategoryForSameOperations);
         UpdateByFilter();
     }
@@ -79,9 +82,7 @@ class OperationsGroupVM : BaseNotifyProperty
 
     private void Approve(OperationVM operationVM)
     {
-        if (SelectedItems == null)
-            return;
-        foreach (OperationVM operationViewModel in SelectedItems)
+        foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
             operationViewModel.IsApproved = true;
     }
 
@@ -129,12 +130,8 @@ class OperationsGroupVM : BaseNotifyProperty
 
     private void ExcludeFromAssociationHandler()
     {
-        if (SelectedItems == null)
-            return;
-        foreach (OperationVM operationViewModel in SelectedItems)
-        {
+        foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
             associationStorage?.ExcludeFromAssociations(operationViewModel.Operation.Description);
-        }
     }
 
     private void UpdateByFilter()
@@ -171,6 +168,12 @@ class OperationsGroupVM : BaseNotifyProperty
             if (operation.Operation.Description == selectedOperation.Operation.Description)
                 operation.Category = selectedOperation.Category;
         }
+    }
+
+    private void SetCategoryToNull()
+    {
+        foreach (OperationVM operationVM in SelectedItems.CheckNull())
+            operationVM.Category = null;
     }
 
     private OperationVM GetSelectedOperation() => ((OperationVM)selectedItems![0]!);

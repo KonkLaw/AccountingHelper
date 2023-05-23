@@ -1,4 +1,6 @@
-﻿namespace AccountHelperWpf.Utils;
+﻿using System.Collections;
+
+namespace AccountHelperWpf.Utils;
 
 public static class CollectionHelper
 {
@@ -14,5 +16,12 @@ public static class CollectionHelper
             }
         }
         collection.Add(valueToInsert);
+    }
+
+    public static IEnumerable CheckNull(this IEnumerable? collection)
+    {
+        if (collection == null)
+            return Enumerable.Empty<object>();
+        return collection;
     }
 }

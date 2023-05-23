@@ -25,6 +25,7 @@
                               IsEnabled="{Binding IsSingleSelection}"/>
                     <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSameOperationsCommand}"
                               IsEnabled="{Binding IsSingleSelection}"/>
+                    <MenuItem Header="Set category to null" Command="{Binding SetNullCategoryCommand}"/>
                     <MenuItem Header="Exclude from associations" Command="{Binding ExcludeFromAssociations}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
