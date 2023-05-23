@@ -101,7 +101,8 @@ class OperationsGroupVM : BaseNotifyProperty
             associationStorage?.Update(vm.Operation.Description, vm.Category!);
             summaryChanged();
         }
-        else if (e.PropertyName == nameof(OperationVM.Description))
+        else if (e.PropertyName == nameof(OperationVM.Description)
+                 || e.PropertyName == nameof(OperationVM.IsApproved))
         {
             summaryChanged();
         }

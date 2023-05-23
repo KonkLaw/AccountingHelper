@@ -100,6 +100,9 @@ class FileSortingViewModel : BaseNotifyProperty
         {
             foreach (OperationVM operation in operationsGroup.Operations)
             {
+                if (!operation.IsApproved)
+                    allSorted = false;
+
                 if (operation.Category == null)
                 {
                     notAssigned.Add(operation);
