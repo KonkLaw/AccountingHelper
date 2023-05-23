@@ -85,12 +85,8 @@ class FileSortingViewModel : BaseNotifyProperty
     private void ApproveHandler()
     {
         foreach (OperationsGroupVM operationsGroupVM in OperationsGroups)
-        {
             foreach (OperationVM operationVM in operationsGroupVM.Operations)
-            {
                 operationVM.IsApproved = true;
-            }
-        }
     }
 
     private void UpdateSummary()
@@ -163,7 +159,7 @@ class CategorySummary
         if (detailed.Length != 0)
         {
             detailed.Remove(detailed.Length - 1, 1);
-            result.Append('(');
+            result.Append(" (");
             result.Append(detailed);
             result.Append(')');
         }

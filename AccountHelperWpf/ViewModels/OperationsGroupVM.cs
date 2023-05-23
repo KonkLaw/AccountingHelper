@@ -87,19 +87,23 @@ class OperationsGroupVM : BaseNotifyProperty
 
     private void OperationViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(OperationVM.Category))
-            return;
+        if (e.PropertyName == nameof(OperationVM.Category))
+        {
+            if (isOnRemoving)
+                return;
 
-        if (isOnRemoving)
-            return;
-
-        OperationVM vm = (OperationVM)sender!;
-        if (SelectedItems == null)
-            return;
-        foreach (OperationVM operationViewModel in SelectedItems)
-            operationViewModel.Category = vm.Category;
-        associationStorage?.Update(vm.Operation.Description, vm.Category!);
-        summaryChanged();
+            OperationVM vm = (OperationVM)sender!;
+            if (SelectedItems == null)
+                return;
+            foreach (OperationVM operationViewModel in SelectedItems)
+                operationViewModel.Category = vm.Category;
+            associationStorage?.Update(vm.Operation.Description, vm.Category!);
+            summaryChanged();
+        }
+        else if (e.PropertyName == nameof(OperationVM.Description))
+        {
+            summaryChanged();
+        }
     }
 
     private void SetFirstOperation()
