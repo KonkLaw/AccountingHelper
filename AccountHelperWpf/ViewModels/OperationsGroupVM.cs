@@ -137,10 +137,10 @@ class OperationsGroupVM : BaseNotifyProperty
     {
         var filteredOperations = new List<OperationVM>(operationGroup.Operations.Count);
 
-        bool skip = firstIncluded != null;
+        bool skip = lastIncluded != null;
         foreach (BaseOperation operation in operationGroup.Operations)
         {
-            if (skip && (skip = operation != firstIncluded))
+            if (skip && (skip = operation != lastIncluded))
                 continue;
 
             OperationVM operationVM = new(operation, categories, Approve);
@@ -153,7 +153,7 @@ class OperationsGroupVM : BaseNotifyProperty
             filteredOperations.Add(operationVM);
             operationVM.PropertyChanged += OperationViewModelOnPropertyChanged;
 
-            if (operation == lastIncluded)
+            if (operation == firstIncluded)
                 break;
         }
         Operations = filteredOperations;
