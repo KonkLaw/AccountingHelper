@@ -15,9 +15,10 @@ class OperationsGroupVM : BaseNotifyProperty
     private readonly ReadOnlyObservableCollection<CategoryVM> categories;
     private readonly Action summaryChanged;
     private readonly AssociationStorage? associationStorage;
+    private readonly List<OperationVM> allOperations;
     private bool isOnRemoving;
-    private BaseOperation? firstIncluded;
-    private BaseOperation? lastIncluded;
+    private OperationVM? firstIncluded;
+    private OperationVM? lastIncluded;
 
     private IReadOnlyList<OperationVM> operations = null!;
     public IReadOnlyList<OperationVM> Operations
@@ -69,6 +70,7 @@ class OperationsGroupVM : BaseNotifyProperty
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
         SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
         ApplyCategoryForSameOperationsCommand = new DelegateCommand(ApplyCategoryForSameOperations);
+        allOperations = GetAllOperations();
         UpdateByFilter();
     }
 
@@ -110,14 +112,14 @@ class OperationsGroupVM : BaseNotifyProperty
 
     private void SetFirstOperation()
     {
-        firstIncluded = GetSelectedOperation().Operation;
+        firstIncluded = GetSelectedOperation();
         UpdateByFilter();
         summaryChanged();
     }
 
     private void SetLastOperation()
     {
-        lastIncluded = GetSelectedOperation().Operation;
+        lastIncluded = GetSelectedOperation();
         UpdateByFilter();
         summaryChanged();
     }
@@ -137,14 +139,27 @@ class OperationsGroupVM : BaseNotifyProperty
 
     private void UpdateByFilter()
     {
-        var filteredOperations = new List<OperationVM>(operationGroup.Operations.Count);
-
+        var filteredOperations = new List<OperationVM>(allOperations.Count);
         bool skip = lastIncluded != null;
-        foreach (BaseOperation operation in operationGroup.Operations)
+        foreach (OperationVM operationVM in allOperations)
         {
-            if (skip && (skip = operation != lastIncluded))
+            if (skip && (skip = operationVM != lastIncluded))
                 continue;
 
+            filteredOperations.Add(operationVM);
+            operationVM.PropertyChanged += OperationViewModelOnPropertyChanged;
+
+            if (operationVM == firstIncluded)
+                break;
+        }
+        Operations = filteredOperations;
+    }
+
+    private List<OperationVM> GetAllOperations()
+    {
+        var result = new List<OperationVM>(operationGroup.Operations.Count);
+        foreach (BaseOperation operation in operationGroup.Operations)
+        {
             OperationVM operationVM = new(operation, categories, Approve);
             CategoryVM? categoryVM = associationStorage?.TryGetCategory(operation.Description);
             if (categoryVM != null)
@@ -152,13 +167,10 @@ class OperationsGroupVM : BaseNotifyProperty
                 operationVM.Category = categoryVM;
                 operationVM.IsApproved = false;
             }
-            filteredOperations.Add(operationVM);
+            result.Add(operationVM);
             operationVM.PropertyChanged += OperationViewModelOnPropertyChanged;
-
-            if (operation == firstIncluded)
-                break;
         }
-        Operations = filteredOperations;
+        return result;
     }
 
     private void ApplyCategoryForSameOperations()
