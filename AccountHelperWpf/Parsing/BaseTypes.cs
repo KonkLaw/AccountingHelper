@@ -28,6 +28,7 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
         string Currency,
         [property: Width(160)]
         string OperationType,
+        string? OriginalAmount,
         decimal SaldoBeforeTransaction,
         string OtherDescription)
     : BaseOperation(TransactionDateTime, Amount, Description);

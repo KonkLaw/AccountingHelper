@@ -28,33 +28,79 @@ static class PkoParser
         });
         list.Sort(comparer);
         operations.Clear();
-        foreach ((int orderId, BaseOperation operation) valueTuple in list)
-            operations.Add(valueTuple.operation);
+        foreach ((_, BaseOperation operation) in list)
+            operations.Add(operation);
 
         return new OperationsGroup("Non Blocked operations", operations);
     }
 
-    private static PkoOperation ParseString(string record)
+    struct RecordIterator
     {
-        string[] lines = record.Replace("\"", "").Split(",");
+        private readonly string record;
+        private int index;
 
-        DateOnly dateAccounting = DateOnly.Parse(lines[0]);
-        DateTime dateOperation = DateTime.ParseExact(lines[1], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        string operationType = lines[2];
-        decimal amount = decimal.Parse(lines[3]);
-        string currency = lines[4];
-        decimal saldoBeforeTransaction = decimal.Parse(lines[5]);
-        string description = lines[7];
-
-        StringBuilder otherDescription = new(lines[6]);
-        for (int i = 8; i < lines.Length; i++)
+        public RecordIterator(string record)
         {
-            otherDescription.Append(" ; ");
-            otherDescription.Append(lines[i]);
+            this.record = record;
+            index = -1;
         }
 
+        public bool TryGetNextSpan(out ReadOnlySpan<char> span)
+        {
+            const char bracketsSymbol = '"';
+            int startIndex = record.IndexOf(bracketsSymbol, index + 1);
+            if (startIndex < 0)
+            {
+                span = default;
+                return false;
+            }
+
+            int stopIndex = record.IndexOf(bracketsSymbol, startIndex + 1);
+            span = record.AsSpan(startIndex + 1, stopIndex - startIndex - 1);
+            index = stopIndex;
+            return true;
+        }
+
+        public ReadOnlySpan<char> GetNextSpan()
+        {
+            TryGetNextSpan(out ReadOnlySpan<char> span);
+            return span;
+        }
+    }
+
+    private static PkoOperation ParseString(string record)
+    {
+        RecordIterator iterator = new RecordIterator(record);
+
+        DateOnly dateAccounting = DateOnly.Parse(iterator.GetNextSpan());
+        DateTime dateOperation = DateTime.ParseExact(iterator.GetNextSpan(), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        string operationType = iterator.GetNextSpan().ToString();
+        decimal amount = decimal.Parse(iterator.GetNextSpan());
+        string currency = iterator.GetNextSpan().ToString();
+        decimal saldoBeforeTransaction = decimal.Parse(iterator.GetNextSpan());
+        StringBuilder otherDescription = new();
+        otherDescription.Append(iterator.GetNextSpan());
+        string description = iterator.GetNextSpan().ToString();
+
+        const string wellKnownOperationName = "Oryginalna kwota operacji: ";
+        string? originalAmount = null;
+        while (iterator.TryGetNextSpan(out ReadOnlySpan<char> span))
+        {
+            if (span.IsEmpty)
+                continue;
+            if (span.StartsWith(wellKnownOperationName))
+            {
+                originalAmount = span[wellKnownOperationName.Length..].ToString();
+            }
+            else
+            { 
+                otherDescription.Append(" || ");
+                otherDescription.Append(span);
+            }
+        }
         return new PkoOperation(
-            dateOperation, amount, description, dateAccounting, currency, operationType, saldoBeforeTransaction, otherDescription.ToString());
+            dateOperation, amount, description, dateAccounting, currency,
+            operationType, originalAmount, saldoBeforeTransaction, otherDescription.ToString());
     }
 
     public static void TryParseBlocked(string textToParse, out OperationsGroup? operationsGroup, out string? errorMessage)
@@ -151,7 +197,7 @@ static class PkoParser
             index += BigLineSeparator.Length;
 
             int endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
-            string description = text.Substring(index, endIndex - index);
+            string description = text[index..endIndex];
             index = endIndex;
             index += BigLineSeparator.Length;
 
