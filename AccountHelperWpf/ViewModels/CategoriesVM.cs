@@ -37,9 +37,9 @@ class CategoriesVM : BaseNotifyProperty
 
     private void RemoveCategory(object? qwe)
     {
-        OnCategoryRemoving?.Invoke();
         if (viewResolver.ShowQuestion("Are you sure? All associations will be removed", MessageBoxButton.YesNo) == MessageBoxResult.No)
             return;
+        OnCategoryRemoving?.Invoke();
         Categories.RemoveAt(SelectedIndex);
         OnCategoryRemoved?.Invoke();
     }

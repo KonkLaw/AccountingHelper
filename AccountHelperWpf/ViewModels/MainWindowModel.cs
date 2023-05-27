@@ -28,9 +28,9 @@ class MainWindowModel : BaseNotifyProperty
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
 
-        InitCategories(out categoriesVM, Tabs, initData, viewResolver);
-        InitAssociations(Tabs, initData);
         associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
+        InitCategories(out categoriesVM, Tabs, initData, viewResolver);
+        InitAssociations(Tabs, associationStorage);
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociation = new DelegateCommand(saveController.Save);
@@ -81,9 +81,9 @@ class MainWindowModel : BaseNotifyProperty
         tabs.Add(new TabInfo("Categories", categoriesVM) { IsSorted = true });
     }
 
-    private static void InitAssociations(ObservableCollection<TabInfo> tabs, InitData initData) 
+    private static void InitAssociations(ObservableCollection<TabInfo> tabs, AssociationStorage storage) 
     {
-        var associationVM = new AssociationsVM(initData);
+        var associationVM = new AssociationsVM(storage);
         tabs.Add(new TabInfo("Associations", associationVM) { IsSorted = true });
     }
 }

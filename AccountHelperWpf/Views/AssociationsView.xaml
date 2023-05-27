@@ -19,6 +19,7 @@
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand}"/>
+                    <MenuItem Header="Delete + clear operations" Command="{Binding DeleteAndClearOperationCommand}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
 using AccountHelperWpf.Parsing;
 using AccountHelperWpf.ViewUtils;
 
@@ -7,17 +6,18 @@ namespace AccountHelperWpf.ViewModels;
 
 class OperationVM : BaseNotifyProperty
 {
-    private readonly Action<OperationVM> approve;
     public BaseOperation Operation { get; }
 
     private CategoryVM? category;
     public CategoryVM? Category
     {
         get => category;
-        set => SetProperty(ref category, value);
+        set
+        {
+            SetProperty(ref category, value);
+            IsApproved = true;
+        }
     }
-
-    public ICommand Approve { get; }
 
     private bool isApproved = true;
     public bool IsApproved
@@ -37,14 +37,9 @@ class OperationVM : BaseNotifyProperty
 
     public OperationVM(
         BaseOperation operation,
-        ReadOnlyObservableCollection<CategoryVM> categories,
-        Action<OperationVM> approve)
+        ReadOnlyObservableCollection<CategoryVM> categories)
     {
-        this.approve = approve;
         Operation = operation;
         Categories = categories;
-        Approve = new DelegateCommand(ApproveHandler);
     }
-
-    private void ApproveHandler() => approve(this);
 }

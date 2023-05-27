@@ -6,6 +6,8 @@ namespace AccountHelperWpf.Models;
 
 class AssociationStorage
 {
+    public event Action<string>? OnAssociationRemoved;
+
     private readonly ObservableCollection<AssociationVM> associations;
     private readonly ObservableCollection<string> excludedOperations;
     private readonly ISaveController saveController;
@@ -37,7 +39,7 @@ class AssociationStorage
         saveController.MarkChanged();
     }
 
-    public void ExcludeFromAssociations(string operationDescription)
+    public void AddToExcludedOperations(string operationDescription)
     {
         for (int i = 0; i < associations.Count; i++)
         {
@@ -59,4 +61,21 @@ class AssociationStorage
         AssociationVM? associationVM = associations.FirstOrDefault(a => a.OperationDescription == operationDescription);
         return associationVM?.CategoryVM;
     }
+
+    public void DeleteAssociationAndClearOperations(int index)
+    {
+        string operationDescription = associations[index].OperationDescription;
+        associations.RemoveAt(index);
+        OnAssociationRemoved?.Invoke(operationDescription);
+    }
+
+    public void DeleteAssociation(int selectedAssociationIndex)
+        => associations.RemoveAt(selectedAssociationIndex);
+
+    public void DeleteException(int selectedExceptionIndex)
+        => excludedOperations.RemoveAt(selectedExceptionIndex);
+
+    public IEnumerable<AssociationVM> GetAssociations() => associations;
+
+    public IEnumerable<string> GetExcludedOperations() => excludedOperations;
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
@@ -7,22 +6,33 @@ namespace AccountHelperWpf.ViewModels;
 
 class AssociationsVM : BaseNotifyProperty
 {
-    public ObservableCollection<AssociationVM> Associations { get; }
-    public ObservableCollection<string> ExcludedOperations { get; }
+    private readonly AssociationStorage storage;
+    public IEnumerable<AssociationVM> Associations { get; }
+    public IEnumerable<string> ExcludedOperations { get; }
     public ICommand DeleteAssociationCommand { get; }
+    public ICommand DeleteAndClearOperationCommand { get; }
     public ICommand DeleteExceptionCommand { get; }
     public int SelectedAssociationIndex { get; set; }
     public int SelectedExceptionIndex { get; set; }
 
-    public AssociationsVM(InitData initData)
+    public AssociationsVM(AssociationStorage storage)
     {
-        Associations = initData.Associations;
-        ExcludedOperations = initData.ExcludedOperations;
+        this.storage = storage;
         DeleteAssociationCommand = new DelegateCommand(DeleteAssociation);
+        DeleteAndClearOperationCommand = new DelegateCommand(DeleteAndClearOperation);
         DeleteExceptionCommand = new DelegateCommand(DeleteException);
+
+        Associations = storage.GetAssociations();
+        ExcludedOperations = storage.GetExcludedOperations();
     }
 
-    private void DeleteAssociation() => Associations.RemoveAt(SelectedAssociationIndex);
+    private void DeleteAndClearOperation()
+        => storage.DeleteAssociationAndClearOperations(SelectedAssociationIndex);
 
-    private void DeleteException() => ExcludedOperations.RemoveAt(SelectedExceptionIndex!);
+    private void DeleteAssociation()
+        => storage.DeleteAssociation(SelectedAssociationIndex);
+
+
+    private void DeleteException()
+        => storage.DeleteException(SelectedExceptionIndex);
 }
