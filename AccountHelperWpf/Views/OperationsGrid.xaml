@@ -20,6 +20,8 @@
                            ItemsSource="{Binding Operations}">
             <DataGrid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Search what is that" Command="{Binding SearchInfoCommand}"
+                              IsEnabled="{Binding IsSingleSelection}"/>
                     <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"
                               IsEnabled="{Binding IsSingleSelection}"/>
                     <MenuItem Header="Set As Last" Command="{Binding SetLastOperationCommand}"

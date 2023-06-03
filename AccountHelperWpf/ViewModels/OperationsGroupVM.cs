@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.Parsing;
@@ -53,6 +54,7 @@ class OperationsGroupVM : BaseNotifyProperty
     public ICommand SetNullCategoryCommand { get; }
     public ICommand ApplyCategoryForSameOperationsCommand { get; }
     public ICommand ApproveCommand { get; }
+    public ICommand SearchInfoCommand { get; }
 
     public OperationsGroupVM(
         OperationsGroup operationGroup,
@@ -73,6 +75,7 @@ class OperationsGroupVM : BaseNotifyProperty
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
         SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
         ApplyCategoryForSameOperationsCommand = new DelegateCommand(ApplyCategoryForSameOperations);
+        SearchInfoCommand = new DelegateCommand(SearchInfo);
         ApproveCommand = new DelegateCommand(Approve);
         allOperations = GetAllOperations();
         UpdateByFilter();
@@ -190,6 +193,19 @@ class OperationsGroupVM : BaseNotifyProperty
             if (operation.Operation.Description == selectedOperation.Operation.Description)
                 operation.Category = selectedOperation.Category;
         }
+    }
+
+    private void SearchInfo()
+    {
+        string searchQuery = GetSelectedOperation().Operation.Description;
+        string encodedQuery = Uri.EscapeDataString(searchQuery);
+        string searchUrl = $"https://www.google.com/search?q={encodedQuery}";
+        // Starts the default web browser with the search URL
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = searchUrl,
+            UseShellExecute = true
+        });
     }
 
     private void Approve()
