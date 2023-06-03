@@ -51,10 +51,7 @@ class MainWindowModel : BaseNotifyProperty
             }
             AccountFile? accountFile = ParserChooser.ParseFile(fullPath, viewResolver);
             if (accountFile == null)
-            {
-                viewResolver.ShowWarning("Sorry, the fle wasn't recognized as any known bank report.");
                 return;
-            }
             FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesVM, RemoveHandler, associationStorage, saveController);
             Tabs.Insert(Tabs.Count - 2, fileSortingViewModel.GetTabItem());
             filesVm.Add(fullPath, fileSortingViewModel);

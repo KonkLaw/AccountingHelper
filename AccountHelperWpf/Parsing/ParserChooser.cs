@@ -10,35 +10,44 @@ class ParserChooser
     public static AccountFile? ParseFile(string filePath, IViewResolver viewResolver)
     {
         string fileName = Path.GetFileName(filePath);
-        using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+        try
         {
-            StreamReader reader = new (fileStream, EncodingHelper.RusEncoding);
-            AccountFile? result = PriorParser.TryParse(reader, fileName);
-            if (result != null)
-                return result;
-
-            fileStream.Position = 0;
-
-            reader = new (fileStream, EncodingHelper.PolandEncoding);
-
-            OperationsGroup? operationsGroup = PkoParser.TryParse(reader);
-            if (operationsGroup != null)
+            using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
-                PkoBlockedOperationParserVM pkoBlockedOperationsVM = new (viewResolver);
-                viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
+                StreamReader reader = new(fileStream, EncodingHelper.RusEncoding);
+                AccountFile? result = PriorParser.TryParse(reader, fileName);
+                if (result != null)
+                    return result;
 
-                var operationsGroups = new List<OperationsGroup>
+                fileStream.Position = 0;
+
+                reader = new(fileStream, EncodingHelper.PolandEncoding);
+
+                OperationsGroup? operationsGroup = PkoParser.TryParse(reader);
+                if (operationsGroup != null)
+                {
+                    PkoBlockedOperationParserVM pkoBlockedOperationsVM = new(viewResolver);
+                    viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
+
+                    var operationsGroups = new List<OperationsGroup>
                 {
                     operationsGroup.Value
                 };
-                if (pkoBlockedOperationsVM.OperationsGroup.HasValue)
-                    operationsGroups.Insert(0, pkoBlockedOperationsVM.OperationsGroup.Value);
+                    if (pkoBlockedOperationsVM.OperationsGroup.HasValue)
+                        operationsGroups.Insert(0, pkoBlockedOperationsVM.OperationsGroup.Value);
 
-                return new AccountFile(new AccountDescription(fileName, "zl"), operationsGroups);
+                    return new AccountFile(new AccountDescription(fileName, "zl"), operationsGroups);
+                }
+
+                viewResolver.ShowWarning("Sorry, the fle wasn't recognized as any known bank report.");
+                return null;
             }
         }
-
-        return null;
+        catch (IOException)
+        {
+            viewResolver.ShowWarning("File is already opened by other application or don't have access to file.");
+            return null;
+        }
     }
 }
 
