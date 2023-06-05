@@ -13,7 +13,7 @@
             <RowDefinition MinHeight="250"/>
         </Grid.RowDefinitions>
         <Border Grid.Row="0" BorderThickness="0.5" BorderBrush="Black">
-            <DataGrid 
+            <DataGrid IsReadOnly="True"
                       SelectionMode="Single"
                       SelectedIndex="{Binding SelectedAssociationIndex}"
                       ItemsSource="{Binding Associations}">
