@@ -31,8 +31,10 @@ class OperationsVM : BaseNotifyProperty
         get => selectedItems;
         set
         {
-            if (SetProperty(ref selectedItems, value))
-                IsSingleSelection = selectedItems is { Count: > 0 };
+            SetProperty(ref selectedItems, value);
+            // We don't check equality as reference to collection is the same
+            // however count is different
+            IsSingleSelection = selectedItems is { Count: 1 };
         }
     }
 
