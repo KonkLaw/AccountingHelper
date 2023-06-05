@@ -16,9 +16,9 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Save And Exit" Margin="9" Click="SaveAndExit_OnClick"/>
-            <Button Grid.Column="1" Content="Exit" Margin="9" Click="Exit_OnClick"/>
-            <Button Grid.Column="2" Content="Cancel" Margin="9" Click="Cancel_OnClick"/>
+            <Button Grid.Column="0" Content="Save And Exit" Margin="9" HorizontalAlignment="Center" Click="SaveAndExit_OnClick"/>
+            <Button Grid.Column="1" Content="Exit" HorizontalAlignment="Center" Margin="9" Click="Exit_OnClick"/>
+            <Button Grid.Column="2" Content="Cancel" Margin="9" HorizontalAlignment="Center" Click="Cancel_OnClick"/>
         </Grid>
     </StackPanel>
 </Window>

@@ -12,17 +12,19 @@
             <RowDefinition />
             <RowDefinition MinHeight="250"/>
         </Grid.RowDefinitions>
-        <DataGrid Grid.Row="0"
-                  SelectionMode="Single"
-                  SelectedIndex="{Binding SelectedAssociationIndex}"
-                  ItemsSource="{Binding Associations}">
-            <DataGrid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand}"/>
-                    <MenuItem Header="Delete + clear operations" Command="{Binding DeleteAndClearOperationCommand}"/>
-                </ContextMenu>
-            </DataGrid.ContextMenu>
-        </DataGrid>
+        <Border Grid.Row="0" BorderThickness="0.5" BorderBrush="Black">
+            <DataGrid 
+                      SelectionMode="Single"
+                      SelectedIndex="{Binding SelectedAssociationIndex}"
+                      ItemsSource="{Binding Associations}">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand}"/>
+                        <MenuItem Header="Delete + clear operations" Command="{Binding DeleteAndClearOperationCommand}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+            </DataGrid>
+        </Border>
         <StackPanel Grid.Row="1">
             <Label Content="Excluded from auto-mapping operations"/>
             <ListBox ItemsSource="{Binding ExcludedOperations}"
@@ -35,5 +37,6 @@
                 </ListBox.ContextMenu>
             </ListBox>
         </StackPanel>
+
     </Grid>
 </UserControl>

@@ -7,10 +7,10 @@
              StartupUri="Views/Start.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <!--<ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary.MergedDictionaries>
                 <ui:ThemeResources />
                 <ui:XamlControlsResources />
-            </ResourceDictionary.MergedDictionaries>-->
+            </ResourceDictionary.MergedDictionaries>
             <DataTemplate x:Key="FileSortingTemplate" DataType="{x:Type viewModels:TabInfo}">
                 <views:File2View DataContext="{Binding Content}"/>
             </DataTemplate>
