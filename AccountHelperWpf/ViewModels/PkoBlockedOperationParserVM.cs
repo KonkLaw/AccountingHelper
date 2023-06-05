@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.Parsing;
 using AccountHelperWpf.ViewUtils;
 
@@ -8,10 +9,10 @@ namespace AccountHelperWpf.ViewModels;
 class PkoBlockedOperationParserVM : BaseNotifyProperty
 {
     private readonly IViewResolver viewResolver;
-    public OperationsGroup? OperationsGroup { get; set; }
+    public IReadOnlyList<PkoBlockedOperation>? BlockedOperations { get; set; }
 
-    private OperationsGroupVM? operations;
-    public OperationsGroupVM? Operations
+    private OperationsVM? operations;
+    public OperationsVM? Operations
     {
         get => operations;
         private set => SetProperty(ref operations, value);
@@ -37,7 +38,7 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
     private void ClearOperations()
     {
         Operations = null;
-        OperationsGroup = null;
+        BlockedOperations = null;
     }
 
     private void TryParseHandler()
@@ -48,19 +49,17 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
             return;
         }
 
-        PkoParser.TryParseBlocked(text, out OperationsGroup? operationsBlocked, out string? errorMessage);
+        PkoParser.TryParseBlocked(text, out IReadOnlyList<PkoBlockedOperation>? operationsBlocked, out string? errorMessage);
         if (errorMessage != null)
             viewResolver.ShowWarning(errorMessage);
-            
-        OperationsGroup = operationsBlocked;
-        if (OperationsGroup != null && OperationsGroup.Value.Operations.Count > 0)
+
+        BlockedOperations = operationsBlocked;
+        if (BlockedOperations is { Count: > 0 })
         {
-            Operations = new OperationsGroupVM(
-                OperationsGroup.Value,
+            Operations = new OperationsVM(
+                Converter.ConvertBlockedOperations(BlockedOperations),
                 new CategoriesVM(new ObservableCollection<CategoryVM>(), viewResolver),
-                SummaryChanged, null);
+                () => { }, null);
         }
     }
-
-    private void SummaryChanged() { }
 }

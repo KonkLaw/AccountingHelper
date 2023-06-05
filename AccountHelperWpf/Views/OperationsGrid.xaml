@@ -9,52 +9,50 @@
              mc:Ignorable="d" 
              x:Name="OperationGrid"
              d:DesignHeight="450" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance viewModels:OperationsGroupVM}">
+             d:DataContext="{d:DesignInstance viewModels:OperationsVM}">
     <UserControl.Resources>
         <viewUtils:VisibilityConverter x:Key="Converter" />
     </UserControl.Resources>
-    <StackPanel>
-        <TextBox IsReadOnly="True" Text="{Binding Name, Mode=OneTime}" />
-        <local:DataGridExt AutoGenerateColumns="False"
-                           SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"
-                           ItemsSource="{Binding Operations}">
-            <DataGrid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Search what is that" Command="{Binding SearchInfoCommand}"
-                              IsEnabled="{Binding IsSingleSelection}"/>
-                    <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"
-                              IsEnabled="{Binding IsSingleSelection}"/>
-                    <MenuItem Header="Set As Last" Command="{Binding SetLastOperationCommand}"
-                              IsEnabled="{Binding IsSingleSelection}"/>
-                    <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSameOperationsCommand}"
-                              IsEnabled="{Binding IsSingleSelection}"/>
-                    <MenuItem Header="Set category to null" Command="{Binding SetNullCategoryCommand}"/>
-                    <MenuItem Header="Exclude from associations" Command="{Binding ExcludeFromAssociations}"/>
-                </ContextMenu>
-            </DataGrid.ContextMenu>
-            <DataGrid.Columns>
-                <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}" Header="Transaction Date Time" />
-                <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" FontWeight="Bold" />
-                <DataGridTextColumn Width="520" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                            <Button Content="OK"
-                                    Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveCommand}"
-                                    Visibility="{Binding IsApproved, Converter={StaticResource Converter}}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn x:Name="CategoriesColumn" Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                            <ComboBox ItemsSource="{Binding Categories, Mode=OneTime}"
-                                                          SelectedItem="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn x:Name="CommentColumn" Width="120" Binding="{Binding Description}" Header="Pinned Comment" />
-            </DataGrid.Columns>
-        </local:DataGridExt>
-    </StackPanel>
+    <local:DataGridExt AutoGenerateColumns="False"
+                       SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"
+                       ItemsSource="{Binding Operations}">
+        <DataGrid.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Search info in web" Command="{Binding SearchInfoCommand}"
+                          IsEnabled="{Binding IsSingleSelection}"/>
+                <MenuItem Header="Set category to null" Command="{Binding SetNullCategoryCommand}"/>
+                <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"
+                          IsEnabled="{Binding IsSingleSelection}"/>
+                <MenuItem Header="Set As Last" Command="{Binding SetLastOperationCommand}"
+                          IsEnabled="{Binding IsSingleSelection}"/>
+                <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSameOperationsCommand}"
+                          IsEnabled="{Binding IsSingleSelection}"/>
+                <MenuItem Header="Exclude from associations" Command="{Binding ExcludeFromAssociations}"/>
+            </ContextMenu>
+        </DataGrid.ContextMenu>
+        <DataGrid.Columns>
+            <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}" Header="Transaction Date Time" />
+            <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" FontWeight="Bold" />
+            <DataGridTextColumn Width="520" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
+            <DataGridTemplateColumn>
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate DataType="{x:Type viewModels:OperationVM}">
+                        <Button Content="OK"
+                                Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveCommand}"
+                                Visibility="{Binding IsApproved, Converter={StaticResource Converter}}"/>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn x:Name="CategoriesColumn" Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate DataType="{x:Type viewModels:OperationVM}">
+                        <ComboBox ItemsSource="{Binding Categories, Mode=OneTime}"
+                                  SelectedItem="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn x:Name="CommentColumn" Width="120" Binding="{Binding Description}" Header="Pinned Comment" />
+        </DataGrid.Columns>
+    </local:DataGridExt>
+
 </UserControl>

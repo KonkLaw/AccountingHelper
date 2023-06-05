@@ -7,7 +7,7 @@ static class PriorParser
 {
     private const string ColumnSeparator = ";";
 
-    public static AccountFile? TryParse(StreamReader reader, string name)
+    public static PriorFile? TryParse(StreamReader reader, string name)
     {
         string firstLine = reader.ReadLine()!;
         if (firstLine != "Выписка по контракту")
@@ -22,11 +22,11 @@ static class PriorParser
             lines.Add(line);
         }
 
-        List<OperationsGroup> records = ParseLines(lines, out string currency);
-        return new AccountFile(new AccountDescription(name, currency), records);
+        var file = ParseLines(lines, name);
+        return file;
     }
 
-    private static List<OperationsGroup> ParseLines(List<string> lines, out string currency)
+    private static PriorFile ParseLines(List<string> lines, string fileName)
     {
         const string currencyLinePrefix = "Валюта счета: ";
         const string operationsGroupBegin = "Операции по";
@@ -34,12 +34,13 @@ static class PriorParser
         const string operationsBlockedBegin = "Заблокированные суммы по .....";
 
         int lineIndex = 0;
-        List<OperationsGroup> groups = new();
+        List<PriorOperationsGroup> nonBlockedOperationsGroups = new();
+        List<PriorBlockedOperationsGroup> blockedOperationsGroups = new();
         int? currencyIndex = FindNextLine(lines, lineIndex, currencyLinePrefix);
         if (currencyIndex == null)
             throw new ParsingException();
 
-        currency = lines[currencyIndex.Value].Split(ColumnSeparator)[1];
+        string currency = lines[currencyIndex.Value].Split(ColumnSeparator)[1];
         while (true)
         {
             int? groupBeginIndex = FindNextLine(lines, lineIndex, operationsGroupBegin);
@@ -49,7 +50,7 @@ static class PriorParser
             lineIndex = groupBeginIndex.Value;
             string groupName = lines[lineIndex];
             lineIndex++; // skip one line
-            List<BaseOperation> operationsGroup = new();
+            List<PriorOperation> operationsGroup = new();
             while (true)
             {
                 lineIndex++;
@@ -58,7 +59,7 @@ static class PriorParser
                     break;
                 operationsGroup.Add(ParseOperationLine(line));
             }
-            groups.Add(new OperationsGroup(groupName, operationsGroup));
+            nonBlockedOperationsGroups.Add(new PriorOperationsGroup(groupName, operationsGroup));
         }
 
         int? blockedIndex = FindNextLine(lines, lineIndex, operationsBlockedBegin);
@@ -67,7 +68,7 @@ static class PriorParser
             lineIndex = blockedIndex.Value;
             string groupName = lines[lineIndex];
             lineIndex++; // skip one line
-            List<BaseOperation> operationsGroup = new();
+            List<PriorBlockedOperation> operationsGroup = new();
             while (true)
             {
                 lineIndex++;
@@ -76,10 +77,11 @@ static class PriorParser
                 string line = lines[lineIndex];
                 operationsGroup.Add(ParseBlockedOperationLine(line));
             }
-            groups.Add(new OperationsGroup(groupName,operationsGroup));
+            blockedOperationsGroups.Add(new PriorBlockedOperationsGroup(groupName,operationsGroup));
         }
 
-        return groups;
+        var file = new PriorFile(fileName, currency, nonBlockedOperationsGroups, blockedOperationsGroups);
+        return file;
     }
 
     private static int? FindNextLine(List<string> lines, int startSearchLineIndex, string lineBeginString)

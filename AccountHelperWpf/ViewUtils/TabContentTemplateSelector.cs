@@ -10,7 +10,7 @@ class TabContentTemplateSelector : DataTemplateSelector
     {
         object content = ((TabInfo)item).Content;
 
-        if (content is FileSortingViewModel)
+        if (content is FileSortingVM)
             return (DataTemplate)Application.Current!.FindResource("FileSortingTemplate")!;
         if (content is CategoriesVM)
             return (DataTemplate)Application.Current!.FindResource("CategoriesTemplate")!;

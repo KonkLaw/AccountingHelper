@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using AccountHelperWpf.Parsing;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;

@@ -1,19 +1,16 @@
 ﻿using System.Collections;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using AccountHelperWpf.Models;
-using AccountHelperWpf.Parsing;
 using AccountHelperWpf.Utils;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
 
-class OperationsGroupVM : BaseNotifyProperty
+class OperationsVM : BaseNotifyProperty
 {
-    private readonly OperationsGroup operationGroup;
-    private readonly ReadOnlyObservableCollection<CategoryVM> categories;
+    private readonly CategoriesVM categoriesVM;
     private readonly Action summaryChanged;
     private readonly AssociationStorage? associationStorage;
     private readonly List<OperationVM> allOperations;
@@ -35,7 +32,7 @@ class OperationsGroupVM : BaseNotifyProperty
         set
         {
             if (SetProperty(ref selectedItems, value))
-                IsSingleSelection = selectedItems != null && selectedItems.Count > 0;
+                IsSingleSelection = selectedItems is { Count: > 0 };
         }
     }
 
@@ -46,47 +43,47 @@ class OperationsGroupVM : BaseNotifyProperty
         set => SetProperty(ref isSingleSelection, value);
     }
 
-    public string Name => operationGroup.Name;
-
-    public ICommand ExcludeFromAssociations { get; }
-    public ICommand SetLastOperationCommand { get; }
-    public ICommand SetFirstOperationCommand { get; }
-    public ICommand SetNullCategoryCommand { get; }
-    public ICommand ApplyCategoryForSameOperationsCommand { get; }
-    public ICommand ApproveCommand { get; }
     public ICommand SearchInfoCommand { get; }
+    public ICommand SetNullCategoryCommand { get; }
+    public ICommand SetFirstOperationCommand { get; }
+    public ICommand SetLastOperationCommand { get; }
+    public ICommand ApplyCategoryForSameOperationsCommand { get; }
+    public ICommand ExcludeFromAssociations { get; }
+    public ICommand ApproveCommand { get; }
+    
 
-    public OperationsGroupVM(
-        OperationsGroup operationGroup,
+    public OperationsVM(
+        IReadOnlyList<BaseOperation> baseOperations,
         CategoriesVM categoriesVM,
         Action summaryChanged,
         AssociationStorage? associationStorage)
     {
-        this.operationGroup = operationGroup;
-        categories = categoriesVM.GetCategories();
-        categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
-        categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
+        this.categoriesVM = categoriesVM;
         this.summaryChanged = summaryChanged;
         this.associationStorage = associationStorage;
+        allOperations = GetAllOperations(baseOperations);
+        UpdateByFilter();
+
+        categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
+        categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
         if (associationStorage != null)
             associationStorage.OnAssociationRemoved += AssociationStorageOnOnAssociationRemoved;
+
+        SearchInfoCommand = new DelegateCommand(SearchInfo);
+        SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
         SetLastOperationCommand = new DelegateCommand(SetLastOperation);
         SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
-        ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
-        SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
         ApplyCategoryForSameOperationsCommand = new DelegateCommand(ApplyCategoryForSameOperations);
-        SearchInfoCommand = new DelegateCommand(SearchInfo);
+        ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
         ApproveCommand = new DelegateCommand(Approve);
-        allOperations = GetAllOperations();
-        UpdateByFilter();
     }
 
-    private List<OperationVM> GetAllOperations()
+    private List<OperationVM> GetAllOperations(IReadOnlyList<BaseOperation> baseOperations)
     {
-        var result = new List<OperationVM>(operationGroup.Operations.Count);
-        foreach (BaseOperation operation in operationGroup.Operations)
+        var result = new List<OperationVM>(baseOperations.Count);
+        foreach (BaseOperation operation in baseOperations)
         {
-            OperationVM operationVM = new(operation, categories);
+            OperationVM operationVM = new(operation, categoriesVM.GetCategories());
             CategoryVM? categoryVM = associationStorage?.TryGetCategory(operation.Description);
             if (categoryVM != null)
             {
@@ -99,31 +96,35 @@ class OperationsGroupVM : BaseNotifyProperty
         return result;
     }
 
+    private void OperationViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (isOnRemoving)
+            return;
+
+        switch (e.PropertyName)
+        {
+            case nameof(OperationVM.Category):
+            {
+                OperationVM vm = (OperationVM)sender!;
+                foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
+                    operationViewModel.Category = vm.Category;
+                associationStorage?.Update(vm.Operation.Description, vm.Category!);
+                summaryChanged();
+                break;
+            }
+            case nameof(OperationVM.Description):
+            case nameof(OperationVM.IsApproved):
+                summaryChanged();
+                break;
+        }
+    }
+
     private void CategoriesVMOnOnCategoryRemoving() => isOnRemoving = true;
 
     private void CategoriesVMOnOnCategoryRemoved()
     {
         isOnRemoving = false;
         summaryChanged();
-    }
-
-    private void OperationViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (isOnRemoving)
-            return;
-
-        if (e.PropertyName == nameof(OperationVM.Category))
-        {
-            OperationVM vm = (OperationVM)sender!;
-            foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-                operationViewModel.Category = vm.Category;
-            associationStorage?.Update(vm.Operation.Description, vm.Category!);
-            summaryChanged();
-        }
-        else if (e.PropertyName == nameof(OperationVM.Description) || e.PropertyName == nameof(OperationVM.IsApproved))
-        {
-            summaryChanged();
-        }
     }
 
     private void AssociationStorageOnOnAssociationRemoved(string operationDescription)
@@ -135,33 +136,6 @@ class OperationsGroupVM : BaseNotifyProperty
                 operation.Category = null;
         }
         isOnRemoving = false;
-    }
-
-    private void SetFirstOperation()
-    {
-        firstIncluded = GetSelectedOperation();
-        UpdateByFilter();
-        summaryChanged();
-    }
-
-    private void SetLastOperation()
-    {
-        lastIncluded = GetSelectedOperation();
-        UpdateByFilter();
-        summaryChanged();
-    }
-
-    public void ResetFilters()
-    {
-        firstIncluded = null;
-        lastIncluded = null;
-        UpdateByFilter();
-    }
-
-    private void ExcludeFromAssociationHandler()
-    {
-        foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-            associationStorage?.AddToExcludedOperations(operationViewModel.Operation.Description);
     }
 
     private void UpdateByFilter()
@@ -179,20 +153,11 @@ class OperationsGroupVM : BaseNotifyProperty
         Operations = filteredOperations;
     }
 
-    private void SetCategoryToNull()
+    public void ResetFilters()
     {
-        foreach (OperationVM operationVM in SelectedItems.CheckNull())
-            operationVM.Category = null;
-    }
-
-    private void ApplyCategoryForSameOperations()
-    {
-        OperationVM selectedOperation = GetSelectedOperation();
-        foreach (OperationVM operation in Operations)
-        {
-            if (operation.Operation.Description == selectedOperation.Operation.Description)
-                operation.Category = selectedOperation.Category;
-        }
+        firstIncluded = null;
+        lastIncluded = null;
+        UpdateByFilter();
     }
 
     private void SearchInfo()
@@ -208,11 +173,47 @@ class OperationsGroupVM : BaseNotifyProperty
         });
     }
 
+    private void SetCategoryToNull()
+    {
+        foreach (OperationVM operationVM in SelectedItems.CheckNull())
+            operationVM.Category = null;
+    }
+
+    private void SetFirstOperation()
+    {
+        firstIncluded = GetSelectedOperation();
+        UpdateByFilter();
+        summaryChanged();
+    }
+
+    private void SetLastOperation()
+    {
+        lastIncluded = GetSelectedOperation();
+        UpdateByFilter();
+        summaryChanged();
+    }
+
+    private void ApplyCategoryForSameOperations()
+    {
+        OperationVM selectedOperation = GetSelectedOperation();
+        foreach (OperationVM operation in Operations)
+        {
+            if (operation.Operation.Description == selectedOperation.Operation.Description)
+                operation.Category = selectedOperation.Category;
+        }
+    }
+
+    private void ExcludeFromAssociationHandler()
+    {
+        foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
+            associationStorage?.AddToExcludedOperations(operationViewModel.Operation.Description);
+    }
+
+    private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
+
     private void Approve()
     {
         foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
             operationViewModel.IsApproved = true;
     }
-
-    private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
 }

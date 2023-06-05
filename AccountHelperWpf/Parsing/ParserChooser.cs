@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewModels;
 using AccountHelperWpf.ViewUtils;
 
@@ -7,7 +8,7 @@ namespace AccountHelperWpf.Parsing;
 
 class ParserChooser
 {
-    public static AccountFile? ParseFile(string filePath, IViewResolver viewResolver)
+    public static OperationsFile? ParseFile(string filePath, IViewResolver viewResolver)
     {
         string fileName = Path.GetFileName(filePath);
         try
@@ -15,28 +16,20 @@ class ParserChooser
             using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
                 StreamReader reader = new(fileStream, EncodingHelper.RusEncoding);
-                AccountFile? result = PriorParser.TryParse(reader, fileName);
+                PriorFile? result = PriorParser.TryParse(reader, fileName);
                 if (result != null)
-                    return result;
+                    return Converter.Convert(result);
 
                 fileStream.Position = 0;
 
                 reader = new(fileStream, EncodingHelper.PolandEncoding);
 
-                OperationsGroup? operationsGroup = PkoParser.TryParse(reader);
-                if (operationsGroup != null)
+                IReadOnlyList<PkoOperation>? nonBlockedOperations = PkoParser.TryParse(reader);
+                if (nonBlockedOperations != null)
                 {
                     PkoBlockedOperationParserVM pkoBlockedOperationsVM = new(viewResolver);
                     viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
-
-                    var operationsGroups = new List<OperationsGroup>
-                {
-                    operationsGroup.Value
-                };
-                    if (pkoBlockedOperationsVM.OperationsGroup.HasValue)
-                        operationsGroups.Insert(0, pkoBlockedOperationsVM.OperationsGroup.Value);
-
-                    return new AccountFile(new AccountDescription(fileName, "zl"), operationsGroups);
+                    return Converter.Convert(new PkoFile(fileName, nonBlockedOperations, pkoBlockedOperationsVM.BlockedOperations));
                 }
 
                 viewResolver.ShowWarning("Sorry, the fle wasn't recognized as any known bank report.");

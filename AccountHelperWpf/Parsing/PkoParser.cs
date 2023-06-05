@@ -6,9 +6,9 @@ namespace AccountHelperWpf.Parsing;
 
 static class PkoParser
 {
-    public static OperationsGroup? TryParse(StreamReader reader)
+    public static IReadOnlyList<PkoOperation>? TryParse(StreamReader reader)
     {
-        List<BaseOperation> operations = new();
+        List<PkoOperation> operations = new();
 
         string firstLine = reader.ReadLine()!;
         const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\",";
@@ -20,18 +20,18 @@ static class PkoParser
             operations.Add(ParseString(line));
         } while (!reader.EndOfStream);
 
-        List<(int orderId, BaseOperation operation)> list = operations.Select((operation, index) => (index, operation)).ToList();
-        var comparer = new DelegateComparer<(int, BaseOperation)>((i1, i2) =>
+        List<(int orderId, PkoOperation operation)> list = operations.Select((operation, index) => (index, operation)).ToList();
+        var comparer = new DelegateComparer<(int, PkoOperation)>((i1, i2) =>
         {
             int result = Comparer<DateTime>.Default.Compare(i2.Item2.TransactionDateTime, i1.Item2.TransactionDateTime);
             return result == 0 ? Comparer<int>.Default.Compare(i1.Item1, i2.Item1) : result;
         });
         list.Sort(comparer);
         operations.Clear();
-        foreach ((_, BaseOperation operation) in list)
+        foreach ((_, PkoOperation operation) in list)
             operations.Add(operation);
 
-        return new OperationsGroup("Non Blocked operations", operations);
+        return operations;
     }
 
     struct RecordIterator
@@ -103,8 +103,8 @@ static class PkoParser
             operationType, originalAmount, saldoBeforeTransaction, otherDescription.ToString());
     }
 
-    public static void TryParseBlocked(string textToParse, out OperationsGroup? operationsGroup, out string? errorMessage)
-        => PkoBlockedParser.TryParse(textToParse, out operationsGroup, out errorMessage);
+    public static void TryParseBlocked(string textToParse, out IReadOnlyList<PkoBlockedOperation>? blockedOperations, out string? errorMessage)
+        => PkoBlockedParser.TryParse(textToParse, out blockedOperations, out errorMessage);
 
     class PkoBlockedParser
     {
@@ -115,13 +115,10 @@ static class PkoParser
 
         private PkoBlockedParser(string text) => this.text = text;
 
-        public static void TryParse(string textToParse, out OperationsGroup? result, out string? errorMessage)
+        public static void TryParse(string textToParse, out IReadOnlyList<PkoBlockedOperation>? result, out string? errorMessage)
         {
-            List<BaseOperation> operations = new PkoBlockedParser(textToParse).TryParse(out errorMessage);
-            if (operations.Count == 0)
-                result = null;
-            else
-                result = new OperationsGroup("Blocked operations", operations);
+            List<PkoBlockedOperation> operations = new PkoBlockedParser(textToParse).TryParse(out errorMessage);
+            result = operations.Count == 0 ? null : operations;
         }
 
         private bool TryMoveToNewDay(out int currentDayIndex)
@@ -145,9 +142,9 @@ static class PkoParser
             return true;
         }
 
-        private List<BaseOperation> TryParse(out string? errorMessage)
+        private List<PkoBlockedOperation> TryParse(out string? errorMessage)
         {
-            List<BaseOperation> operations = new ();
+            List<PkoBlockedOperation> operations = new ();
 
             try
             {

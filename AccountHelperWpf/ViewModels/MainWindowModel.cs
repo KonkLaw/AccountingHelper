@@ -15,7 +15,7 @@ class MainWindowModel : BaseNotifyProperty
     private readonly SaveController saveController;
 
     private readonly AssociationStorage associationStorage;
-    private readonly Dictionary<string, FileSortingViewModel> filesVm = new ();
+    private readonly Dictionary<string, FileSortingVM> filesVm = new();
 
     public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociation { get; }
@@ -49,12 +49,13 @@ class MainWindowModel : BaseNotifyProperty
                 viewResolver.ShowWarning("File already added");
                 return;
             }
-            AccountFile? accountFile = ParserChooser.ParseFile(fullPath, viewResolver);
-            if (accountFile == null)
+            OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
+            if (operationsFile == null)
                 return;
-            FileSortingViewModel fileSortingViewModel = new (accountFile, categoriesVM, RemoveHandler, associationStorage, saveController);
-            Tabs.Insert(Tabs.Count - 2, fileSortingViewModel.GetTabItem());
-            filesVm.Add(fullPath, fileSortingViewModel);
+
+            var fileVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController);
+            Tabs.Insert(Tabs.Count - 2, fileVM.TabInfo);
+            filesVm.Add(fullPath, fileVM);
         }
     }
 
