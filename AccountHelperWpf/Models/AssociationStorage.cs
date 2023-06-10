@@ -38,7 +38,7 @@ class AssociationStorage
         AssociationVM? associationVM = associations.TryGet(operationDescription);
         if (associationVM == null)
         {
-            AssociationVM newAssociation = new (operationDescription, category);
+            AssociationVM newAssociation = new (operationDescription, category, true);
             associations.Insert(newAssociation);
         }
         else

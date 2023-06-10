@@ -34,7 +34,7 @@ class HistoryHelper
 
 class DataConverter
 {
-    public static InitData? ConvertFrom(HistoryData historyData)
+    public static InitData ConvertFrom(HistoryData historyData)
     {
         List<CategoryVM> categories = historyData.Categories!.Select(c => new CategoryVM
         {
@@ -43,7 +43,8 @@ class DataConverter
         }).ToList();
         List<AssociationVM> associations = historyData.Associations!.Select(a => new AssociationVM(
             a.OperationDescription!,
-            categories.Find(c => c.Name == a.Category!)!)).ToList();
+            categories.Find(c => c.Name == a.Category!)!,
+            false)).ToList();
         return new InitData(
             new ObservableCollection<CategoryVM>(categories),
             new ObservableCollection<AssociationVM>(associations),

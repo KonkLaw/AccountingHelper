@@ -36,7 +36,5 @@
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>
-
-
     </Grid>
 </UserControl>
