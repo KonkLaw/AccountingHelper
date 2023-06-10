@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using AccountHelperWpf.Models;
+﻿using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
@@ -33,13 +32,8 @@ class OperationVM : BaseNotifyProperty
         set => SetProperty(ref description, value);
     }
 
-    public ReadOnlyObservableCollection<CategoryVM> Categories { get; }
-
-    public OperationVM(
-        BaseOperation operation,
-        ReadOnlyObservableCollection<CategoryVM> categories)
+    public OperationVM(BaseOperation operation)
     {
         Operation = operation;
-        Categories = categories;
     }
 }

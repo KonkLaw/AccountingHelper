@@ -46,7 +46,7 @@
             <DataGridTemplateColumn x:Name="CategoriesColumn" Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <ComboBox ItemsSource="{Binding Categories, Mode=OneTime}"
+                        <ComboBox ItemsSource="{Binding ElementName=OperationGrid, Path=DataContext.Categories, Mode=OneTime}"
                                   SelectedItem="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>

@@ -10,13 +10,14 @@ namespace AccountHelperWpf.ViewModels;
 
 class OperationsVM : BaseNotifyProperty
 {
-    private readonly CategoriesVM categoriesVM;
     private readonly Action summaryChanged;
     private readonly AssociationStorage? associationStorage;
     private readonly List<OperationVM> allOperations;
     private bool isOnRemoving;
     private OperationVM? firstIncluded;
     private OperationVM? lastIncluded;
+
+    public IEnumerable<CategoryVM> Categories { get; }
 
     private IReadOnlyList<OperationVM> operations = null!;
     public IReadOnlyList<OperationVM> Operations
@@ -52,7 +53,6 @@ class OperationsVM : BaseNotifyProperty
     public ICommand ApplyCategoryForSameOperationsCommand { get; }
     public ICommand ExcludeFromAssociations { get; }
     public ICommand ApproveCommand { get; }
-    
 
     public OperationsVM(
         IReadOnlyList<BaseOperation> baseOperations,
@@ -60,7 +60,7 @@ class OperationsVM : BaseNotifyProperty
         Action summaryChanged,
         AssociationStorage? associationStorage)
     {
-        this.categoriesVM = categoriesVM;
+        Categories = categoriesVM.GetCategories();
         this.summaryChanged = summaryChanged;
         this.associationStorage = associationStorage;
         allOperations = GetAllOperations(baseOperations);
@@ -85,7 +85,7 @@ class OperationsVM : BaseNotifyProperty
         var result = new List<OperationVM>(baseOperations.Count);
         foreach (BaseOperation operation in baseOperations)
         {
-            OperationVM operationVM = new(operation, categoriesVM.GetCategories());
+            OperationVM operationVM = new(operation);
             CategoryVM? categoryVM = associationStorage?.TryGetCategory(operation.Description);
             if (categoryVM != null)
             {
