@@ -9,7 +9,6 @@ static class PkoParser
     public static IReadOnlyList<PkoOperation>? TryParse(StreamReader reader)
     {
         List<PkoOperation> operations = new();
-
         string firstLine = reader.ReadLine()!;
         const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\",";
         if (!firstLine.AsSpan(0, knownFirstString.Length).SequenceEqual(knownFirstString))
@@ -99,8 +98,9 @@ static class PkoParser
             }
         }
         return new PkoOperation(
-            dateOperation, amount, description, dateAccounting, currency,
-            operationType, originalAmount, saldoBeforeTransaction, otherDescription.ToString());
+            dateOperation, amount, description,
+            dateAccounting, currency, operationType, originalAmount,
+            saldoBeforeTransaction, otherDescription.ToString());
     }
 
     public static void TryParseBlocked(string textToParse, out IReadOnlyList<PkoBlockedOperation>? blockedOperations, out string? errorMessage)

@@ -6,21 +6,23 @@ namespace AccountHelperWpf.Parsing;
 
 // ==================== Prior
 
-public record PriorOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-        [property: Width(150)]
-        string CategoryName,
-        string Currency,
-        decimal Fee,
-        decimal InitialAmount,
-        [property: StringFormat("dd-MM-yyyy")]
-        DateOnly AccountDate);
+public record PriorOperation(
+    DateTime TransactionDateTime, decimal Amount, string Description,
+    [property: Width(150)]
+    string CategoryName,
+    string Currency,
+    decimal Fee,
+    decimal InitialAmount,
+    [property: StringFormat("dd-MM-yyyy")]
+    DateOnly AccountDate);
 
-public record PriorBlockedOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-        [property: Width(150)]
-        string CategoryName,
-        string Currency,
-        decimal InitialAmount,
-        string InitialCurrency);
+public record PriorBlockedOperation(
+    DateTime TransactionDateTime, decimal Amount, string Description,
+    [property: Width(150)]
+    string CategoryName,
+    string Currency,
+    decimal InitialAmount,
+    string InitialCurrency);
 
 public readonly record struct PriorOperationsGroup(
     string Name,

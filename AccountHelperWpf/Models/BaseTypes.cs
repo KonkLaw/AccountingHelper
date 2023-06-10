@@ -13,27 +13,30 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
     string? OperationType,
     string? OriginalAmount,
     decimal? SaldoBeforeTransaction,
+    int Id,
     string OtherDescription)
     :
-        BaseOperation(TransactionDateTime, Amount, Description)
+    BaseOperation(TransactionDateTime, Amount, Description)
 {
-    public static PkoOperation Convert(Parsing.PkoOperation operation) => new PkoOperation(
+    public static PkoOperation Convert(int id, Parsing.PkoOperation operation) => new PkoOperation(
             operation.TransactionDateTime, operation.Amount, operation.Description,
             Currency: operation.Currency,
             OperationType: operation.OperationType,
             OriginalAmount: operation.OriginalAmount,
             SaldoBeforeTransaction: operation.SaldoBeforeTransaction,
             DateAccounting: operation.DateAccounting,
+            Id: id,
             OtherDescription: operation.OtherDescription
         );
 
-    public static PkoOperation Convert(Parsing.PkoBlockedOperation operation) => new PkoOperation(
+    public static PkoOperation Convert(PkoBlockedOperation operation, int id) => new PkoOperation(
             operation.TransactionDateTime, operation.Amount, operation.Description,
             DateAccounting: null,
             Currency: null,
             OperationType: null,
             OriginalAmount: null,
             SaldoBeforeTransaction: null,
+            Id: id,
             OtherDescription: operation.OtherDescription
         );
 }

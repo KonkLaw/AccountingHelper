@@ -89,9 +89,12 @@ class OperationsVM : BaseNotifyProperty
 
     private void AssociationStorageOnAssociationsChanged()
     {
+        if (associationStorage == null)
+            return;
+
         foreach (OperationVM operation in allOperations)
         {
-            if (associationStorage!.IsExcluded(operation.Operation.Description))
+            if (associationStorage.IsExcluded(operation.Operation.Description))
             {
                 operation.AssociationStatus = AssociationStatus.Excluded;
             }

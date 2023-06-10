@@ -23,7 +23,8 @@ public static class Converter
         List<BaseOperation> operations = new List<BaseOperation>();
         if (file.BlockedOperations != null)
             operations.AddRange(file.BlockedOperations.Select(PkoOperation.Convert));
-        operations.AddRange(file.NonBlockedOperations.Select(operation => (BaseOperation)PkoOperation.Convert(operation)));
+        operations.AddRange(file.NonBlockedOperations.Select(
+            operation => (BaseOperation)PkoOperation.Convert(operations.Count, operation)));
         return new OperationsFile(file.FileName, operations);
     }
 

@@ -36,11 +36,8 @@ static class PriorParser
         int lineIndex = 0;
         List<PriorOperationsGroup> nonBlockedOperationsGroups = new();
         List<PriorBlockedOperationsGroup> blockedOperationsGroups = new();
-        int? currencyIndex = FindNextLine(lines, lineIndex, currencyLinePrefix);
-        if (currencyIndex == null)
-            throw new ParsingException();
-
-        string currency = lines[currencyIndex.Value].Split(ColumnSeparator)[1];
+        int currencyIndex = FindNextLine(lines, lineIndex, currencyLinePrefix) ?? throw new ParsingException();
+        string currency = lines[currencyIndex].Split(ColumnSeparator)[1];
         while (true)
         {
             int? groupBeginIndex = FindNextLine(lines, lineIndex, operationsGroupBegin);
