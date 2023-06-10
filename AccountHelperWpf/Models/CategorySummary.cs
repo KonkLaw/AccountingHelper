@@ -65,6 +65,9 @@ class CategorySummary
             }
             else
                 categoriesSummary[operation.Category].Add(operation);
+
+            if (operation.AssociationStatus == AssociationStatus.NotCorrespond)
+                isSorted = false;
         }
         StringBuilder stringBuilder = new();
         foreach (CategorySummary categorySummary in categoriesSummary.Values)

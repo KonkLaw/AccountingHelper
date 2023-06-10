@@ -8,10 +8,7 @@ class BaseNotifyProperty : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        var qwe = PropertyChanged?.GetInvocationList().Length;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     protected bool SetProperty<T>(ref T source, T newValue, [CallerMemberName] string? propertyName = null)
     {

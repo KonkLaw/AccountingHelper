@@ -82,7 +82,9 @@ class OperationsVM : BaseNotifyProperty
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
         ApproveCommand = new DelegateCommand(Approve);
 
+        isOnRemoving = true;
         AssociationStorageOnAssociationsChanged();
+        isOnRemoving = false;
     }
 
     private void AssociationStorageOnAssociationsChanged()
@@ -144,6 +146,7 @@ class OperationsVM : BaseNotifyProperty
                 summaryChanged();
                 break;
             }
+            case nameof(OperationVM.AssociationStatus):
             case nameof(OperationVM.Comment):
             case nameof(OperationVM.IsApproved):
                 summaryChanged();
