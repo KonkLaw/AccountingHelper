@@ -33,11 +33,34 @@
         <DataGrid.Columns>
             <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}" Header="Transaction Date Time" />
             <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" FontWeight="Bold" />
-            <DataGridTextColumn Width="520" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Description" />
+            <DataGridTextColumn Width="520" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Comment" />
             <DataGridTemplateColumn>
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Button Content="OK"
+                        <Image Tag="{Binding AssociationStatus}" Width="32" Height="32" ToolTip="{Binding AssociationStatusComment}">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger  Binding="{Binding AssociationStatus}" Value="NotCorrespond">
+                                            <Setter Property="Source" Value="/Resources/Icons/warning.png"/>
+                                        </DataTrigger >
+                                        <DataTrigger  Binding="{Binding AssociationStatus}" Value="Excluded">
+                                            <Setter Property="Source" Value="/Resources/Icons/exclamation.png"/>
+                                        </DataTrigger >
+                                        <DataTrigger  Binding="{Binding AssociationStatus}" Value="None">
+                                            <Setter Property="Source" Value="{x:Null}"/>
+                                        </DataTrigger >
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn>
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate DataType="{x:Type viewModels:OperationVM}">
+                        <Button Content="OK" ToolTip="{Binding ApprovedComment}"
                                 Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveCommand}"
                                 Visibility="{Binding IsApproved, Converter={StaticResource Converter}}"/>
                     </DataTemplate>
@@ -51,7 +74,7 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTextColumn x:Name="CommentColumn" Width="120" Binding="{Binding Description}" Header="Pinned Comment" />
+            <DataGridTextColumn x:Name="CommentColumn" Width="120" Binding="{Binding Comment}" Header="Pinned Comment" />
         </DataGrid.Columns>
     </local:DataGridExt>
 

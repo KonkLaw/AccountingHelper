@@ -57,11 +57,11 @@ class DataConverter
                 Description = c.Description,
                 Name = c.Name
             }).ToList(),
-            Associations = initData.Associations.Select(a => new AssociationRecord
+            Associations = initData.Associations.Collection.Select(a => new AssociationRecord
             {
                 OperationDescription = a.OperationDescription,
                 Category = a.CategoryVM.Name
             }).ToList(),
-            ExcludedOperations = initData.ExcludedOperations.ToList(),
+            ExcludedOperations = initData.ExcludedOperations.Collection.ToList(),
         };
 }

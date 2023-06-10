@@ -22,18 +22,59 @@ class OperationVM : BaseNotifyProperty
     public bool IsApproved
     {
         get => isApproved;
-        set => SetProperty(ref isApproved, value);
+        set
+        {
+            if (SetProperty(ref isApproved, value))
+                OnPropertyChanged(nameof(ApprovedComment));
+        }
     }
 
-    private string description = string.Empty;
-    public string Description
+    private string comment = string.Empty;
+    public string Comment
     {
-        get => description;
-        set => SetProperty(ref description, value);
+        get => comment;
+        set => SetProperty(ref comment, value);
     }
 
-    public OperationVM(BaseOperation operation)
+    private AssociationStatus associationStatus = AssociationStatus.None;
+    public AssociationStatus AssociationStatus
     {
-        Operation = operation;
+        get => associationStatus;
+        set
+        {
+            if (SetProperty(ref associationStatus, value))
+                OnPropertyChanged(nameof(AssociationStatusComment));
+        }
     }
+
+    public string ApprovedComment => isApproved
+            ? string.Empty
+            : "Category was mapped automatically, not approved";
+
+    public string AssociationStatusComment
+    {
+        get
+        {
+            string associationComment = associationStatus switch
+            {
+                AssociationStatus.None => string.Empty,
+                AssociationStatus.NotCorrespond
+                    => "Selected, category do not correspond to category in auto-mapping." +
+                                                   "Use other category or add to exceptions",
+                AssociationStatus.Excluded => "For description of operation auto-mapping is disabled.",
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            return associationComment;
+        }
+    }
+
+    public OperationVM(BaseOperation operation) => Operation = operation;
+}
+
+enum AssociationStatus
+{
+    None,
+    NotCorrespond,
+    Excluded,
 }

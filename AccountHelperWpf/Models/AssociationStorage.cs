@@ -1,20 +1,19 @@
-﻿using System.Collections.ObjectModel;
-using AccountHelperWpf.Utils;
-using AccountHelperWpf.ViewModels;
+﻿using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Models;
 
 class AssociationStorage
 {
-    public event Action<string>? OnAssociationRemoved;
+    public event Action<string>? AssociationRemoved;
+    public event Action? AssociationsChanged;
 
-    private readonly ObservableCollection<AssociationVM> associations;
-    private readonly ObservableCollection<string> excludedOperations;
+    private readonly ObservableDictionary associations;
+    private readonly ObservableHashset excludedOperations;
     private readonly ISaveController saveController;
 
     public AssociationStorage(
-        ObservableCollection<AssociationVM> associations,
-        ObservableCollection<string> excludedOperations,
+        ObservableDictionary associations,
+        ObservableHashset excludedOperations,
         ISaveController saveController)
     {
         this.associations = associations;
@@ -22,60 +21,63 @@ class AssociationStorage
         this.saveController = saveController;
     }
 
+    public IEnumerable<AssociationVM> GetAssociations() => associations.Collection;
+
+    public IEnumerable<string> GetExcludedOperations() => excludedOperations.Collection;
+
+    public CategoryVM? TryGetCategory(string operationDescription) => associations.TryGet(operationDescription)?.CategoryVM;
+
+    public bool IsExcluded(string operationDescription) => excludedOperations.Contains(operationDescription);
+
     public void Update(string operationDescription, CategoryVM category)
     {
-        if (string.IsNullOrEmpty(operationDescription) || excludedOperations.Any(o => o == operationDescription))
+        if (string.IsNullOrEmpty(operationDescription) || excludedOperations.Contains(operationDescription))
             return;
 
-        AssociationVM? associationVM = associations.FirstOrDefault(a => a.OperationDescription == operationDescription);
+        
+        AssociationVM? associationVM = associations.TryGet(operationDescription);
         if (associationVM == null)
         {
             AssociationVM newAssociation = new (operationDescription, category);
-            associations.PrependBeforeBigger(newAssociation,
-                (o1, o2) => string.Compare(o1.OperationDescription, o2.OperationDescription, StringComparison.InvariantCulture));
+            associations.Insert(newAssociation);
         }
         else
             associationVM.CategoryVM = category;
+        OnAssociationChanged();
         saveController.MarkChanged();
     }
 
     public void AddToExcludedOperations(string operationDescription)
     {
-        for (int i = 0; i < associations.Count; i++)
-        {
-            if (associations[i].OperationDescription == operationDescription)
-            {
-                associations.RemoveAt(i);
-                break;
-            }
-        }
-
+        associations.Delete(operationDescription);
         if (excludedOperations.Contains(operationDescription))
             return;
-        excludedOperations.PrependBeforeBigger(operationDescription, string.Compare);
+        excludedOperations.Insert(operationDescription);
+        OnAssociationChanged();
         saveController.MarkChanged();
-    }
-
-    public CategoryVM? TryGetCategory(string operationDescription)
-    {
-        AssociationVM? associationVM = associations.FirstOrDefault(a => a.OperationDescription == operationDescription);
-        return associationVM?.CategoryVM;
     }
 
     public void DeleteAssociationAndClearOperations(int index)
     {
-        string operationDescription = associations[index].OperationDescription;
-        associations.RemoveAt(index);
-        OnAssociationRemoved?.Invoke(operationDescription);
+        associations.RemoveAt(index, out string oldOperation);
+        AssociationRemoved?.Invoke(oldOperation);
+        OnAssociationChanged();
+        saveController.MarkChanged();
     }
 
     public void DeleteAssociation(int selectedAssociationIndex)
-        => associations.RemoveAt(selectedAssociationIndex);
+    {
+        associations.RemoveAt(selectedAssociationIndex, out _);
+        OnAssociationChanged();
+        saveController.MarkChanged();
+    }
 
     public void DeleteException(int selectedExceptionIndex)
-        => excludedOperations.RemoveAt(selectedExceptionIndex);
+    {
+        excludedOperations.RemoveAt(selectedExceptionIndex);
+        OnAssociationChanged();
+        saveController.MarkChanged();
+    }
 
-    public IEnumerable<AssociationVM> GetAssociations() => associations;
-
-    public IEnumerable<string> GetExcludedOperations() => excludedOperations;
+    private void OnAssociationChanged() => AssociationsChanged?.Invoke();
 }

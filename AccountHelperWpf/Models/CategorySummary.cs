@@ -25,13 +25,13 @@ class CategorySummary
         foreach (OperationVM operation in operations)
         {
             sum += operation.Operation.Amount;
-            if (string.IsNullOrEmpty(operation.Description))
+            if (string.IsNullOrEmpty(operation.Comment))
                 continue;
             if (detailed.Length != 0)
                 detailed.Append(' ');
             detailed.Append(operation.Operation.Amount.ToGoodString());
             detailed.Append(' ');
-            detailed.Append(operation.Description);
+            detailed.Append(operation.Comment);
             detailed.Append(',');
         }
         result.Append(sum.ToGoodString());

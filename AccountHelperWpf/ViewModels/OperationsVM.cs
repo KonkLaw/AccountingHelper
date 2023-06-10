@@ -69,7 +69,10 @@ class OperationsVM : BaseNotifyProperty
         categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
         categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
         if (associationStorage != null)
-            associationStorage.OnAssociationRemoved += AssociationStorageOnOnAssociationRemoved;
+        {
+            associationStorage.AssociationRemoved += AssociationStorageAssociationRemoved;
+            associationStorage.AssociationsChanged += AssociationStorageOnAssociationsChanged;
+        }
 
         SearchInfoCommand = new DelegateCommand(SearchInfo);
         SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
@@ -78,6 +81,33 @@ class OperationsVM : BaseNotifyProperty
         ApplyCategoryForSameOperationsCommand = new DelegateCommand(ApplyCategoryForSameOperations);
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
         ApproveCommand = new DelegateCommand(Approve);
+
+        AssociationStorageOnAssociationsChanged();
+    }
+
+    private void AssociationStorageOnAssociationsChanged()
+    {
+        foreach (OperationVM operation in allOperations)
+        {
+            if (associationStorage!.IsExcluded(operation.Operation.Description))
+            {
+                operation.AssociationStatus = AssociationStatus.Excluded;
+            }
+            else
+            {
+                if (operation.Category == null)
+                {
+                    operation.AssociationStatus = AssociationStatus.None;
+                }
+                else
+                {
+                    CategoryVM? category = associationStorage!.TryGetCategory(operation.Operation.Description);
+                    operation.AssociationStatus = operation.Category == category
+                        ? AssociationStatus.None
+                        : AssociationStatus.NotCorrespond;
+                }
+            }
+        }
     }
 
     private List<OperationVM> GetAllOperations(IReadOnlyList<BaseOperation> baseOperations)
@@ -114,7 +144,7 @@ class OperationsVM : BaseNotifyProperty
                 summaryChanged();
                 break;
             }
-            case nameof(OperationVM.Description):
+            case nameof(OperationVM.Comment):
             case nameof(OperationVM.IsApproved):
                 summaryChanged();
                 break;
@@ -129,7 +159,7 @@ class OperationsVM : BaseNotifyProperty
         summaryChanged();
     }
 
-    private void AssociationStorageOnOnAssociationRemoved(string operationDescription)
+    private void AssociationStorageAssociationRemoved(string operationDescription)
     {
         isOnRemoving = true;
         foreach (OperationVM operation in allOperations)
