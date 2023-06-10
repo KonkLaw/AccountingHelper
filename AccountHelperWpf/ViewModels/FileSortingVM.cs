@@ -54,11 +54,11 @@ class FileSortingVM : BaseNotifyProperty
 
     private void UpdateSummary()
     {
-        CategorySummary.PrepareSummary(
-            categoriesVM.GetCategories(), operationsVM.Operations,
-            out bool isSorted, out string newSummary);
+        SummaryHelper.PrepareSummary(
+        categoriesVM.GetCategories(), operationsVM.Operations,
+            out bool isSorted, out SummaryVM summaryVM);
         TabInfo.IsSorted = isSorted; ;
-        Summary = newSummary;
+        Summary = summaryVM.GetDescription().ToString();
     }
 
     private void CategoriesVMOnCategoryOrListChanged()
