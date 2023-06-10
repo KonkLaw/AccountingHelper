@@ -21,9 +21,9 @@
                 <MenuItem Header="Search info in web" Command="{Binding SearchInfoCommand}"
                           IsEnabled="{Binding IsSingleSelection}"/>
                 <MenuItem Header="Set category to null" Command="{Binding SetNullCategoryCommand}"/>
-                <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"
-                          IsEnabled="{Binding IsSingleSelection}"/>
                 <MenuItem Header="Set As Last" Command="{Binding SetLastOperationCommand}"
+                          IsEnabled="{Binding IsSingleSelection}"/>
+                <MenuItem Header="Set As First" Command="{Binding SetFirstOperationCommand}"
                           IsEnabled="{Binding IsSingleSelection}"/>
                 <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSameOperationsCommand}"
                           IsEnabled="{Binding IsSingleSelection}"/>
