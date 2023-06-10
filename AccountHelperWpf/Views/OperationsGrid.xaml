@@ -12,6 +12,7 @@
              d:DataContext="{d:DesignInstance viewModels:OperationsVM}">
     <UserControl.Resources>
         <viewUtils:VisibilityConverter x:Key="Converter" />
+        <viewUtils:AmountToColorConverter x:Key="AmountToColorConverter"/>
     </UserControl.Resources>
     <local:DataGridExt AutoGenerateColumns="False"
                        SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"
@@ -32,12 +33,19 @@
         </DataGrid.ContextMenu>
         <DataGrid.Columns>
             <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}" Header="Transaction Date Time" />
-            <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}" Header="Amount" FontWeight="Bold" />
+            <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}"
+                                Header="Amount" FontWeight="Bold">
+                <DataGridTextColumn.ElementStyle>
+                    <Style TargetType="{x:Type TextBlock}" >
+                        <Setter Property="Background" Value="{Binding Path=Operation.Amount, Converter={StaticResource AmountToColorConverter}}" />
+                    </Style>
+                </DataGridTextColumn.ElementStyle>
+            </DataGridTextColumn>
             <DataGridTextColumn Width="520" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Comment" />
             <DataGridTemplateColumn>
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Image Tag="{Binding AssociationStatus}" Width="32" Height="32" ToolTip="{Binding AssociationStatusComment}">
+                        <Image Width="32" Height="32" ToolTip="{Binding AssociationStatusComment}">
                             <Image.Style>
                                 <Style TargetType="Image">
                                     <Style.Triggers>

@@ -26,3 +26,12 @@ public class VisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new InvalidOperationException();
 }
+
+public class AmountToColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => (decimal)value > 0 ? Brushes.LightYellow : Brushes.Transparent;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new InvalidOperationException();
+}
