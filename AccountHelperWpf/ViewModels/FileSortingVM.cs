@@ -18,17 +18,12 @@ class FileSortingVM : BaseNotifyProperty
         set => SetProperty(ref operationsVM, value);
     }
 
-    private string summary = string.Empty;
-    public string Summary
-    {
-        get => summary;
-        private set => SetProperty(ref summary, value);
-    }
-
     public ICommand SetForAllCommand { get; }
     public ICommand ResetFiltersCommand { get; }
     public ICommand RemoveFileCommand { get; }
     public ICommand ApproveAllCommand { get; }
+
+    public SummaryVM SummaryVM { get; }
 
     public FileSortingVM(
         OperationsFile file,
@@ -41,6 +36,7 @@ class FileSortingVM : BaseNotifyProperty
         this.saveController = saveController;
         operationsVM = new OperationsVM(file.Operations, categoriesVM, UpdateSummary, associationStorage);
         TabInfo = new TabInfo(file.Name, this);
+        SummaryVM = new SummaryVM();
 
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
@@ -55,10 +51,10 @@ class FileSortingVM : BaseNotifyProperty
     private void UpdateSummary()
     {
         SummaryHelper.PrepareSummary(
-        categoriesVM.GetCategories(), operationsVM.Operations,
-            out bool isSorted, out SummaryVM summaryVM);
-        TabInfo.IsSorted = isSorted; ;
-        Summary = summaryVM.GetDescription().ToString();
+            categoriesVM.GetCategories(), operationsVM.Operations,
+            out bool isSorted, out ICollection<CategoryDetails> collection);
+        TabInfo.IsSorted = isSorted;
+        SummaryVM.Update(collection);
     }
 
     private void CategoriesVMOnCategoryOrListChanged()

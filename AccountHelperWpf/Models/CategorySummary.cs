@@ -1,45 +1,44 @@
 ﻿using AccountHelperWpf.Utils;
 using AccountHelperWpf.ViewModels;
 using System.Text;
-using System.Threading;
 
 namespace AccountHelperWpf.Models;
 
 class CategorySummaryTemp
 {
-    private readonly CategoryVM? categoryVM;
-    private readonly List<OperationVM> operations = new();
+    private readonly string name;
+    private decimal amount;
+    private readonly StringBuilder description = new();
 
-    public CategorySummaryTemp(CategoryVM? categoryVM)
+    public CategorySummaryTemp(string name)
     {
-        this.categoryVM = categoryVM;
+        this.name = name;
     }
 
-    public void Add(OperationVM operationVM) => operations.Add(operationVM);
-
-    public (decimal amount, IReadOnlyList<CommentInfo> list) GetSummary()
+    public void Add(OperationVM operationVM)
     {
-        List<CommentInfo> list = new();
-        decimal sum = 0;
-        foreach (OperationVM operation in operations)
-        {
-            sum += operation.Operation.Amount;
-            if (string.IsNullOrEmpty(operation.Comment))
-                continue;
-            list.Add(new CommentInfo(operation.Comment, operation.Operation.Amount));
-        }
-        return (sum, list);
+        amount += operationVM.Operation.Amount;
+        if (string.IsNullOrEmpty(operationVM.Comment))
+            return;
+        if (description.Length != 0)
+            description.Append(", ");
+        description.Append(operationVM.Operation.Amount.ToGoodString());
+        description.Append(' ');
+        description.Append(operationVM.Comment);
     }
+
+    public CategoryDetails GetDetails() => new(name, amount, description.ToString());
 }
 
 class SummaryHelper
 {
-    public static void PrepareSummary(IEnumerable<CategoryVM> categoriesVM, IEnumerable<OperationVM> operationsVM,
-        out bool isSorted, out SummaryVM summaryVM)
+    public static void PrepareSummary(
+        IEnumerable<CategoryVM> categoriesVM, IEnumerable<OperationVM> operationsVM,
+        out bool isSorted, out ICollection<CategoryDetails> details)
     {
-        CategorySummaryTemp notAssigned = new(null);
-        Dictionary<CategoryVM, CategorySummaryTemp> categoriesSummary = categoriesVM.
-            ToDictionary(c => c, c => new CategorySummaryTemp(c));
+        CategorySummaryTemp notAssigned = new("Not assigned");
+        Dictionary<CategoryVM, CategorySummaryTemp> dictionary = categoriesVM.
+            ToDictionary(c => c, c => new CategorySummaryTemp(c.Name));
         isSorted = true;
         foreach (OperationVM operation in operationsVM)
         {
@@ -51,90 +50,15 @@ class SummaryHelper
                 isSorted = false;
             }
             else
-                categoriesSummary[operation.Category].Add(operation);
+                dictionary[operation.Category].Add(operation);
 
             if (operation.AssociationStatus == AssociationStatus.NotCorrespond)
                 isSorted = false;
         }
-
-        List<SummaryItem> items = new ();
-        foreach (KeyValuePair<CategoryVM, CategorySummaryTemp> categorySummaryTemp in categoriesSummary)
+        List<CategoryDetails> list = new (dictionary.Values.Select(c => c.GetDetails()))
         {
-            (decimal amount, IReadOnlyList<CommentInfo> list) = categorySummaryTemp.Value.GetSummary();
-            items.Add(new SummaryItem(categorySummaryTemp.Key.Name, amount, list));
-        }
-
-        (decimal amount, IReadOnlyList<CommentInfo> list) notAssignedData = notAssigned.GetSummary();
-        const string nameForNoAssociatedOperations = "Not Assigned";
-        items.Add(new SummaryItem(nameForNoAssociatedOperations, notAssignedData.amount, notAssignedData.list));
-        summaryVM = new SummaryVM(items);
-    }
-}
-
-record CommentInfo(string Comment, decimal Amount);
-
-class SummaryItem
-{
-    private readonly string name;
-    private readonly decimal amount;
-    private readonly IReadOnlyList<CommentInfo> commentedOperations;
-
-    public SummaryItem(
-        string name,
-        decimal amount,
-        IReadOnlyList<CommentInfo> commentedOperations)
-    {
-        this.name = name;
-        this.amount = amount;
-        this.commentedOperations = commentedOperations;
-    }
-
-    public StringBuilder GetDescription()
-    {
-        StringBuilder result = new();
-        result.Append('#');
-        result.Append(name);
-        result.Append(' ');
-
-        StringBuilder detailed = new();
-        foreach (CommentInfo commentInfo in commentedOperations)
-        {
-            if (detailed.Length != 0)
-                detailed.Append(' ');
-            detailed.Append(commentInfo.Amount.ToGoodString());
-            detailed.Append(' ');
-            detailed.Append(commentInfo.Comment);
-            detailed.Append(',');
-        }
-        result.Append(amount.ToGoodString());
-        if (detailed.Length != 0)
-        {
-            detailed.Remove(detailed.Length - 1, 1);
-            result.Append(" (");
-            result.Append(detailed);
-            result.Append(')');
-        }
-        return result;
-    }
-}
-
-class SummaryVM
-{
-    private readonly IReadOnlyList<SummaryItem> summaryItems;
-
-    public SummaryVM(IReadOnlyList<SummaryItem> summaryItems)
-    {
-        this.summaryItems = summaryItems;
-    }
-
-    public StringBuilder GetDescription()
-    {
-        StringBuilder stringBuilder = new();
-        foreach (SummaryItem summaryItem in summaryItems)
-        {
-            stringBuilder.Append(summaryItem.GetDescription());
-            stringBuilder.AppendLine();
-        }
-        return stringBuilder;
+            notAssigned.GetDetails()
+        };
+        details = list;
     }
 }
