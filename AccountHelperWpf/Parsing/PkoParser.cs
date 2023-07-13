@@ -127,8 +127,7 @@ static class PkoParser
             int startIndex = int.MaxValue;
             for (int i = 0; i < Days.Length; i++)
             {
-                string day = Days[i];
-                int newIndex = text.IndexOf(day, index, StringComparison.InvariantCulture);
+                int newIndex = text.IndexOf(Days[i], index, StringComparison.InvariantCulture);
                 if (newIndex >= 0 && newIndex < startIndex)
                 {
                     startIndex = newIndex;
@@ -208,11 +207,21 @@ static class PkoParser
             index = endIndex;
             index += BigLineSeparator.Length;
 
-            endIndex = text.IndexOf(' ', index);
-            decimal amount = decimal.Parse(text.AsSpan(index, endIndex - index), NumberFormatHelper.NumberFormat);
+
+            int amountStart = index;
+            do
+            {
+                endIndex = text.IndexOf(' ', index);
+                if (char.IsDigit(text[endIndex + 1])) // not end of amount number
+                {
+                    index = endIndex + 1; // continue looking for end of amount number
+                    continue;
+                }
+                break;
+            } while (true);
+            decimal amount = decimal.Parse(text.AsSpan(amountStart, endIndex - amountStart), NumberFormatHelper.NumberFormat);
             index = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
 
-            
             return new PkoBlockedOperation(dateTime, amount, description,
                 string.Concat(
                     additionalDescription1.ToString().Replace(Environment.NewLine, " "),
