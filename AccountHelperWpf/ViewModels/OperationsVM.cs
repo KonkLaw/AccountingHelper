@@ -174,6 +174,7 @@ class OperationsVM : BaseNotifyProperty
                 operation.Category = null;
         }
         isOnRemoving = false;
+        summaryChanged();
     }
 
     private void UpdateByFilter()
