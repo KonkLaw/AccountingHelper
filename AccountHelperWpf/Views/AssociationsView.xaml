@@ -20,8 +20,8 @@
                       ItemsSource="{Binding Associations}">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand}"/>
-                        <MenuItem Header="Delete + clear operations" Command="{Binding DeleteAndClearOperationCommand}"/>
+                        <MenuItem Header="Delete (leave operations)" Command="{Binding DeleteAssociationCommand}"/>
+                        <MenuItem Header="Delete (clear operations)" Command="{Binding DeleteAndClearOperationCommand}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
