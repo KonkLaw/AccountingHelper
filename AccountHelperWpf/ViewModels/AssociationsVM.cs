@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Windows.Controls;
+using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
@@ -12,8 +13,14 @@ class AssociationsVM : BaseNotifyProperty
     public ICommand DeleteAssociationCommand { get; }
     public ICommand DeleteAndClearOperationCommand { get; }
     public ICommand DeleteExceptionCommand { get; }
-    public int SelectedAssociationIndex { get; set; }
     public int SelectedExceptionIndex { get; set; }
+
+    private DataGridCellInfo selectedAssociation;
+    public DataGridCellInfo SelectedAssociation
+    {
+        get => selectedAssociation;
+        set => SetProperty(ref selectedAssociation, value);
+    }
 
     public AssociationsVM(AssociationStorage storage)
     {
@@ -27,11 +34,12 @@ class AssociationsVM : BaseNotifyProperty
     }
 
     private void DeleteAndClearOperation()
-        => storage.DeleteAssociationAndClearOperations(SelectedAssociationIndex);
+        => storage.DeleteAssociationAndClearOperations(
+            ((AssociationVM)selectedAssociation.Item).OperationDescription);
 
     private void DeleteAssociation()
-        => storage.DeleteAssociation(SelectedAssociationIndex);
-
+        => storage.DeleteAssociation(
+            ((AssociationVM)selectedAssociation.Item).OperationDescription);
 
     private void DeleteException()
         => storage.DeleteException(SelectedExceptionIndex);

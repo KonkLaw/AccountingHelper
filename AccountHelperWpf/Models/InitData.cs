@@ -35,13 +35,6 @@ class ObservableDictionary
     public AssociationVM? TryGet(string operationDescription)
         => dictionary.TryGetValue(operationDescription, out AssociationVM? association) ? association : null;
 
-    public void RemoveAt(int index, out string oldDescription)
-    {
-        oldDescription = collection[index].OperationDescription;
-        collection.RemoveAt(index);
-        dictionary.Remove(oldDescription);
-    }
-
     public void Delete(string description)
     {
         dictionary.Remove(description);
@@ -88,6 +81,5 @@ class ObservableHashset
     {
         collection.PrependBeforeBigger(description, string.Compare);
         hashSet.Add(description);
-
     }
 }

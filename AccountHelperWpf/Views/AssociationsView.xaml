@@ -16,8 +16,9 @@
         <Border Grid.Row="0" BorderThickness="0.5" BorderBrush="Black">
             <DataGrid IsReadOnly="True"
                       SelectionMode="Single"
-                      SelectedIndex="{Binding SelectedAssociationIndex}"
-                      ItemsSource="{Binding Associations}">
+                      CurrentCell="{Binding SelectedAssociation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      ItemsSource="{Binding Associations}"
+            >
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Delete (leave operations)" Command="{Binding DeleteAssociationCommand}"/>

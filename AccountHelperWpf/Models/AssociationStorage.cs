@@ -57,17 +57,17 @@ class AssociationStorage
         saveController.MarkChanged();
     }
 
-    public void DeleteAssociationAndClearOperations(int index)
+    public void DeleteAssociationAndClearOperations(string operationDescription)
     {
-        associations.RemoveAt(index, out string oldOperation);
-        AssociationRemoved?.Invoke(oldOperation);
+        associations.Delete(operationDescription);
+        AssociationRemoved?.Invoke(operationDescription);
         OnAssociationChanged();
         saveController.MarkChanged();
     }
 
-    public void DeleteAssociation(int selectedAssociationIndex)
+    public void DeleteAssociation(string operationDescription)
     {
-        associations.RemoveAt(selectedAssociationIndex, out _);
+        associations.Delete(operationDescription);
         OnAssociationChanged();
         saveController.MarkChanged();
     }
