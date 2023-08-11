@@ -10,7 +10,7 @@ static class PkoParser
     {
         List<PkoOperation> operations = new();
         string firstLine = reader.ReadLine()!;
-        const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\",";
+        const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\"";
         if (!firstLine.AsSpan(0, knownFirstString.Length).SequenceEqual(knownFirstString))
             return null;
         do
@@ -77,30 +77,15 @@ static class PkoParser
         decimal amount = decimal.Parse(iterator.GetNextSpan());
         string currency = iterator.GetNextSpan().ToString();
         decimal saldoBeforeTransaction = decimal.Parse(iterator.GetNextSpan());
-        StringBuilder otherDescription = new();
-        otherDescription.Append(iterator.GetNextSpan());
-        string description = iterator.GetNextSpan().ToString();
+        ReadOnlySpan<char> description = iterator.GetNextSpan();
 
-        const string wellKnownOperationName = "Oryginalna kwota operacji: ";
-        string? originalAmount = null;
-        while (iterator.TryGetNextSpan(out ReadOnlySpan<char> span))
-        {
-            if (span.IsEmpty)
-                continue;
-            if (span.StartsWith(wellKnownOperationName))
-            {
-                originalAmount = span[wellKnownOperationName.Length..].ToString();
-            }
-            else
-            { 
-                otherDescription.Append(" || ");
-                otherDescription.Append(span);
-            }
-        }
+        new PkoDescriptionParser().ParseOperationDetails(description,
+            out string shortDescription, out string otherDetails, out string? originalAmount);
+
         return new PkoOperation(
-            dateOperation, amount, description,
+            dateOperation, amount, shortDescription,
             dateAccounting, currency, operationType, originalAmount,
-            saldoBeforeTransaction, otherDescription.ToString());
+            saldoBeforeTransaction, otherDetails);
     }
 
     public static void TryParseBlocked(string textToParse, out IReadOnlyList<PkoBlockedOperation>? blockedOperations, out string? errorMessage)
@@ -238,5 +223,185 @@ static class PkoParser
         public DelegateComparer(Func<TKey?, TKey?, int> function) => this.function = function;
 
         public int Compare(TKey? x, TKey? y) => function(x, y);
+    }
+}
+
+class PkoDescriptionParser
+{
+    ref struct DescriptionIterator
+    {
+        private const char TagSeparator = ':';
+        private const char Separator = '|';
+        private static readonly string CharsToSkip = new(new[] { Separator, ' ' });
+
+        private ReadOnlySpan<char> description;
+        private int? indexOfNextSeparator;
+
+        public DescriptionIterator(ReadOnlySpan<char> description)
+        {
+            this.description = description;
+            indexOfNextSeparator = GetIndexOfNextTagSeparator(description);
+        }
+
+        private static int? GetIndexOfNextTagSeparator(ReadOnlySpan<char> span)
+        {
+            int tagEndIndex = span.IndexOf(TagSeparator);
+            if (tagEndIndex < 0)
+                return null;
+
+            ReadOnlySpan<char> spanNew = span.Slice(tagEndIndex + 1);
+            int followingTagSeparator = spanNew.IndexOf(TagSeparator);
+            if (followingTagSeparator < 0)
+                return tagEndIndex;
+
+            int followingSeparator = spanNew.IndexOf(Separator);
+            if (followingSeparator > followingTagSeparator)
+                return GetIndexOfNextTagSeparator(spanNew.Slice(followingSeparator)) + followingSeparator + (tagEndIndex + 1);
+
+            return tagEndIndex;
+        }
+
+        private static ReadOnlySpan<char> TripSymbols(ReadOnlySpan<char> span)
+        {
+            int startIndex;
+            for (startIndex = 0; startIndex < span.Length; startIndex++)
+            {
+                if (CharsToSkip.IndexOf(span[startIndex]) < 0)
+                    break;
+            }
+            if (startIndex == span.Length)
+                return new ReadOnlySpan<char>();
+
+            int lastIndex = span.LastIndexOfAnyExcept(CharsToSkip.AsSpan());
+            return span.Slice(startIndex, lastIndex + 1 - startIndex);
+        }
+
+        public bool TryGetNextSpan(out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> tagContent)
+        {
+            if (!indexOfNextSeparator.HasValue)
+            {
+                tagName = default;
+                tagContent = default;
+                return false;
+            }
+            int tagEndIndex = indexOfNextSeparator.Value;
+            tagName = description.Slice(0, tagEndIndex);
+            tagName = TripSymbols(tagName);
+
+            int? nextTagSeparatorIndex = GetIndexOfNextTagSeparator(description.Slice(tagEndIndex + 1)) + (tagEndIndex + 1);
+            int searchStop = nextTagSeparatorIndex ?? description.Length;
+            int lastSeparatorIndex = description.Slice(0, searchStop).LastIndexOf(Separator);
+
+            tagContent = description.Slice(tagEndIndex + 1, lastSeparatorIndex - (tagEndIndex + 1));
+
+            tagContent = TripSymbols(tagContent);
+            description = description.Slice(lastSeparatorIndex + 1);
+            if (nextTagSeparatorIndex.HasValue)
+            {
+                indexOfNextSeparator = nextTagSeparatorIndex.Value - lastSeparatorIndex - 1;
+            }
+            else
+            {
+                indexOfNextSeparator = null;
+            }
+            return true;
+        }
+    }
+
+    readonly ref struct DescriptionResult
+    {
+        private readonly StringBuilder cacheForMain;
+        private readonly StringBuilder cacheForOther;
+
+        public DescriptionResult(StringBuilder cacheForMain, StringBuilder cacheForOther)
+        {
+            this.cacheForMain = cacheForMain;
+            this.cacheForOther = cacheForOther;
+            cacheForMain.Clear();
+            cacheForOther.Clear();
+        }
+
+        public void AddToDescription(string tagName, ReadOnlySpan<char> tagContent)
+            => cacheForMain.Append($"{tagName}: {tagContent}; ");
+
+        public void AddToOtherDetails(ReadOnlySpan<char> tagName, ReadOnlySpan<char> tagContent)
+            => cacheForOther.Append($"{tagName}: {tagContent} # ");
+
+        public void Finish()
+        {
+            if (cacheForMain.Length != 0)
+                cacheForMain.Remove(cacheForMain.Length - 2, 2);
+            if (cacheForOther.Length != 0)
+                cacheForOther.Remove(cacheForOther.Length - 2, 2);
+        }
+    }
+
+    private const string OriginalAmountTagName = "Oryginalna kwota operacji";
+    private const string TitleTagName = "Tytuł";
+
+    private static readonly HashSet<string> TagsForShortDescription = new()
+    {
+        "Adres",
+        "Miasto",
+        "Nazwa odbiorcy",
+        "Nazwa nadawcy"
+    };
+
+    // Other:
+    // "Kraj"
+
+    private readonly StringBuilder cacheForMain = new();
+    private readonly StringBuilder cacheForOther = new();
+
+    public void ParseOperationDetails(
+        ReadOnlySpan<char> description,
+        out string shortDescription, out string otherDetails, out string? originalAmount)
+    {
+        var iterator = new DescriptionIterator(description);
+        var descriptionResult = new DescriptionResult(cacheForMain, cacheForOther);
+        originalAmount = null;
+
+        while (iterator.TryGetNextSpan(out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> tagContent))
+        {
+            if (tagContent.IsEmpty)
+                continue;
+
+            if (tagName.SequenceEqual(OriginalAmountTagName))
+                originalAmount = tagContent.ToString();
+
+            bool wasAdded = false;
+            if (tagName.SequenceEqual(TitleTagName))
+            {
+                int digitCount = 0;
+                foreach (char c in tagContent)
+                {
+                    if (char.IsDigit(c))
+                        digitCount++;
+                }
+
+                const float acceptablePercent = 0.3f;
+                if (digitCount / (float)tagContent.Length < acceptablePercent)
+                {
+                    descriptionResult.AddToDescription(TitleTagName, tagContent);
+                    wasAdded = true;
+                }
+            }
+
+            foreach (string tag in TagsForShortDescription)
+            {
+                if (tagName.SequenceEqual(tag))
+                {
+                    descriptionResult.AddToDescription(tag, tagContent);
+                    wasAdded = true;
+                    break;
+                }
+            }
+            if (!wasAdded)
+                descriptionResult.AddToOtherDetails(tagName, tagContent);
+        }
+        descriptionResult.Finish();
+
+        shortDescription = cacheForMain.ToString();
+        otherDetails = cacheForOther.ToString();
     }
 }
