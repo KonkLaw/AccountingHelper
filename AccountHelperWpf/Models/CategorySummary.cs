@@ -8,8 +8,9 @@ class CategorySummaryTemp
 {
     private readonly string name;
     private decimal amount;
-    private readonly StringBuilder description = new();
-
+    private readonly Dictionary<string, decimal> tagsToAmount = new();
+    private readonly StringBuilder descriptionFull = new();
+    
     public CategorySummaryTemp(string name)
     {
         this.name = name;
@@ -20,14 +21,29 @@ class CategorySummaryTemp
         amount += operationVM.Operation.Amount;
         if (string.IsNullOrEmpty(operationVM.Comment))
             return;
-        if (description.Length != 0)
-            description.Append(", ");
-        description.Append(operationVM.Operation.Amount.ToGoodString());
-        description.Append(' ');
-        description.Append(operationVM.Comment);
+        if (descriptionFull.Length != 0)
+            descriptionFull.Append(", ");
+        descriptionFull.Append(operationVM.Operation.Amount.ToGoodString());
+        descriptionFull.Append(' ');
+        descriptionFull.Append(operationVM.Comment);
+
+        tagsToAmount.TryGetValue(operationVM.Comment, out decimal oldAmount);
+        tagsToAmount[operationVM.Comment] = oldAmount + operationVM.Operation.Amount;
     }
 
-    public CategoryDetails GetDetails() => new(name, amount, description.ToString());
+    public CategoryDetails GetDetails()
+    {
+        StringBuilder descriptionShort = new();
+        foreach (KeyValuePair<string, decimal> keyValuePair in tagsToAmount)
+        {
+            if (descriptionShort.Length != 0)
+                descriptionShort.Append(", ");
+            descriptionShort.Append(keyValuePair.Value.ToGoodString());
+            descriptionShort.Append(' ');
+            descriptionShort.Append(keyValuePair.Key);
+        }
+        return new CategoryDetails(name, amount, descriptionFull.ToString(), descriptionShort.ToString());
+    }
 }
 
 class SummaryHelper

@@ -24,7 +24,7 @@
                                 <Label Content=" = " HorizontalAlignment="Right" FontWeight="Medium"/>
                                 <Label Content="{Binding Amount}" HorizontalAlignment="Right" FontWeight="Medium"/>
                             </DockPanel>
-                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="12"/>
+                            <TextBlock Text="{Binding DescriptionFull}" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="12"/>
                         </StackPanel>
                     </CheckBox>
                 </DataTemplate>

@@ -1,10 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Security.Cryptography.Pkcs;
 using System.Text;
 using System.Windows.Input;
-using AccountHelperWpf.Utils;
-using System.Xml.Linq;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
@@ -78,10 +75,10 @@ class SummaryVM : BaseNotifyProperty
             result.Append(categoryDetails.Name);
             result.Append(' ');
             result.Append(categoryDetails.Amount);
-            if (!string.IsNullOrEmpty(categoryDetails.Description))
+            if (!string.IsNullOrEmpty(categoryDetails.DescriptionCompact))
             {
                 result.Append(" (");
-                result.Append(categoryDetails.Description);
+                result.Append(categoryDetails.DescriptionCompact);
                 result.Append(')');
             }
             result.AppendLine();
@@ -118,7 +115,8 @@ class CategoryDetails : BaseNotifyProperty
 {
     public string Name { get; }
     public decimal Amount { get; }
-    public string Description { get; }
+    public string DescriptionFull { get; }
+    public string DescriptionCompact { get; }
 
     private bool isSelected;
     public bool IsSelected
@@ -127,10 +125,11 @@ class CategoryDetails : BaseNotifyProperty
         set => SetProperty(ref isSelected, value);
     }
 
-    public CategoryDetails(string name, decimal amount, string description)
+    public CategoryDetails(string name, decimal amount, string descriptionFull, string descriptionCompact)
     {
         Name = name;
         Amount = amount;
-        Description = description;
+        DescriptionFull = descriptionFull;
+        DescriptionCompact = descriptionCompact;
     }
 }
