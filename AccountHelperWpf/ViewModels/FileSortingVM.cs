@@ -12,6 +12,17 @@ class FileSortingVM : BaseNotifyProperty
     public TabInfo TabInfo { get; }
     private OperationsVM operationsVM;
 
+    private bool groupByComment = true;
+    public bool GroupByComment
+    {
+        get => groupByComment;
+        set
+        {
+            if (SetProperty(ref groupByComment, value))
+                UpdateSummary();
+        }
+    }
+
     public OperationsVM OperationsVM
     {
         get => operationsVM;
@@ -51,7 +62,7 @@ class FileSortingVM : BaseNotifyProperty
     private void UpdateSummary()
     {
         SummaryHelper.PrepareSummary(
-            categoriesVM.GetCategories(), operationsVM.Operations,
+            categoriesVM.GetCategories(), operationsVM.Operations, groupByComment,
             out bool isSorted, out ICollection<CategoryDetails> collection);
         TabInfo.IsHighlighted = !isSorted;
         SummaryVM.Update(collection);

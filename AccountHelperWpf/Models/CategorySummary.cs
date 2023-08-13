@@ -1,60 +1,64 @@
-﻿using AccountHelperWpf.Utils;
-using AccountHelperWpf.ViewModels;
-using System.Text;
+﻿using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Models;
 
 class CategorySummaryTemp
 {
     private readonly string name;
-    private decimal amount;
-    private readonly Dictionary<string, decimal> tagsToAmount = new();
-    private readonly StringBuilder descriptionFull = new();
-    
-    public CategorySummaryTemp(string name)
+    private readonly bool groupWithSameComment;
+    private decimal totalAmount;
+    private readonly List<(string, decimal)> tags = new();
+
+    public CategorySummaryTemp(string name, bool groupWithSameComment)
     {
         this.name = name;
+        this.groupWithSameComment = groupWithSameComment;
     }
 
     public void Add(OperationVM operationVM)
     {
-        amount += operationVM.Operation.Amount;
-        if (string.IsNullOrEmpty(operationVM.Comment))
+        decimal amount = operationVM.Operation.Amount;
+        string comment = operationVM.Comment;
+
+        totalAmount += amount;
+
+        if (string.IsNullOrEmpty(comment))
             return;
-        if (descriptionFull.Length != 0)
-            descriptionFull.Append(", ");
-        descriptionFull.Append(operationVM.Operation.Amount.ToGoodString());
-        descriptionFull.Append(' ');
-        descriptionFull.Append(operationVM.Comment);
 
-        tagsToAmount.TryGetValue(operationVM.Comment, out decimal oldAmount);
-        tagsToAmount[operationVM.Comment] = oldAmount + operationVM.Operation.Amount;
-    }
-
-    public CategoryDetails GetDetails()
-    {
-        StringBuilder descriptionShort = new();
-        foreach (KeyValuePair<string, decimal> keyValuePair in tagsToAmount)
+        if (groupWithSameComment)
         {
-            if (descriptionShort.Length != 0)
-                descriptionShort.Append(", ");
-            descriptionShort.Append(keyValuePair.Value.ToGoodString());
-            descriptionShort.Append(' ');
-            descriptionShort.Append(keyValuePair.Key);
+            int index = tags.FindIndex(tag => tag.Item1 == comment);
+            if (index < 0)
+            {
+                tags.Add((comment, amount));
+            }
+            else
+            {
+                (string, decimal) oldValue = tags[index];
+                oldValue.Item2 += amount;
+                tags[index] = oldValue;
+            }
         }
-        return new CategoryDetails(name, amount, descriptionFull.ToString(), descriptionShort.ToString());
+        else
+        {
+            tags.Add((comment, amount));
+        }
     }
+
+    public CategoryDetails GetDetails() => new CategoryDetails(name, totalAmount, tags);
 }
 
 class SummaryHelper
 {
     public static void PrepareSummary(
-        IEnumerable<CategoryVM> categoriesVM, IEnumerable<OperationVM> operationsVM,
+        IEnumerable<CategoryVM> categoriesVM,
+        IEnumerable<OperationVM> operationsVM,
+        bool groupWithSameComment,
         out bool isSorted, out ICollection<CategoryDetails> details)
     {
-        CategorySummaryTemp notAssigned = new("Not assigned");
+        CategorySummaryTemp notAssigned = new("Not assigned", groupWithSameComment);
         Dictionary<CategoryVM, CategorySummaryTemp> dictionary = categoriesVM.
-            ToDictionary(c => c, c => new CategorySummaryTemp(c.Name));
+            ToDictionary(c => c, c => new CategorySummaryTemp(c.Name, groupWithSameComment));
         isSorted = true;
         foreach (OperationVM operation in operationsVM)
         {

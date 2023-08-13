@@ -11,7 +11,6 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModels:OperationsVM}">
     <UserControl.Resources>
-        <viewUtils:VisibilityConverter x:Key="Converter" />
         <viewUtils:AmountToColorConverter x:Key="AmountToColorConverter"/>
     </UserControl.Resources>
     <local:DataGridExt AutoGenerateColumns="False"
@@ -70,7 +69,7 @@
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
                         <Button Content="OK" ToolTip="{Binding ApprovedComment}"
                                 Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveCommand}"
-                                Visibility="{Binding IsApproved, Converter={StaticResource Converter}}"/>
+                                Visibility="{Binding IsApproved, Converter={StaticResource VisibilityConverter}}"/>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>

@@ -75,10 +75,10 @@ class SummaryVM : BaseNotifyProperty
             result.Append(categoryDetails.Name);
             result.Append(' ');
             result.Append(categoryDetails.Amount);
-            if (!string.IsNullOrEmpty(categoryDetails.DescriptionCompact))
+            if (!string.IsNullOrEmpty(categoryDetails.Description))
             {
                 result.Append(" (");
-                result.Append(categoryDetails.DescriptionCompact);
+                result.Append(categoryDetails.Description);
                 result.Append(')');
             }
             result.AppendLine();
@@ -108,28 +108,5 @@ class SummaryVM : BaseNotifyProperty
     {
         foreach (CategoryDetails categoryDetails in collection)
             categoryDetails.IsSelected = !categoryDetails.IsSelected;
-    }
-}
-
-class CategoryDetails : BaseNotifyProperty
-{
-    public string Name { get; }
-    public decimal Amount { get; }
-    public string DescriptionFull { get; }
-    public string DescriptionCompact { get; }
-
-    private bool isSelected;
-    public bool IsSelected
-    {
-        get => isSelected;
-        set => SetProperty(ref isSelected, value);
-    }
-
-    public CategoryDetails(string name, decimal amount, string descriptionFull, string descriptionCompact)
-    {
-        Name = name;
-        Amount = amount;
-        DescriptionFull = descriptionFull;
-        DescriptionCompact = descriptionCompact;
     }
 }

@@ -36,7 +36,7 @@
         <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}" ContentTemplateSelector="{StaticResource TabContentTemplateSelector}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Header}" MinWidth="150" TextAlignment="Center" Foreground="{Binding IsSorted, Converter={StaticResource Converter}}" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Header}" MinWidth="150" TextAlignment="Center" Foreground="{Binding IsHighlighted, Converter={StaticResource Converter}}" FontWeight="Bold"/>
                 </DataTemplate>
             </TabControl.ItemTemplate>
         </TabControl>

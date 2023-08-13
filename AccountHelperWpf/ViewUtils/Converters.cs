@@ -10,8 +10,8 @@ public class BackColorConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if ((bool)value)
-            return Brushes.Black;
-        return Brushes.OrangeRed;
+            return Brushes.OrangeRed;
+        return Brushes.Black;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

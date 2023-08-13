@@ -4,6 +4,7 @@
              xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:views="clr-namespace:AccountHelperWpf.Views"
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
+             xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
              StartupUri="Views/Start.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -11,6 +12,9 @@
                 <ui:ThemeResources />
                 <ui:XamlControlsResources />
             </ResourceDictionary.MergedDictionaries>
+
+            <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
+
             <DataTemplate x:Key="FileSortingTemplate" DataType="{x:Type viewModels:TabInfo}">
                 <views:File2View DataContext="{Binding Content}"/>
             </DataTemplate>
