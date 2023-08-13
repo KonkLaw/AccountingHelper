@@ -4,11 +4,11 @@ namespace AccountHelperWpf.ViewModels;
 
 class TabInfo : BaseNotifyProperty
 {
-    private bool isSorted;
-    public bool IsSorted
+    private bool isHighlighted;
+    public bool IsHighlighted
     {
-        get => isSorted;
-        set => SetProperty(ref isSorted, value);
+        get => isHighlighted;
+        set => SetProperty(ref isHighlighted, value);
     }
 
     public string Header { get; }

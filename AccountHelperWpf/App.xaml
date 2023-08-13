@@ -20,6 +20,9 @@
             <DataTemplate x:Key="AssociationsTemplate" DataType="{x:Type viewModels:TabInfo}">
                 <views:AssociationsView DataContext="{Binding Content}"/>
             </DataTemplate>
+            <DataTemplate x:Key="SummaryTemplate" DataType="{x:Type viewModels:TabInfo}">
+                <views:GeneralSummaryView DataContext="{Binding Content}"/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -65,7 +65,7 @@ class ViewResolver : IViewResolver
     {
         var mainWindow = new MainWindow
         {
-            DataContext = new MainWindowModel(this, initData)
+            DataContext = new MainWindowVM(this, initData)
         };
         Application.Current.MainWindow?.Close();
         Application.Current.MainWindow = mainWindow;

@@ -8,7 +8,7 @@ using Microsoft.Win32;
 
 namespace AccountHelperWpf.ViewModels;
 
-class MainWindowModel : BaseNotifyProperty
+class MainWindowVM : BaseNotifyProperty
 {
     private readonly IViewResolver viewResolver;
     private readonly CategoriesVM categoriesVM;
@@ -23,15 +23,14 @@ class MainWindowModel : BaseNotifyProperty
 
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
 
-    public MainWindowModel(IViewResolver viewResolver, InitData initData)
+    public MainWindowVM(IViewResolver viewResolver, InitData initData)
     {
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
 
         associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
-        InitCategories(out categoriesVM, Tabs, initData, viewResolver);
-        InitAssociations(Tabs, associationStorage);
-
+        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM);
+        
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociation = new DelegateCommand(saveController.Save);
         WindowClosing = new DelegateCommand<CancelEventArgs>(WindowClosingHandler);
@@ -73,15 +72,17 @@ class MainWindowModel : BaseNotifyProperty
     }
 
     private static void InitCategories(
-        out CategoriesVM categoriesVM, ObservableCollection<TabInfo> tabs, InitData initData, IViewResolver viewResolver)
+        IViewResolver viewResolver,
+        AssociationStorage storage,
+        ObservableCollection<TabInfo> tabs,
+        InitData initData,
+        out CategoriesVM categoriesVM)
     {
         categoriesVM = new CategoriesVM(initData.Categories, viewResolver);
-        tabs.Add(new TabInfo("Categories", categoriesVM) { IsSorted = true });
-    }
-
-    private static void InitAssociations(ObservableCollection<TabInfo> tabs, AssociationStorage storage) 
-    {
+        tabs.Add(new TabInfo("Categories", categoriesVM));
         var associationVM = new AssociationsVM(storage);
-        tabs.Add(new TabInfo("Associations", associationVM) { IsSorted = true });
+        tabs.Add(new TabInfo("Associations", associationVM));
+        var generalSummaryVM = new GeneralSummaryVM();
+        tabs.Add(new TabInfo("Summary", generalSummaryVM));
     }
 }

@@ -7,7 +7,7 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance viewModels:MainWindowModel}"
+        d:DataContext="{d:DesignInstance viewModels:MainWindowVM}"
         Title="MainWindow" Height="990" Width="1500"
         WindowState="Maximized">
 

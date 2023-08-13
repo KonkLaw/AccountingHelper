@@ -53,7 +53,7 @@ class FileSortingVM : BaseNotifyProperty
         SummaryHelper.PrepareSummary(
             categoriesVM.GetCategories(), operationsVM.Operations,
             out bool isSorted, out ICollection<CategoryDetails> collection);
-        TabInfo.IsSorted = isSorted;
+        TabInfo.IsHighlighted = !isSorted;
         SummaryVM.Update(collection);
     }
 
