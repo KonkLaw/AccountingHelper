@@ -179,13 +179,11 @@ static class PkoParser
 
             int endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
             string description = text[index..endIndex];
-            index = endIndex;
-            index += BigLineSeparator.Length;
+            index = endIndex + BigLineSeparator.Length;
 
             endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
             ReadOnlySpan<char> additionalDescription1 = text.AsSpan(index, endIndex - index);
-            index = endIndex;
-            index += BigLineSeparator.Length;
+            index = endIndex + BigLineSeparator.Length;
 
             endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
             ReadOnlySpan<char> additionalDescription2 = text.AsSpan(index, endIndex - index);
@@ -205,9 +203,16 @@ static class PkoParser
                 break;
             } while (true);
             decimal amount = decimal.Parse(text.AsSpan(amountStart, endIndex - amountStart), NumberFormatHelper.NumberFormat);
+
+            int indexOfCurrencyEnd = text.IndexOf(Environment.NewLine, endIndex, StringComparison.InvariantCulture);
+            if (indexOfCurrencyEnd < 0)
+                indexOfCurrencyEnd = text.Length;
+            string currency = text.Substring(endIndex + 1, indexOfCurrencyEnd - (endIndex + 1));
+
             index = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
 
             return new PkoBlockedOperation(dateTime, amount, description,
+                currency,
                 string.Concat(
                     additionalDescription1.ToString().Replace(Environment.NewLine, " "),
                     " ",

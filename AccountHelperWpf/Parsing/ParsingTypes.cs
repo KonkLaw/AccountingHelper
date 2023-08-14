@@ -54,12 +54,9 @@ public record PkoOperation(DateTime TransactionDateTime, decimal Amount, string 
         decimal SaldoBeforeTransaction,
         string OtherDescription);
 
-public record PkoBlockedOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-    string OtherDescription);
-
-public readonly record struct OperationsGroup(
-    string Name,
-    IReadOnlyList<BaseOperation> Operations);
+public record PkoBlockedOperation(
+    DateTime TransactionDateTime, decimal Amount, string Description,
+    string Currency, string OtherDescription);
 
 public record PkoFile(
     string FileName, 

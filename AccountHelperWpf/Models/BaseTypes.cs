@@ -8,7 +8,7 @@ public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
     [property: StringFormat("dd-MM-yyyy")]
     DateOnly? DateAccounting,
-    string? Currency,
+    string Currency,
     [property: Width(160)]
     string? OperationType,
     string? OriginalAmount,
@@ -32,7 +32,7 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
     public static PkoOperation Convert(PkoBlockedOperation operation, int id) => new PkoOperation(
             operation.TransactionDateTime, operation.Amount, operation.Description,
             DateAccounting: null,
-            Currency: null,
+            Currency: operation.Currency,
             OperationType: null,
             OriginalAmount: null,
             SaldoBeforeTransaction: null,
