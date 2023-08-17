@@ -15,17 +15,35 @@ public static class Converter
         {
             operations.AddRange(group.Operations.Select(operation => PriorOperation.Convert(operation, group.Name)));
         }
-        return new OperationsFile($"{file.FileName} ({file.Currency})", operations);
+        return new OperationsFile($"{file.FileName} ({file.Currency})", operations, file.Currency);
     }
 
     public static OperationsFile Convert(PkoFile file)
     {
         List<BaseOperation> operations = new List<BaseOperation>();
+        string fixedCurrent = file.NonBlockedOperations[0].Currency;
+
+        void CheckCurrency(string currency)
+        {
+            if (fixedCurrent != currency)
+                throw new Exception("File contains operations with different currencies.");
+        }
+        
         if (file.BlockedOperations != null)
-            operations.AddRange(file.BlockedOperations.Select(PkoOperation.Convert));
-        operations.AddRange(file.NonBlockedOperations.Select(
-            operation => (BaseOperation)PkoOperation.Convert(operations.Count, operation)));
-        return new OperationsFile(file.FileName, operations);
+        {
+            foreach (PkoBlockedOperation operation in file.BlockedOperations)
+            {
+                CheckCurrency(operation.Currency);
+                operations.Add(PkoOperation.Convert(operation, operations.Count));
+            }
+        }
+        foreach (Parsing.PkoOperation operation in file.NonBlockedOperations)
+        {
+            CheckCurrency(operation.Currency);
+            operations.Add(PkoOperation.Convert(operations.Count, operation));
+        }
+
+        return new OperationsFile(file.FileName, operations, fixedCurrent);
     }
 
     public static IReadOnlyList<BaseOperation> ConvertBlockedOperations(IReadOnlyList<PkoBlockedOperation> blockedOperations)

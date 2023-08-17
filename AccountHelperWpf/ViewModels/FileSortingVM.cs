@@ -46,7 +46,7 @@ class FileSortingVM : BaseNotifyProperty
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
         operationsVM = new OperationsVM(file.Operations, categoriesVM, UpdateSummary, associationStorage);
-        TabInfo = new TabInfo(file.Name, this);
+        TabInfo = new TabInfo(file.GetTitle(), this);
         SummaryVM = new SummaryVM();
 
         SetForAllCommand = new DelegateCommand(SetForAllHandler);

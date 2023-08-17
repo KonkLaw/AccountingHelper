@@ -8,7 +8,6 @@ public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
     [property: StringFormat("dd-MM-yyyy")]
     DateOnly? DateAccounting,
-    string Currency,
     [property: Width(160)]
     string? OperationType,
     string? OriginalAmount,
@@ -20,11 +19,10 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
 {
     public static PkoOperation Convert(int id, Parsing.PkoOperation operation) => new PkoOperation(
             operation.TransactionDateTime, operation.Amount, operation.Description,
-            Currency: operation.Currency,
+            DateAccounting: operation.DateAccounting,
             OperationType: operation.OperationType,
             OriginalAmount: operation.OriginalAmount,
             SaldoBeforeTransaction: operation.SaldoBeforeTransaction,
-            DateAccounting: operation.DateAccounting,
             Id: id,
             OtherDescription: operation.OtherDescription
         );
@@ -32,7 +30,6 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
     public static PkoOperation Convert(PkoBlockedOperation operation, int id) => new PkoOperation(
             operation.TransactionDateTime, operation.Amount, operation.Description,
             DateAccounting: null,
-            Currency: operation.Currency,
             OperationType: null,
             OriginalAmount: null,
             SaldoBeforeTransaction: null,
@@ -45,7 +42,6 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
 public record PriorOperation(
     DateTime TransactionDateTime, decimal Amount, string Description,
     [property: Width(150)] string CategoryName,
-    string Currency,
     decimal? Fee,
     decimal InitialAmount,
     [property: StringFormat("dd-MM-yyyy")] DateOnly? AccountDate,
@@ -60,7 +56,6 @@ public record PriorOperation(
             Amount: operation.Amount,
             Description: operation.Description,
             CategoryName: operation.CategoryName,
-            Currency: operation.Currency,
             Fee: operation.Fee,
             InitialAmount: operation.InitialAmount,
             AccountDate: operation.AccountDate,
@@ -73,7 +68,6 @@ public record PriorOperation(
             Amount: operation.Amount,
             Description: operation.Description,
             CategoryName: operation.CategoryName,
-            Currency: operation.Currency,
             Fee: null,
             InitialAmount: operation.InitialAmount,
             AccountDate: null,
@@ -83,4 +77,7 @@ public record PriorOperation(
 
 
 
-public record OperationsFile(string Name, IReadOnlyList<BaseOperation> Operations);
+public record OperationsFile(string Name, IReadOnlyList<BaseOperation> Operations, string Currency)
+{
+    public string GetTitle() => $"({Currency}) {Name}";
+}

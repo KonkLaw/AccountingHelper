@@ -67,7 +67,7 @@ class SummaryVM : BaseNotifyProperty
         }
         UpdateAmount();
 
-
+        decimal sum = 0;
         StringBuilder result = new();
         foreach (CategoryDetails categoryDetails in newCollection)
         {
@@ -81,8 +81,10 @@ class SummaryVM : BaseNotifyProperty
                 result.Append(categoryDetails.Description);
                 result.Append(')');
             }
+            sum += categoryDetails.Amount;
             result.AppendLine();
         }
+        result.AppendLine($"*** Total = {sum}");
         TextSummary = result.ToString();
     }
 

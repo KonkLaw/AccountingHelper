@@ -32,7 +32,7 @@
         </DataGrid.ContextMenu>
         <DataGrid.Columns>
             <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy/MM/dd/ HH:mm:ss'}" Header="Transaction Date Time" />
-            <DataGridTextColumn Width="60" IsReadOnly="True" Binding="{Binding Operation.Amount}"
+            <DataGridTextColumn Width="65" IsReadOnly="True" Binding="{Binding Operation.Amount}"
                                 Header="Amount" FontWeight="Bold">
                 <DataGridTextColumn.ElementStyle>
                     <Style TargetType="{x:Type TextBlock}" >
