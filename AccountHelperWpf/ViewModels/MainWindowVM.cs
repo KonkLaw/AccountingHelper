@@ -11,11 +11,10 @@ namespace AccountHelperWpf.ViewModels;
 class MainWindowVM : BaseNotifyProperty
 {
     private readonly IViewResolver viewResolver;
-    private readonly CategoriesVM categoriesVM;
+    private readonly FilesContainer filesContainer;
     private readonly SaveController saveController;
-
     private readonly AssociationStorage associationStorage;
-    private readonly Dictionary<string, FileSortingVM> filesVm = new();
+    private readonly CategoriesVM categoriesVM;
 
     public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociation { get; }
@@ -27,10 +26,10 @@ class MainWindowVM : BaseNotifyProperty
     {
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
-
         associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
-        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM);
-        
+        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM, out var generalSummaryVM);
+        filesContainer = new FilesContainer(Tabs, generalSummaryVM);
+
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociation = new DelegateCommand(saveController.Save);
         WindowClosing = new DelegateCommand<CancelEventArgs>(WindowClosingHandler);
@@ -43,7 +42,7 @@ class MainWindowVM : BaseNotifyProperty
         if (dialogResult.HasValue && dialogResult.Value)
         {
             string fullPath = fileDialog.FileName;
-            if (filesVm.ContainsKey(fullPath))
+            if (filesContainer.HasFile(fullPath))
             {
                 viewResolver.ShowWarning("File already added");
                 return;
@@ -51,10 +50,8 @@ class MainWindowVM : BaseNotifyProperty
             OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
             if (operationsFile == null)
                 return;
-
-            var fileVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController);
-            Tabs.Insert(Tabs.Count - 2, fileVM.TabInfo);
-            filesVm.Add(fullPath, fileVM);
+            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController);
+            filesContainer.Add(fullPath, fileSortingVM);
         }
     }
 
@@ -64,10 +61,7 @@ class MainWindowVM : BaseNotifyProperty
     {
         if (viewResolver.ShowYesNoQuestion("Are you sure you want to remove current file from sorting?"))
         {
-            TabInfo tabToRemove = Tabs.First(tab => tab.Content == viewModel);
-            Tabs.Remove(tabToRemove);
-            string fileToDell = filesVm.First(p => p.Value == viewModel).Key;
-            filesVm.Remove(fileToDell);
+            filesContainer.CloseFile(viewModel);
         }
     }
 
@@ -76,13 +70,14 @@ class MainWindowVM : BaseNotifyProperty
         AssociationStorage storage,
         ObservableCollection<TabInfo> tabs,
         InitData initData,
-        out CategoriesVM categoriesVM)
+        out CategoriesVM categoriesVM,
+        out GeneralSummaryVM generalSummaryVM)
     {
         categoriesVM = new CategoriesVM(initData.Categories, viewResolver);
         tabs.Add(new TabInfo("Categories", categoriesVM));
         var associationVM = new AssociationsVM(storage);
         tabs.Add(new TabInfo("Associations", associationVM));
-        var generalSummaryVM = new GeneralSummaryVM();
+        generalSummaryVM = new GeneralSummaryVM();
         tabs.Add(new TabInfo("Summary", generalSummaryVM));
     }
 }

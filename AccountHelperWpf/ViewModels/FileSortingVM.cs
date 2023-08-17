@@ -7,6 +7,7 @@ namespace AccountHelperWpf.ViewModels;
 
 class FileSortingVM : BaseNotifyProperty
 {
+    public readonly OperationsFile File;
     private readonly CategoriesVM categoriesVM;
     private readonly ISaveController saveController;
     public TabInfo TabInfo { get; }
@@ -43,6 +44,7 @@ class FileSortingVM : BaseNotifyProperty
         Action<object> removeHandler,
         ISaveController saveController)
     {
+        this.File = file;
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
         operationsVM = new OperationsVM(file.Operations, categoriesVM, UpdateSummary, associationStorage);
