@@ -22,7 +22,7 @@
                             <DockPanel MinWidth="150">
                                 <Label Content="{Binding Name}" FontWeight="Medium" />
                                 <Label Content=" = " HorizontalAlignment="Right" FontWeight="Medium"/>
-                                <Label Content="{Binding Amount}" HorizontalAlignment="Right" FontWeight="Medium"/>
+                                <TextBox Text="{Binding Amount, Mode=OneWay, StringFormat={}{0:0.00}}" IsReadOnly="True" HorizontalAlignment="Right" FontWeight="Medium"/>
                             </DockPanel>
                             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="12"/>
                         </StackPanel>
@@ -37,7 +37,7 @@
         </ListBox>
         <DockPanel Grid.Column="1">
             <Label DockPanel.Dock="Top" Margin="5" Content="Sum for selected:" FontWeight="DemiBold"/>
-            <TextBox DockPanel.Dock="Top" Margin="5" IsReadOnly="True" Text="{Binding Amount}" FontWeight="DemiBold" />
+            <TextBox DockPanel.Dock="Top" Margin="5" IsReadOnly="True" Text="{Binding Amount, Mode=OneWay, StringFormat={}{0:0.00}}" FontWeight="DemiBold" />
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
                 <Button HorizontalAlignment="Stretch" Margin="5" Command="{Binding UnselectCommand}" Content="Unselect All" />
                 <Button HorizontalAlignment="Stretch" Margin="5" Command="{Binding SelectCommand}" Content="Select All" />

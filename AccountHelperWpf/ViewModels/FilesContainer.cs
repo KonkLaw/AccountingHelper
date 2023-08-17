@@ -22,15 +22,17 @@ class FilesContainer
     {
         tabCollection.Insert(tabCollection.Count - rightTabCount, fileSortingVM.TabInfo);
         filesToVm.Add(fullPath, fileSortingVM);
+        generalSummaryVM.Register(fileSortingVM);
         UpdateCurrencies();
     }
 
-    public void CloseFile(object viewModel)
+    public void CloseFile(FileSortingVM viewModel)
     {
         TabInfo tabToRemove = tabCollection.First(tab => tab.Content == viewModel);
         tabCollection.Remove(tabToRemove);
         string fileToDell = filesToVm.First(p => p.Value == viewModel).Key;
         filesToVm.Remove(fileToDell);
+        generalSummaryVM.Unregister(viewModel);
         UpdateCurrencies();
     }
 

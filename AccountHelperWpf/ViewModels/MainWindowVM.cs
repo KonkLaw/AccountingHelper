@@ -15,6 +15,7 @@ class MainWindowVM : BaseNotifyProperty
     private readonly SaveController saveController;
     private readonly AssociationStorage associationStorage;
     private readonly CategoriesVM categoriesVM;
+    private readonly GeneralSummaryVM generalSummaryVM;
 
     public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociation { get; }
@@ -27,7 +28,7 @@ class MainWindowVM : BaseNotifyProperty
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
         associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
-        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM, out var generalSummaryVM);
+        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM, out generalSummaryVM);
         filesContainer = new FilesContainer(Tabs, generalSummaryVM);
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
@@ -50,14 +51,14 @@ class MainWindowVM : BaseNotifyProperty
             OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
             if (operationsFile == null)
                 return;
-            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController);
+            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController, generalSummaryVM);
             filesContainer.Add(fullPath, fileSortingVM);
         }
     }
 
     private void WindowClosingHandler(CancelEventArgs? arg) => arg!.Cancel = !saveController.RequestForClose();
 
-    private void RemoveHandler(object viewModel)
+    private void RemoveHandler(FileSortingVM viewModel)
     {
         if (viewResolver.ShowYesNoQuestion("Are you sure you want to remove current file from sorting?"))
         {

@@ -4,15 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
+             xmlns:views="clr-namespace:AccountHelperWpf.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModels:GeneralSummaryVM}">
-    <StackPanel>
-        <DataGrid Height="300" ItemsSource="{Binding CurrenciesInfo}" AutoGenerateColumns="False">
+    <DockPanel>
+        <DataGrid DockPanel.Dock="Top" Height="300" ItemsSource="{Binding CurrenciesInfo}" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Currency}" Header="Currency" />
                 <DataGridTextColumn Width="120" Binding="{Binding CourseText}" Header="Course"/>
             </DataGrid.Columns>
         </DataGrid>
-    </StackPanel>
+        <views:SummaryView DataContext="{Binding SummaryVM, Mode=OneTime}"/>
+    </DockPanel>
 </UserControl>

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Input;
+using AccountHelperWpf.Utils;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
@@ -22,7 +23,7 @@ class SummaryVM : BaseNotifyProperty
     public decimal Amount
     {
         get => amount;
-        set => SetProperty(ref amount, value);
+        private set => SetProperty(ref amount, value);
     }
 
     public ICommand UnselectCommand { get; }
@@ -66,7 +67,11 @@ class SummaryVM : BaseNotifyProperty
             categoryDetails.PropertyChanged += CategoryDetailsChanged;
         }
         UpdateAmount();
+        TextSummary = GetTextDescription(newCollection).ToString();
+    }
 
+    private static StringBuilder GetTextDescription(ICollection<CategoryDetails> newCollection)
+    {
         decimal sum = 0;
         StringBuilder result = new();
         foreach (CategoryDetails categoryDetails in newCollection)
@@ -74,7 +79,7 @@ class SummaryVM : BaseNotifyProperty
             result.Append('#');
             result.Append(categoryDetails.Name);
             result.Append(' ');
-            result.Append(categoryDetails.Amount);
+            result.Append(categoryDetails.Amount.ToGoodString());
             if (!string.IsNullOrEmpty(categoryDetails.Description))
             {
                 result.Append(" (");
@@ -84,8 +89,9 @@ class SummaryVM : BaseNotifyProperty
             sum += categoryDetails.Amount;
             result.AppendLine();
         }
-        result.AppendLine($"*** Total = {sum}");
-        TextSummary = result.ToString();
+
+        result.AppendLine($"*** Total = {sum.ToGoodString()}");
+        return result;
     }
 
     private void CategoryDetailsChanged(object? sender, PropertyChangedEventArgs e)

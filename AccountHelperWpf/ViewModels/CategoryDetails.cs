@@ -10,8 +10,10 @@ class CategoryDetails: BaseNotifyProperty
 
     public string Name { get; }
     public decimal Amount { get; }
-    public string Description { get; }
-    
+
+    private readonly Lazy<string> description;
+    public string Description => description.Value;
+
     private bool isSelected;
     public bool IsSelected
     {
@@ -24,20 +26,37 @@ class CategoryDetails: BaseNotifyProperty
         Name = name;
         Amount = amount;
         this.tags = tags;
-        Description = CreateDescription();
+        description = new Lazy<string>(CreateDescription);
+    }
+
+    public CategoryDetails(CategoryDetails d1, CategoryDetails d2)
+    {
+        if (d1.Name != d2.Name)
+            throw new ArgumentException("Should have same names");
+        Name = d1.Name;
+        Amount = d1.Amount + d2.Amount;
+        tags = new List<(string, decimal)>(d1.tags);
+        tags.AddRange(d2.tags);
+        description = new Lazy<string>(CreateDescription);
     }
 
     private string CreateDescription()
     {
-        StringBuilder description = new();
+        StringBuilder result = new();
         foreach ((string, decimal) tag in tags)
         {
-            if (description.Length != 0)
-                description.Append(", ");
-            description.Append(tag.Item2.ToGoodString());
-            description.Append(' ');
-            description.Append(tag.Item1);
+            if (result.Length != 0)
+                result.Append(", ");
+            result.Append(tag.Item2.ToGoodString());
+            result.Append(' ');
+            result.Append(tag.Item1);
         }
-        return description.ToString();
+        return result.ToString();
     }
+
+    public CategoryDetails Convert(decimal coeff)
+        => new CategoryDetails(
+            Name,
+            Amount * coeff,
+            tags.Select(tag => (tag.Item1, tag.Item2 * coeff)).ToList());
 }
