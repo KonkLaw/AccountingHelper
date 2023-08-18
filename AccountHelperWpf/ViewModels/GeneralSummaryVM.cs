@@ -83,7 +83,7 @@ class CurrencyInfo : BaseNotifyProperty
         set => SetProperty(ref currency, value);
     }
 
-    private string courseText = string.Empty;
+    private string courseText;
     public string CourseText
     {
         get => courseText;

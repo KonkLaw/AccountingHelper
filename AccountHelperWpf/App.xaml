@@ -14,6 +14,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
+            <viewUtils:BackColorConverter x:Key="Converter" />
+            <viewUtils:HighlightBackColorConverter x:Key="HighlightBackColorConverter" />
 
             <DataTemplate x:Key="FileSortingTemplate" DataType="{x:Type viewModels:TabInfo}">
                 <views:File2View DataContext="{Binding Content}"/>

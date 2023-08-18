@@ -8,11 +8,16 @@ namespace AccountHelperWpf.ViewUtils;
 public class BackColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if ((bool)value)
-            return Brushes.OrangeRed;
-        return Brushes.Black;
-    }
+        => (bool)value ? Brushes.OrangeRed : Brushes.Black;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new InvalidOperationException();
+}
+
+public class HighlightBackColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => ((decimal?)value).HasValue ? Brushes.Transparent : Brushes.IndianRed;
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new InvalidOperationException();

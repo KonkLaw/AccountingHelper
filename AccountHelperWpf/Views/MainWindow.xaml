@@ -19,7 +19,6 @@
 
     <Window.Resources>
         <viewUtils:TabContentTemplateSelector x:Key="TabContentTemplateSelector"/>
-        <viewUtils:BackColorConverter x:Key="Converter" />
     </Window.Resources>
 
 

@@ -36,7 +36,10 @@
                                 Header="Amount" FontWeight="Bold">
                 <DataGridTextColumn.ElementStyle>
                     <Style TargetType="{x:Type TextBlock}" >
-                        <Setter Property="Background" Value="{Binding Path=Operation.Amount, Converter={StaticResource AmountToColorConverter}}" />
+                        <Setter Property="Background"
+                                Value="{Binding Path=Operation.Amount,
+                                    Converter={StaticResource AmountToColorConverter}}" />
+                        <Setter Property="TextAlignment" Value="Right"/>
                     </Style>
                 </DataGridTextColumn.ElementStyle>
             </DataGridTextColumn>
