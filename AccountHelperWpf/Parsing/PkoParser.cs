@@ -33,40 +33,6 @@ static class PkoParser
         return operations;
     }
 
-    struct RecordIterator
-    {
-        private readonly string record;
-        private int index;
-
-        public RecordIterator(string record)
-        {
-            this.record = record;
-            index = -1;
-        }
-
-        public bool TryGetNextSpan(out ReadOnlySpan<char> span)
-        {
-            const char bracketsSymbol = '"';
-            int startIndex = record.IndexOf(bracketsSymbol, index + 1);
-            if (startIndex < 0)
-            {
-                span = default;
-                return false;
-            }
-
-            int stopIndex = record.IndexOf(bracketsSymbol, startIndex + 1);
-            span = record.AsSpan(startIndex + 1, stopIndex - startIndex - 1);
-            index = stopIndex;
-            return true;
-        }
-
-        public ReadOnlySpan<char> GetNextSpan()
-        {
-            TryGetNextSpan(out ReadOnlySpan<char> span);
-            return span;
-        }
-    }
-
     private static PkoOperation ParseString(string record)
     {
         RecordIterator iterator = new RecordIterator(record);
@@ -77,11 +43,9 @@ static class PkoParser
         decimal amount = decimal.Parse(iterator.GetNextSpan());
         string currency = iterator.GetNextSpan().ToString();
         decimal saldoBeforeTransaction = decimal.Parse(iterator.GetNextSpan());
-        ReadOnlySpan<char> description = iterator.GetNextSpan();
-
-        new PkoDescriptionParser().ParseOperationDetails(description,
-            out string shortDescription, out string otherDetails, out string? originalAmount);
-
+		
+        new DescriptionParser(iterator).Parse(out string? originalAmount, out string shortDescription, out string otherDetails);
+		
         return new PkoOperation(
             dateOperation, amount, shortDescription,
             dateAccounting, currency, operationType, originalAmount,
@@ -231,182 +195,140 @@ static class PkoParser
     }
 }
 
-class PkoDescriptionParser
+class DescriptionParser
 {
-    ref struct DescriptionIterator
-    {
-        private const char TagSeparator = ':';
-        private const char Separator = '|';
-        private static readonly string CharsToSkip = new(new[] { Separator, ' ' });
+	private const string TagSeparator = ":";
+	private const string OriginalAmountTagName = "Oryginalna kwota operacji";
+	private const string TitleTagName = "Tytuł";
+	private static readonly HashSet<string> TagsForShortDescription = new()
+	{
+		"Lokalizacja",
+		"Nazwa odbiorcy",
+		"Nazwa nadawcy"
+	};
 
-        private ReadOnlySpan<char> description;
-        private int? indexOfNextSeparator;
+	private readonly StringBuilder cacheForMain = new();
+	private readonly StringBuilder cacheForOther = new();
+	private RecordIterator iterator;
 
-        public DescriptionIterator(ReadOnlySpan<char> description)
-        {
-            this.description = description;
-            indexOfNextSeparator = GetIndexOfNextTagSeparator(description);
-        }
+	public DescriptionParser(RecordIterator iterator) => this.iterator = iterator;
 
-        private static int? GetIndexOfNextTagSeparator(ReadOnlySpan<char> span)
-        {
-            int tagEndIndex = span.IndexOf(TagSeparator);
-            if (tagEndIndex < 0)
-                return null;
+	private void GetTagAndContent(ReadOnlySpan<char> span, out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> content)
+	{
+		int indexOfTag = span.IndexOf(TagSeparator);
+		tagName = span.Slice(0, indexOfTag - 1);
+		content = span.Slice(indexOfTag + 2, span.Length - indexOfTag - 2);
+	}
 
-            ReadOnlySpan<char> spanNew = span.Slice(tagEndIndex + 1);
-            int followingTagSeparator = spanNew.IndexOf(TagSeparator);
-            if (followingTagSeparator < 0)
-                return tagEndIndex;
+	public void Parse(out string? originalAmount, out string shortDescription, out string otherDetails)
+	{
+		var descriptionResult = new DescriptionResult(cacheForMain, cacheForOther);
+		originalAmount = null;
 
-            int followingSeparator = spanNew.IndexOf(Separator);
-            if (followingSeparator > followingTagSeparator)
-                return GetIndexOfNextTagSeparator(spanNew.Slice(followingSeparator)) + followingSeparator + (tagEndIndex + 1);
+		while (iterator.TryGetNextSpan(out ReadOnlySpan<char> span))
+		{
+			GetTagAndContent(span, out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> tagContent);
+			if (tagName.SequenceEqual(OriginalAmountTagName))
+			{
+				originalAmount = tagContent.ToString();
+				continue;
+			}
 
-            return tagEndIndex;
-        }
+			// Trying to clarify: what kind of Title is that.
+			bool wasAdded = false;
+			if (tagName.SequenceEqual(TitleTagName))
+			{
+				int digitCount = 0;
+				foreach (char c in tagContent)
+				{
+					if (char.IsDigit(c))
+						digitCount++;
+				}
 
-        private static ReadOnlySpan<char> TripSymbols(ReadOnlySpan<char> span)
-        {
-            int startIndex;
-            for (startIndex = 0; startIndex < span.Length; startIndex++)
-            {
-                if (CharsToSkip.IndexOf(span[startIndex]) < 0)
-                    break;
-            }
-            if (startIndex == span.Length)
-                return new ReadOnlySpan<char>();
+				const float acceptablePercent = 0.3f;
+				if (digitCount / (float)tagContent.Length < acceptablePercent)
+				{
+					descriptionResult.AddToDescription(TitleTagName, tagContent);
+					wasAdded = true;
+				}
+			}
 
-            int lastIndex = span.LastIndexOfAnyExcept(CharsToSkip.AsSpan());
-            return span.Slice(startIndex, lastIndex + 1 - startIndex);
-        }
+			foreach (string tag in TagsForShortDescription)
+			{
+				if (tagName.SequenceEqual(tag))
+				{
+					descriptionResult.AddToDescription(tag, tagContent);
+					wasAdded = true;
+					break;
+				}
+			}
+			if (!wasAdded)
+				descriptionResult.AddToOtherDetails(tagName, tagContent);
+		}
+		descriptionResult.TripEnd();
+		shortDescription = cacheForMain.ToString();
+		otherDetails = cacheForOther.ToString();
+	}
+}
 
-        public bool TryGetNextSpan(out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> tagContent)
-        {
-            if (!indexOfNextSeparator.HasValue)
-            {
-                tagName = default;
-                tagContent = default;
-                return false;
-            }
-            int tagEndIndex = indexOfNextSeparator.Value;
-            tagName = description.Slice(0, tagEndIndex);
-            tagName = TripSymbols(tagName);
+struct RecordIterator
+{
+	private readonly string record;
+	private int index;
 
-            int? nextTagSeparatorIndex = GetIndexOfNextTagSeparator(description.Slice(tagEndIndex + 1)) + (tagEndIndex + 1);
-            int searchStop = nextTagSeparatorIndex ?? description.Length;
-            int lastSeparatorIndex = description.Slice(0, searchStop).LastIndexOf(Separator);
+	public RecordIterator(string record)
+	{
+		this.record = record;
+		index = -1;
+	}
 
-            tagContent = description.Slice(tagEndIndex + 1, lastSeparatorIndex - (tagEndIndex + 1));
+	public bool TryGetNextSpan(out ReadOnlySpan<char> span)
+	{
+		const char bracketsSymbol = '"';
+		int startIndex = record.IndexOf(bracketsSymbol, index + 1);
+		if (startIndex < 0)
+		{
+			span = default;
+			return false;
+		}
 
-            tagContent = TripSymbols(tagContent);
-            description = description.Slice(lastSeparatorIndex + 1);
-            if (nextTagSeparatorIndex.HasValue)
-            {
-                indexOfNextSeparator = nextTagSeparatorIndex.Value - lastSeparatorIndex - 1;
-            }
-            else
-            {
-                indexOfNextSeparator = null;
-            }
-            return true;
-        }
-    }
+		int stopIndex = record.IndexOf(bracketsSymbol, startIndex + 1);
+		span = record.AsSpan(startIndex + 1, stopIndex - startIndex - 1);
+		index = stopIndex;
+		return true;
+	}
 
-    readonly ref struct DescriptionResult
-    {
-        private readonly StringBuilder cacheForMain;
-        private readonly StringBuilder cacheForOther;
+	public ReadOnlySpan<char> GetNextSpan()
+	{
+		TryGetNextSpan(out ReadOnlySpan<char> span);
+		return span;
+	}
+}
 
-        public DescriptionResult(StringBuilder cacheForMain, StringBuilder cacheForOther)
-        {
-            this.cacheForMain = cacheForMain;
-            this.cacheForOther = cacheForOther;
-            cacheForMain.Clear();
-            cacheForOther.Clear();
-        }
+readonly ref struct DescriptionResult
+{
+	private readonly StringBuilder cacheForMain;
+	private readonly StringBuilder cacheForOther;
 
-        public void AddToDescription(string tagName, ReadOnlySpan<char> tagContent)
-            => cacheForMain.Append($"{tagName}: {tagContent}; ");
+	public DescriptionResult(StringBuilder cacheForMain, StringBuilder cacheForOther)
+	{
+		this.cacheForMain = cacheForMain;
+		this.cacheForOther = cacheForOther;
+		cacheForMain.Clear();
+		cacheForOther.Clear();
+	}
 
-        public void AddToOtherDetails(ReadOnlySpan<char> tagName, ReadOnlySpan<char> tagContent)
-            => cacheForOther.Append($"{tagName}: {tagContent} # ");
+	public void AddToDescription(string tagName, ReadOnlySpan<char> tagContent)
+		=> cacheForMain.Append($"{tagName}: {tagContent}; ");
 
-        public void Finish()
-        {
-            if (cacheForMain.Length != 0)
-                cacheForMain.Remove(cacheForMain.Length - 2, 2);
-            if (cacheForOther.Length != 0)
-                cacheForOther.Remove(cacheForOther.Length - 2, 2);
-        }
-    }
+	public void AddToOtherDetails(ReadOnlySpan<char> tagName, ReadOnlySpan<char> tagContent)
+		=> cacheForOther.Append($"{tagName}: {tagContent} || ");
 
-    private const string OriginalAmountTagName = "Oryginalna kwota operacji";
-    private const string TitleTagName = "Tytuł";
-
-    private static readonly HashSet<string> TagsForShortDescription = new()
-    {
-        "Adres",
-        "Miasto",
-        "Nazwa odbiorcy",
-        "Nazwa nadawcy"
-    };
-
-    // Other:
-    // "Kraj"
-
-    private readonly StringBuilder cacheForMain = new();
-    private readonly StringBuilder cacheForOther = new();
-
-    public void ParseOperationDetails(
-        ReadOnlySpan<char> description,
-        out string shortDescription, out string otherDetails, out string? originalAmount)
-    {
-        var iterator = new DescriptionIterator(description);
-        var descriptionResult = new DescriptionResult(cacheForMain, cacheForOther);
-        originalAmount = null;
-
-        while (iterator.TryGetNextSpan(out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> tagContent))
-        {
-            if (tagContent.IsEmpty)
-                continue;
-
-            if (tagName.SequenceEqual(OriginalAmountTagName))
-                originalAmount = tagContent.ToString();
-
-            bool wasAdded = false;
-            if (tagName.SequenceEqual(TitleTagName))
-            {
-                int digitCount = 0;
-                foreach (char c in tagContent)
-                {
-                    if (char.IsDigit(c))
-                        digitCount++;
-                }
-
-                const float acceptablePercent = 0.3f;
-                if (digitCount / (float)tagContent.Length < acceptablePercent)
-                {
-                    descriptionResult.AddToDescription(TitleTagName, tagContent);
-                    wasAdded = true;
-                }
-            }
-
-            foreach (string tag in TagsForShortDescription)
-            {
-                if (tagName.SequenceEqual(tag))
-                {
-                    descriptionResult.AddToDescription(tag, tagContent);
-                    wasAdded = true;
-                    break;
-                }
-            }
-            if (!wasAdded)
-                descriptionResult.AddToOtherDetails(tagName, tagContent);
-        }
-        descriptionResult.Finish();
-
-        shortDescription = cacheForMain.ToString();
-        otherDetails = cacheForOther.ToString();
-    }
+	public void TripEnd()
+	{
+		if (cacheForMain.Length != 0)
+			cacheForMain.Remove(cacheForMain.Length - 2, 2);
+		if (cacheForOther.Length != 0)
+			cacheForOther.Remove(cacheForOther.Length - 4, 4);
+	}
 }

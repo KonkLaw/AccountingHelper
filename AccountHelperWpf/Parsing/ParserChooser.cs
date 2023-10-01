@@ -22,7 +22,7 @@ class ParserChooser
 
                 fileStream.Position = 0;
 
-                reader = new(fileStream, EncodingHelper.EasternEurop);
+                reader = new(fileStream, EncodingHelper.PolandEncoding);
 
                 IReadOnlyList<PkoOperation>? nonBlockedOperations = PkoParser.TryParse(reader);
                 if (nonBlockedOperations != null)
@@ -47,15 +47,13 @@ class ParserChooser
 file static class EncodingHelper
 {
     public static readonly Encoding RusEncoding;
-    public static readonly Encoding EasternEurop;
-    public static readonly Encoding WesternEurope;
+    public static readonly Encoding PolandEncoding;
 
-    static EncodingHelper()
+	static EncodingHelper()
     {
         // Required for loading of Russian encoding.
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         RusEncoding = Encoding.GetEncoding("windows-1251");
-        EasternEurop = Encoding.GetEncoding("ISO-8859-2");
-        WesternEurope = Encoding.GetEncoding("windows-1250");
-    }
+        PolandEncoding = Encoding.GetEncoding("windows-1250");
+	}
 }
