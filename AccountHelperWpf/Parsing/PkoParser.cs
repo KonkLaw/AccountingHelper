@@ -227,6 +227,9 @@ class DescriptionParser
 
 		while (iterator.TryGetNextSpan(out ReadOnlySpan<char> span))
 		{
+            if (span.Length == 0)
+                continue;
+
 			GetTagAndContent(span, out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> tagContent);
 			if (tagName.SequenceEqual(OriginalAmountTagName))
 			{
