@@ -52,139 +52,6 @@ static class PkoParser
             saldoBeforeTransaction, otherDetails);
     }
 
-    public static void TryParseBlocked(string textToParse, out IReadOnlyList<PkoBlockedOperation>? blockedOperations, out string? errorMessage)
-        => PkoBlockedParser.TryParse(textToParse, out blockedOperations, out errorMessage);
-
-    class PkoBlockedParser
-    {
-        private static readonly string BigLineSeparator = Environment.NewLine + '\t' + Environment.NewLine;
-        private static readonly string[] Days = Enum.GetNames(typeof(DayOfWeek));
-        private readonly string text;
-        private int index;
-
-        private PkoBlockedParser(string text) => this.text = text;
-
-        public static void TryParse(string textToParse, out IReadOnlyList<PkoBlockedOperation>? result, out string? errorMessage)
-        {
-            List<PkoBlockedOperation> operations = new PkoBlockedParser(textToParse).TryParse(out errorMessage);
-            result = operations.Count == 0 ? null : operations;
-        }
-
-        private bool TryMoveToNewDay(out int currentDayIndex)
-        {
-            currentDayIndex = 0;
-            int startIndex = int.MaxValue;
-            for (int i = 0; i < Days.Length; i++)
-            {
-                int newIndex = text.IndexOf(Days[i], index, StringComparison.InvariantCulture);
-                if (newIndex >= 0 && newIndex < startIndex)
-                {
-                    startIndex = newIndex;
-                    currentDayIndex = i;
-                }
-            }
-
-            if (startIndex == int.MaxValue)
-                return false;
-            index = startIndex;
-            return true;
-        }
-
-        private List<PkoBlockedOperation> TryParse(out string? errorMessage)
-        {
-            List<PkoBlockedOperation> operations = new ();
-
-            try
-            {
-                errorMessage = null;
-
-                while (true)
-                {
-                    if (!TryMoveToNewDay(out int currentDayIndex))
-                        break;
-
-                    string day = Days[currentDayIndex];
-                    index += day.Length;
-                    ReadDate(out DateTime dateTime);
-
-                    while (true)
-                    {
-                        PkoBlockedOperation operation = ReadRecord(text, ref index, dateTime);
-                        operations.Add(operation);
-
-                        if (index < 0)
-                            return operations;
-
-                        if (!text.AsSpan(index, BigLineSeparator.Length).Equals(BigLineSeparator.AsSpan(),
-                                StringComparison.InvariantCulture))
-                            break;
-                    }
-                }
-            }
-            catch
-            {
-                errorMessage = "Some exception during parsing. Result may be not full.";
-            }
-
-            return operations;
-        }
-
-        private void ReadDate(out DateTime dateTime)
-        {
-            index++;
-            int endIndex = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
-            dateTime = DateTime.ParseExact(text.AsSpan(index, endIndex - index), "dd.MM.yyyy", CultureInfo.InvariantCulture);
-            index = endIndex;
-        }
-
-        private static PkoBlockedOperation ReadRecord(string text, ref int index, DateTime dateTime)
-        {
-            index += BigLineSeparator.Length;
-
-            int endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
-            string description = text[index..endIndex];
-            index = endIndex + BigLineSeparator.Length;
-
-            endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
-            ReadOnlySpan<char> additionalDescription1 = text.AsSpan(index, endIndex - index);
-            index = endIndex + BigLineSeparator.Length;
-
-            endIndex = text.IndexOf(BigLineSeparator, index, StringComparison.InvariantCulture);
-            ReadOnlySpan<char> additionalDescription2 = text.AsSpan(index, endIndex - index);
-            index = endIndex;
-            index += BigLineSeparator.Length;
-
-
-            int amountStart = index;
-            do
-            {
-                endIndex = text.IndexOf(' ', index);
-                if (char.IsDigit(text[endIndex + 1])) // not end of amount number
-                {
-                    index = endIndex + 1; // continue looking for end of amount number
-                    continue;
-                }
-                break;
-            } while (true);
-            decimal amount = decimal.Parse(text.AsSpan(amountStart, endIndex - amountStart), NumberFormatHelper.NumberFormat);
-
-            int indexOfCurrencyEnd = text.IndexOf(Environment.NewLine, endIndex, StringComparison.InvariantCulture);
-            if (indexOfCurrencyEnd < 0)
-                indexOfCurrencyEnd = text.Length;
-            string currency = text.Substring(endIndex + 1, indexOfCurrencyEnd - (endIndex + 1));
-
-            index = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
-
-            return new PkoBlockedOperation(dateTime, amount, description,
-                currency,
-                string.Concat(
-                    additionalDescription1.ToString().Replace(Environment.NewLine, " "),
-                    " ",
-                    additionalDescription2.ToString().Replace(Environment.NewLine, " ")
-                    ));
-        }
-    }
-
     class DelegateComparer<TKey> : IComparer<TKey>
     {
         private readonly Func<TKey?, TKey?, int> function;
@@ -192,6 +59,160 @@ static class PkoParser
         public DelegateComparer(Func<TKey?, TKey?, int> function) => this.function = function;
 
         public int Compare(TKey? x, TKey? y) => function(x, y);
+    }
+}
+
+class PkoBlockedParser
+{
+    public static void TryParse(string textToParse, out IReadOnlyList<PkoBlockedOperation>? result, out string? errorMessage)
+    {
+        BlockedIterator iterator = new BlockedIterator(textToParse);
+        List<PkoBlockedOperation> operations = new();
+        try
+        {
+            DateTime dateTime;
+
+            while (true)
+            {
+                if (iterator.IsEnded)
+                {
+                    errorMessage = "There were no any date in text.";
+                    result = null;
+                    return;
+                }
+                if (iterator.TryReadDate(out dateTime))
+                    break;
+            }
+
+            do
+            {
+                iterator.SkipEmptyLines();
+                iterator.ReadNewLine(out ReadOnlySpan<char> description);
+                iterator.SkipEmptyLines();
+                iterator.ReadNewLine(out ReadOnlySpan<char> additionalDescription1);
+                iterator.ReadNewLine(out ReadOnlySpan<char> additionalDescription2);
+                iterator.SkipEmptyLines();
+                iterator.ReadNewLine(out ReadOnlySpan<char> details);
+                iterator.SkipEmptyLines();
+
+                if (iterator.IsEnded) // do we ended text. if so amount  is not correct
+                    break;
+
+                iterator.ReadNewLine(out ReadOnlySpan<char> amountAndCurrency);
+                ReadAmountAndCurrency(amountAndCurrency, out decimal amount, out string currency);
+                
+                var operation = new PkoBlockedOperation(dateTime, amount, description.ToString(),
+                    currency,
+                    string.Concat(
+                        additionalDescription1.ToString().Replace(Environment.NewLine, " "),
+                        " ",
+                        additionalDescription2.ToString().Replace(Environment.NewLine, " ")
+                    ));
+                operations.Add(operation);
+
+                iterator.SkipEmptyLines();
+                if (iterator.IsEnded) // do we ended text
+                    break;
+                iterator.TryReadDate(out dateTime); // trying update data. ok - if not.
+            }
+            while (true);
+        }
+        catch
+        {
+            errorMessage = "Some exception during parsing. Result may be not full.";
+            result = operations;
+            return;
+        }
+
+        errorMessage = null;
+        result = operations;
+    }
+
+    private static void ReadAmountAndCurrency(ReadOnlySpan<char> line, out decimal amount, out string currency)
+    {
+        int index = 0;
+        int endIndex;
+        do
+        {
+            endIndex = index + line[index..].IndexOf(new ReadOnlySpan<char>(' '));
+            if (!char.IsDigit(line[endIndex + 1]))
+                break;
+            index = endIndex + 1; // continue looking for end of amount number
+        } while (true);
+        amount = decimal.Parse(line[..endIndex], NumberFormatHelper.NumberFormat);
+        currency = line[(endIndex + 1)..].ToString();
+    }
+
+    struct BlockedIterator
+    {
+        private static readonly string[] Days = Enum.GetNames(typeof(DayOfWeek));
+        private static string EmptyChars = " \t";
+
+        private readonly string text;
+        private int index;
+
+        public bool IsEnded => index == text.Length;
+
+        public BlockedIterator(string text)
+        {
+            this.text = text;
+            index = 0;
+        }
+
+        public bool TryReadDate(out DateTime dateTime)
+        {
+            ReadNewLine(out ReadOnlySpan<char> line, out _);
+            for (int dayIndex = 0; dayIndex < Days.Length; dayIndex++)
+            {
+                string day = Days[dayIndex];
+                if (line.StartsWith(day))
+                {
+                    ReadNewLine(out ReadOnlySpan<char> line2, out int oldIndex);
+                    if (!line2.SequenceEqual(line))
+                        index = oldIndex;
+                    int dateIndex = Days[dayIndex].Length + 1;
+                    dateTime = DateTime.ParseExact(line.Slice(dateIndex), "dd.MM.yyyy",
+                        CultureInfo.InvariantCulture);
+                    return true;
+                }
+            }
+            dateTime = default;
+            return false;
+        }
+
+        private void ReadNewLine(out ReadOnlySpan<char> line, out int oldIndex)
+        {
+            oldIndex = index;
+            int endIndex = text.IndexOf(Environment.NewLine, index, StringComparison.InvariantCulture);
+            if (endIndex >= 0)
+            {
+                line = text.AsSpan(index, endIndex - index);
+                index = endIndex + Environment.NewLine.Length;
+            }
+            else
+            {
+                line = text.AsSpan(index);
+                index = text.Length;
+            }
+        }
+
+        public void ReadNewLine(out ReadOnlySpan<char> line) => ReadNewLine(out line, out _);
+
+        public void SkipEmptyLines()
+        {
+            while (true)
+            {
+                ReadNewLine(out ReadOnlySpan<char> line, out int oldIndex);
+                ReadOnlySpan<char> trimmedLine = line.Trim(EmptyChars);
+                if (trimmedLine.Length != 0)
+                {
+                    index = oldIndex;
+                    break;
+                }
+                if (IsEnded)
+                    return;
+            }
+        }
     }
 }
 

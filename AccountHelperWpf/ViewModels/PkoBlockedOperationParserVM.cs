@@ -49,7 +49,7 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
             return;
         }
 
-        PkoParser.TryParseBlocked(text, out IReadOnlyList<PkoBlockedOperation>? operationsBlocked, out string? errorMessage);
+        PkoBlockedParser.TryParse(text, out IReadOnlyList<PkoBlockedOperation>? operationsBlocked, out string? errorMessage);
         if (errorMessage != null)
             viewResolver.ShowWarning(errorMessage);
 
