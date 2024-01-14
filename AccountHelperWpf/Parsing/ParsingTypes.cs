@@ -1,5 +1,4 @@
-﻿using AccountHelperWpf.Models;
-using AccountHelperWpf.ViewUtils;
+﻿using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.Parsing;
 

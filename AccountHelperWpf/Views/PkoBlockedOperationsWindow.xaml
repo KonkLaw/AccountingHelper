@@ -30,6 +30,14 @@
             <Button Margin="4" Content="TryParse" Command="{Binding TryParse}"/>
             <Button Margin="4" Content="Clear" Command="{Binding Clear}"/>
         </StackPanel>
-        <views:OperationsGrid Grid.Row="2" IsReadOnly="True" DataContext="{Binding Operations}"/>
+        <DataGrid Grid.Row="2" IsReadOnly="True" ItemsSource="{Binding Operations}" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="90" IsReadOnly="True" Binding="{Binding TransactionDateTime, StringFormat='yyyy-MM-dd'}" Header="Date Time" />
+                <DataGridTextColumn Width="70" IsReadOnly="True" Binding="{Binding Amount}" Header="Amount" FontWeight="Bold"/>
+                <DataGridTextColumn Width="240" IsReadOnly="True" Binding="{Binding Description}" Header="Description" />
+                <DataGridTextColumn Width="75" IsReadOnly="True" Binding="{Binding Currency}" Header="Currency" />
+                <DataGridTextColumn Width="260" IsReadOnly="True" Binding="{Binding OtherDescription}" Header="OtherDescription" />
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

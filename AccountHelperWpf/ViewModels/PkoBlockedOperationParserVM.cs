@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
-using AccountHelperWpf.Models;
+﻿using System.Windows.Input;
 using AccountHelperWpf.Parsing;
 using AccountHelperWpf.ViewUtils;
 
@@ -11,8 +9,8 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
     private readonly IViewResolver viewResolver;
     public IReadOnlyList<PkoBlockedOperation>? BlockedOperations { get; set; }
 
-    private OperationsVM? operations;
-    public OperationsVM? Operations
+    private IReadOnlyList<PkoBlockedOperation>? operations;
+    public IReadOnlyList<PkoBlockedOperation>? Operations
     {
         get => operations;
         private set => SetProperty(ref operations, value);
@@ -56,10 +54,7 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
         BlockedOperations = operationsBlocked;
         if (BlockedOperations is { Count: > 0 })
         {
-            Operations = new OperationsVM(
-                Converter.ConvertBlockedOperations(BlockedOperations),
-                new CategoriesVM(new ObservableCollection<CategoryVM>(), viewResolver),
-                () => { }, null);
+            Operations = BlockedOperations;
         }
     }
 }

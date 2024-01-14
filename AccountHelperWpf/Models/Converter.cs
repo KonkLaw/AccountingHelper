@@ -45,7 +45,4 @@ public static class Converter
 
         return new OperationsFile(file.FileName, operations, fixedCurrent);
     }
-
-    public static IReadOnlyList<BaseOperation> ConvertBlockedOperations(IReadOnlyList<PkoBlockedOperation> blockedOperations)
-        => blockedOperations.Select(PkoOperation.Convert).ToList();
 }
