@@ -100,14 +100,10 @@ class PkoBlockedParser
 
                 iterator.ReadNewLine(out ReadOnlySpan<char> amountAndCurrency);
                 ReadAmountAndCurrency(amountAndCurrency, out decimal amount, out string currency);
-                
+
+                string otherDetails = $"{details}; {additionalDescription1} {additionalDescription2}";
                 var operation = new PkoBlockedOperation(dateTime, amount, description.ToString(),
-                    currency,
-                    string.Concat(
-                        additionalDescription1.ToString().Replace(Environment.NewLine, " "),
-                        " ",
-                        additionalDescription2.ToString().Replace(Environment.NewLine, " ")
-                    ));
+                    currency, otherDetails);
                 operations.Add(operation);
 
                 iterator.SkipEmptyLines();
