@@ -63,6 +63,8 @@ class SummaryVM : BaseNotifyProperty
         collection.Clear();
         foreach (CategoryDetails categoryDetails in newCollection)
         {
+            if (categoryDetails.Amount == 0)
+                continue;
             collection.Add(categoryDetails);
             categoryDetails.PropertyChanged += CategoryDetailsChanged;
         }
@@ -76,6 +78,8 @@ class SummaryVM : BaseNotifyProperty
         StringBuilder result = new();
         foreach (CategoryDetails categoryDetails in newCollection)
         {
+            if (categoryDetails.Amount == 0)
+                continue;
             result.Append('#');
             result.Append(categoryDetails.Name);
             result.Append(' ');
