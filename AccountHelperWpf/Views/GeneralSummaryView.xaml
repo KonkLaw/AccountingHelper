@@ -6,24 +6,34 @@
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
              xmlns:views="clr-namespace:AccountHelperWpf.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
+             d:DesignHeight="750" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModels:GeneralSummaryVM}">
     <DockPanel>
-        <DataGrid DockPanel.Dock="Top" Height="300" ItemsSource="{Binding CurrenciesInfo}" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Currency}" Header="Currency" />
-                <DataGridTextColumn Width="120" Binding="{Binding CourseText}" Header="Course" FontWeight="Bold">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}" >
-                            <Setter Property="Background"
-                                    Value="{Binding Path=Course,
-                                    Converter={StaticResource HighlightBackColorConverter}}" />
-                            <Setter Property="TextAlignment" Value="Right" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <DataGrid Grid.Column="0" Height="300" ItemsSource="{Binding CurrenciesInfo}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="120" IsReadOnly="True" Binding="{Binding Currency}" Header="Currency" />
+                    <DataGridTextColumn Width="120" Binding="{Binding CourseText}" Header="Course" FontWeight="Bold">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}" >
+                                <Setter Property="Background"
+                                        Value="{Binding Path=Course,
+                                        Converter={StaticResource HighlightBackColorConverter}}" />
+                                <Setter Property="TextAlignment" Value="Right" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Grid.Column="2" Width="300" TextWrapping="Wrap">
+                Coefficient in front of each currency will be used as multiplier for each currency to get final sums.
+            </TextBlock>
+        </Grid>
         <views:SummaryView DataContext="{Binding SummaryVM, Mode=OneTime}"/>
     </DockPanel>
 </UserControl>

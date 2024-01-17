@@ -57,7 +57,7 @@ class GeneralSummaryVM : BaseNotifyProperty
             IEnumerable<CategoryDetails> categoriesDetails = fileSortingVM.SummaryVM.CategoriesDetails;
             foreach (CategoryDetails categoryDetails in categoriesDetails)
             {
-                CategoryDetails converted = categoryDetails.Convert(1.0m / currencyInfo.Course!.Value);
+                CategoryDetails converted = categoryDetails.Convert(currencyInfo.Course!.Value);
                 if (categoryToDescription.TryGetValue(converted.Name, out CategoryDetails? stored))
                 {
                     categoryToDescription[converted.Name] = new CategoryDetails(converted, stored);
