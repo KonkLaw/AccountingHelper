@@ -48,8 +48,8 @@ class OperationsVM : BaseNotifyProperty
 
     public ICommand SearchInfoCommand { get; }
     public ICommand SetNullCategoryCommand { get; }
-    public ICommand SetFirstOperationCommand { get; }
     public ICommand SetLastOperationCommand { get; }
+    public ICommand SetFirstOperationCommand { get; }
     public ICommand ApplyCategoryForSimilarOperationsCommand { get; }
     public ICommand ExcludeFromAssociations { get; }
     public ICommand ApproveCommand { get; }
