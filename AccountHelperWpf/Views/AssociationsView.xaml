@@ -18,6 +18,7 @@
                       SelectionMode="Single"
                       CurrentCell="{Binding SelectedAssociation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Associations}"
+                      SelectedIndex="{Binding SelectedAssociationIndex}"
             >
                 <DataGrid.ContextMenu>
                     <ContextMenu>

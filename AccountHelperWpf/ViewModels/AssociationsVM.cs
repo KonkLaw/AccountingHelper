@@ -13,7 +13,20 @@ class AssociationsVM : BaseNotifyProperty
     public ICommand DeleteAssociationCommand { get; }
     public ICommand DeleteAndClearOperationCommand { get; }
     public ICommand DeleteExceptionCommand { get; }
-    public int SelectedExceptionIndex { get; set; }
+
+    private int selectedAssociationIndex;
+    public int SelectedAssociationIndex
+    {
+        get => selectedAssociationIndex;
+        set => SetProperty(ref selectedAssociationIndex, value);
+    }
+
+    private int selectedExceptionIndex;
+    public int SelectedExceptionIndex
+    {
+        get => selectedExceptionIndex;
+        set => SetProperty(ref selectedExceptionIndex, value);
+    }
 
     private DataGridCellInfo selectedAssociation;
     public DataGridCellInfo SelectedAssociation
@@ -29,17 +42,15 @@ class AssociationsVM : BaseNotifyProperty
         DeleteAndClearOperationCommand = new DelegateCommand(DeleteAndClearOperation);
         DeleteExceptionCommand = new DelegateCommand(DeleteException);
 
-        Associations = storage.GetAssociations();
-        ExcludedOperations = storage.GetExcludedOperations();
+        Associations = storage.Associations;
+        ExcludedOperations = storage.ExcludedOperations;
     }
 
     private void DeleteAndClearOperation()
-        => storage.DeleteAssociationAndClearOperations(
-            ((AssociationVM)selectedAssociation.Item).OperationDescription);
+        => storage.DeleteAssociationAndClearOperations(SelectedAssociationIndex);
 
     private void DeleteAssociation()
-        => storage.DeleteAssociation(
-            ((AssociationVM)selectedAssociation.Item).OperationDescription);
+        => storage.DeleteAssociation(SelectedAssociationIndex);
 
     private void DeleteException()
         => storage.DeleteException(SelectedExceptionIndex);

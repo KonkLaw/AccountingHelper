@@ -25,7 +25,7 @@
                           IsEnabled="{Binding IsSingleSelection}"/>
                 <MenuItem Header="Set As Last (old)" Command="{Binding SetLastOperationCommand}"
                           IsEnabled="{Binding IsSingleSelection}"/>
-                <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSameOperationsCommand}"
+                <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSimilarOperationsCommand}"
                           IsEnabled="{Binding IsSingleSelection}"/>
                 <MenuItem Header="Exclude from associations" Command="{Binding ExcludeFromAssociations}"/>
             </ContextMenu>
@@ -51,7 +51,7 @@
                             <Image.Style>
                                 <Style TargetType="Image">
                                     <Style.Triggers>
-                                        <DataTrigger  Binding="{Binding AssociationStatus}" Value="NotCorrespond">
+                                        <DataTrigger  Binding="{Binding AssociationStatus}" Value="NotMatch">
                                             <Setter Property="Source" Value="/Resources/Icons/warning.png"/>
                                         </DataTrigger >
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="Excluded">

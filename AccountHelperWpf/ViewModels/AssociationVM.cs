@@ -13,7 +13,12 @@ class AssociationVM : BaseNotifyProperty
         set => SetProperty(ref categoryVM, value);
     }
 
-    public bool IsNew { get; }
+    private bool isNew;
+    public bool IsNew
+    {
+        get => isNew;
+        set => SetProperty(ref isNew, value);
+    }
 
     public AssociationVM(
         string operationDescription, CategoryVM categoryVM, bool isNew)

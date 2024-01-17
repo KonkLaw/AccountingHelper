@@ -58,7 +58,7 @@ class OperationVM : BaseNotifyProperty
             string associationComment = associationStatus switch
             {
                 AssociationStatus.None => string.Empty,
-                AssociationStatus.NotCorrespond
+                AssociationStatus.NotMatch
                     => "Selected, category do not correspond to category in auto-mapping." +
                                                    "Use other category or add to exceptions",
                 AssociationStatus.Excluded => "For description of operation auto-mapping is disabled.",
@@ -75,6 +75,9 @@ class OperationVM : BaseNotifyProperty
 enum AssociationStatus
 {
     None,
-    NotCorrespond,
+    /// <summary>
+    /// Category doesn't match already existing association
+    /// </summary>
+    NotMatch,
     Excluded,
 }

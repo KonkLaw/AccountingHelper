@@ -72,7 +72,7 @@ class SummaryHelper
             else
                 dictionary[operation.Category].Add(operation);
 
-            if (operation.AssociationStatus == AssociationStatus.NotCorrespond)
+            if (operation.AssociationStatus == AssociationStatus.NotMatch)
                 isSorted = false;
         }
         List<CategoryDetails> list = new (dictionary.Values.Select(c => c.GetDetails()))

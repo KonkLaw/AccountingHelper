@@ -11,7 +11,7 @@ namespace AccountHelperWpf.ViewModels;
 class OperationsVM : BaseNotifyProperty
 {
     private readonly Action summaryChanged;
-    private readonly AssociationStorage? associationStorage;
+    private readonly AssociationStorage associationStorage;
     private readonly List<OperationVM> allOperations;
     private bool isOnRemoving;
     private OperationVM? firstIncluded;
@@ -50,7 +50,7 @@ class OperationsVM : BaseNotifyProperty
     public ICommand SetNullCategoryCommand { get; }
     public ICommand SetFirstOperationCommand { get; }
     public ICommand SetLastOperationCommand { get; }
-    public ICommand ApplyCategoryForSameOperationsCommand { get; }
+    public ICommand ApplyCategoryForSimilarOperationsCommand { get; }
     public ICommand ExcludeFromAssociations { get; }
     public ICommand ApproveCommand { get; }
 
@@ -58,7 +58,7 @@ class OperationsVM : BaseNotifyProperty
         IReadOnlyList<BaseOperation> baseOperations,
         CategoriesVM categoriesVM,
         Action summaryChanged,
-        AssociationStorage? associationStorage)
+        AssociationStorage associationStorage)
     {
         Categories = categoriesVM.GetCategories();
         this.summaryChanged = summaryChanged;
@@ -68,17 +68,14 @@ class OperationsVM : BaseNotifyProperty
 
         categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
         categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
-        if (associationStorage != null)
-        {
-            associationStorage.AssociationRemoved += AssociationStorageAssociationRemoved;
-            associationStorage.AssociationsChanged += AssociationStorageOnAssociationsChanged;
-        }
+        associationStorage.AssociationRemoved += AssociationStorageAssociationRemoved;
+        associationStorage.AssociationsChanged += AssociationStorageOnAssociationsChanged;
 
         SearchInfoCommand = new DelegateCommand(SearchInfo);
         SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
         SetLastOperationCommand = new DelegateCommand(SetLastOperation);
         SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
-        ApplyCategoryForSameOperationsCommand = new DelegateCommand(ApplyCategoryForSameOperations);
+        ApplyCategoryForSimilarOperationsCommand = new DelegateCommand(ApplyCategoryForSimilarOperations);
         ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
         ApproveCommand = new DelegateCommand(Approve);
 
@@ -89,9 +86,6 @@ class OperationsVM : BaseNotifyProperty
 
     private void AssociationStorageOnAssociationsChanged()
     {
-        if (associationStorage == null)
-            return;
-
         foreach (OperationVM operation in allOperations)
         {
             if (associationStorage.IsExcluded(operation.Operation.Description))
@@ -106,10 +100,10 @@ class OperationsVM : BaseNotifyProperty
                 }
                 else
                 {
-                    CategoryVM? category = associationStorage!.TryGetCategory(operation.Operation.Description);
+                    CategoryVM? category = associationStorage.TryGetBestCategory(operation.Operation.Description);
                     operation.AssociationStatus = operation.Category == category
                         ? AssociationStatus.None
-                        : AssociationStatus.NotCorrespond;
+                        : AssociationStatus.NotMatch;
                 }
             }
         }
@@ -121,7 +115,7 @@ class OperationsVM : BaseNotifyProperty
         foreach (BaseOperation operation in baseOperations)
         {
             OperationVM operationVM = new(operation);
-            CategoryVM? categoryVM = associationStorage?.TryGetCategory(operation.Description);
+            CategoryVM? categoryVM = associationStorage.TryGetBestCategory(operation.Description);
             if (categoryVM != null)
             {
                 operationVM.Category = categoryVM;
@@ -145,7 +139,7 @@ class OperationsVM : BaseNotifyProperty
                 OperationVM vm = (OperationVM)sender!;
                 foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
                     operationViewModel.Category = vm.Category;
-                associationStorage?.Update(vm.Operation.Description, vm.Category!);
+                associationStorage.UpdateAssociation(vm.Operation.Description, vm.Category!);
                 summaryChanged();
                 break;
             }
@@ -167,10 +161,11 @@ class OperationsVM : BaseNotifyProperty
 
     private void AssociationStorageAssociationRemoved(string operationDescription)
     {
+        // Set null for all similar categories
         isOnRemoving = true;
         foreach (OperationVM operation in allOperations)
         {
-            if (operation.Operation.Description == operationDescription)
+            if (StringDistance.GetDistancePercent(operation.Operation.Description, operationDescription).HasValue)
                 operation.Category = null;
         }
         isOnRemoving = false;
@@ -232,12 +227,13 @@ class OperationsVM : BaseNotifyProperty
         summaryChanged();
     }
 
-    private void ApplyCategoryForSameOperations()
+    private void ApplyCategoryForSimilarOperations()
     {
         OperationVM selectedOperation = GetSelectedOperation();
+        string description = selectedOperation.Operation.Description;
         foreach (OperationVM operation in Operations)
         {
-            if (operation.Operation.Description == selectedOperation.Operation.Description)
+            if (StringDistance.GetDistancePercent(operation.Operation.Description, description).HasValue)
                 operation.Category = selectedOperation.Category;
         }
     }
@@ -245,7 +241,7 @@ class OperationsVM : BaseNotifyProperty
     private void ExcludeFromAssociationHandler()
     {
         foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-            associationStorage?.AddToExcludedOperations(operationViewModel.Operation.Description);
+            associationStorage.AddSimilarToExcluded(operationViewModel.Operation.Description);
     }
 
     private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;

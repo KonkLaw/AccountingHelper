@@ -11,6 +11,9 @@ class AssociationStorage
     private readonly ObservableHashset excludedOperations;
     private readonly ISaveController saveController;
 
+    public IEnumerable<AssociationVM> Associations => associations.Collection;
+    public IEnumerable<string> ExcludedOperations => excludedOperations.Collection;
+
     public AssociationStorage(
         ObservableDictionary associations,
         ObservableHashset excludedOperations,
@@ -21,53 +24,53 @@ class AssociationStorage
         this.saveController = saveController;
     }
 
-    public IEnumerable<AssociationVM> GetAssociations() => associations.Collection;
+    public CategoryVM? TryGetBestCategory(string operationDescription) => associations.TryGetBestMatch(operationDescription)?.CategoryVM;
 
-    public IEnumerable<string> GetExcludedOperations() => excludedOperations.Collection;
+    public bool IsExcluded(string operationDescription) => excludedOperations.ContainsSimilar(operationDescription);
 
-    public CategoryVM? TryGetCategory(string operationDescription) => associations.TryGet(operationDescription)?.CategoryVM;
-
-    public bool IsExcluded(string operationDescription) => excludedOperations.Contains(operationDescription);
-
-    public void Update(string operationDescription, CategoryVM category)
+    public void UpdateAssociation(string operationDescription, CategoryVM category)
     {
-        if (string.IsNullOrEmpty(operationDescription) || excludedOperations.Contains(operationDescription))
+        if (string.IsNullOrEmpty(operationDescription) || excludedOperations.ContainsSimilar(operationDescription))
             return;
 
-        
-        AssociationVM? associationVM = associations.TryGet(operationDescription);
+        AssociationVM? associationVM = associations.TryGetBestMatch(operationDescription);
         if (associationVM == null)
         {
             AssociationVM newAssociation = new (operationDescription, category, true);
-            associations.Insert(newAssociation);
+            associations.Add(newAssociation);
         }
         else
+        {
             associationVM.CategoryVM = category;
+            associationVM.IsNew = true;
+        }
         OnAssociationChanged();
         saveController.MarkChanged();
     }
 
-    public void AddToExcludedOperations(string operationDescription)
+    public void AddSimilarToExcluded(string operationDescription)
     {
-        associations.Delete(operationDescription);
-        if (excludedOperations.Contains(operationDescription))
+        associations.DeleteBetsMatch(operationDescription);
+
+        if (excludedOperations.ContainsSimilar(operationDescription))
             return;
-        excludedOperations.Insert(operationDescription);
+        excludedOperations.Add(operationDescription);
         OnAssociationChanged();
         saveController.MarkChanged();
     }
 
-    public void DeleteAssociationAndClearOperations(string operationDescription)
+    public void DeleteAssociationAndClearOperations(int selectedAssociationIndex)
     {
-        associations.Delete(operationDescription);
-        AssociationRemoved?.Invoke(operationDescription);
+        AssociationVM associationVM = associations.GetByIndexAt(selectedAssociationIndex);
+        associations.DeleteAt(selectedAssociationIndex);
+        AssociationRemoved?.Invoke(associationVM.OperationDescription);
         OnAssociationChanged();
         saveController.MarkChanged();
     }
 
-    public void DeleteAssociation(string operationDescription)
+    public void DeleteAssociation(int index)
     {
-        associations.Delete(operationDescription);
+        associations.DeleteAt(index);
         OnAssociationChanged();
         saveController.MarkChanged();
     }
