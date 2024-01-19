@@ -1,4 +1,5 @@
 ﻿using AccountHelperWpf.ViewUtils;
+using static AccountHelperWpf.ViewModels.MultiCurrencySummaryVM;
 
 namespace AccountHelperWpf.ViewModels;
 
@@ -11,7 +12,7 @@ class GeneralSummaryVM : BaseNotifyProperty
         get => currenciesInfo;
         private set => SetProperty(ref currenciesInfo, value);
     }
-    public SummaryVM SummaryVM { get; } = new SummaryVM();
+    public MultiCurrencySummaryVM SummaryVM { get; } = new ();
 
     public void UpdateCurrencies(IReadOnlyList<string> currencies)
     {
@@ -44,31 +45,21 @@ class GeneralSummaryVM : BaseNotifyProperty
     {
         if (CurrenciesInfo == null || CurrenciesInfo.Any(info => !info.Course.HasValue))
         {
-            SummaryVM.Update(new List<CategoryDetails>());
+            SummaryVM.Update(Array.Empty<CategoriesInfo>());
             return;
         }
-        
-        Dictionary<string, CategoryDetails> categoryToDescription = new();
 
+        List<CategoriesInfo> infos = new List<CategoriesInfo>();
         foreach (FileSortingVM fileSortingVM in viewModels)
         {
             string currency = fileSortingVM.File.Currency;
             CurrencyInfo currencyInfo = CurrenciesInfo.First(ci => ci.Currency == currency);
-            IEnumerable<CategoryDetails> categoriesDetails = fileSortingVM.SummaryVM.CategoriesDetails;
-            foreach (CategoryDetails categoryDetails in categoriesDetails)
-            {
-                CategoryDetails converted = categoryDetails.Convert(currencyInfo.Course!.Value);
-                if (categoryToDescription.TryGetValue(converted.Name, out CategoryDetails? stored))
-                {
-                    categoryToDescription[converted.Name] = new CategoryDetails(converted, stored);
-                }
-                else
-                {
-                    categoryToDescription[converted.Name] = converted;
-                }
-            }
+            infos.Add(new CategoriesInfo(
+                fileSortingVM.SummaryVM.CategoriesDetails,
+                currency,
+                currencyInfo.Course!.Value));
         }
-        SummaryVM.Update(categoryToDescription.Select(c => c.Value).ToList());
+        SummaryVM.Update(infos);
     }
 }
 

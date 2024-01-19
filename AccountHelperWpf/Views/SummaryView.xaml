@@ -12,7 +12,7 @@
             <ColumnDefinition Width="2*" MinWidth="420"/>
             <ColumnDefinition Width="150" MinWidth="110"/>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="280" MinWidth="280"/>
+            <ColumnDefinition Width="480" MinWidth="280"/>
         </Grid.ColumnDefinitions>
         <ListBox ItemsSource="{Binding CategoriesDetails}">
             <ListBox.ItemTemplate>

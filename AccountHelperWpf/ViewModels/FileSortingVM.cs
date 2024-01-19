@@ -36,7 +36,7 @@ class FileSortingVM : BaseNotifyProperty
     public ICommand RemoveFileCommand { get; }
     public ICommand ApproveAllCommand { get; }
 
-    public SummaryVM SummaryVM { get; }
+    public SingleCurrencySummaryVM SummaryVM { get; }
 
     public FileSortingVM(
         OperationsFile file,
@@ -52,7 +52,7 @@ class FileSortingVM : BaseNotifyProperty
         this.generalSummaryVM = generalSummaryVM;
         operationsVM = new OperationsVM(file.Operations, categoriesVM, UpdateSummary, associationStorage);
         TabInfo = new TabInfo(file.GetTitle(), this);
-        SummaryVM = new SummaryVM();
+        SummaryVM = new SingleCurrencySummaryVM();
 
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
@@ -66,7 +66,7 @@ class FileSortingVM : BaseNotifyProperty
 
     private void UpdateSummary()
     {
-        SummaryHelper.PrepareSummary(
+        SummaryHelperSingleCurrency.PrepareSummary(
             categoriesVM.GetCategories(), operationsVM.Operations, groupByComment,
             out bool isSorted, out ICollection<CategoryDetails> collection);
         TabInfo.IsHighlighted = !isSorted;

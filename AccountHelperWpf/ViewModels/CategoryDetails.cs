@@ -6,13 +6,14 @@ namespace AccountHelperWpf.ViewModels;
 
 class CategoryDetails: BaseNotifyProperty
 {
-    private readonly List<(string, decimal)> tags;
+    public record struct OperationInfo(string Comment, decimal Amount);
 
+    public IReadOnlyCollection<OperationInfo> Tags { get; }
     public string Name { get; }
     public decimal Amount { get; }
 
     private readonly Lazy<string> description;
-    public string Description => description.Value;
+    public string AdditionalDescription => description.Value;
 
     private bool isSelected;
     public bool IsSelected
@@ -21,42 +22,28 @@ class CategoryDetails: BaseNotifyProperty
         set => SetProperty(ref isSelected, value);
     }
 
-    public CategoryDetails(string name, decimal amount, List<(string, decimal)> tags)
+    public CategoryDetails(string name, decimal amount, IReadOnlyCollection<OperationInfo> tags)
     {
         Name = name;
         Amount = amount;
-        this.tags = tags;
-        description = new Lazy<string>(CreateDescription);
+        Tags = tags;
+        description = new Lazy<string>(CreateTagsDescription);
     }
 
-    public CategoryDetails(CategoryDetails d1, CategoryDetails d2)
+    private string CreateTagsDescription()
     {
-        if (d1.Name != d2.Name)
-            throw new ArgumentException("Should have same names");
-        Name = d1.Name;
-        Amount = d1.Amount + d2.Amount;
-        tags = new List<(string, decimal)>(d1.tags);
-        tags.AddRange(d2.tags);
-        description = new Lazy<string>(CreateDescription);
-    }
+        if (Tags.Count == 0)
+            return string.Empty;
 
-    private string CreateDescription()
-    {
         StringBuilder result = new();
-        foreach ((string, decimal) tag in tags)
+        foreach (OperationInfo operationInfo in Tags)
         {
             if (result.Length != 0)
                 result.Append(", ");
-            result.Append(tag.Item2.ToGoodString());
+            result.Append(operationInfo.Amount.ToGoodString());
             result.Append(' ');
-            result.Append(tag.Item1);
+            result.Append(operationInfo.Comment);
         }
         return result.ToString();
     }
-
-    public CategoryDetails Convert(decimal coeff)
-        => new CategoryDetails(
-            Name,
-            Amount * coeff,
-            tags.Select(tag => (tag.Item1, tag.Item2 * coeff)).ToList());
 }

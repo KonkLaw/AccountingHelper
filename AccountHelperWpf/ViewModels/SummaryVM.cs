@@ -2,15 +2,16 @@
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Input;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.Utils;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
 
-class SummaryVM : BaseNotifyProperty
+class BaseSummaryVM : BaseNotifyProperty
 {
     private readonly ObservableCollection<CategoryDetails> collection;
-    public IEnumerable<CategoryDetails> CategoriesDetails => collection;
+    public IReadOnlyCollection<CategoryDetails> CategoriesDetails => collection;
 
     private string textSummary;
     public string TextSummary
@@ -30,72 +31,13 @@ class SummaryVM : BaseNotifyProperty
     public ICommand SelectCommand { get; }
     public ICommand InvertCommand { get; }
 
-    public SummaryVM()
+    public BaseSummaryVM()
     {
         collection = new ObservableCollection<CategoryDetails>();
         textSummary = string.Empty;
         UnselectCommand = new DelegateCommand(Unselect);
         SelectCommand = new DelegateCommand(Select);
         InvertCommand = new DelegateCommand(Invert);
-    }
-
-    public void Update(ICollection<CategoryDetails> newCollection)
-    {
-        if (collection.All(c => c.IsSelected))
-        {
-            foreach (CategoryDetails categoryDetails in newCollection)
-                categoryDetails.IsSelected = true;
-        }
-        else if (collection.All(c => !c.IsSelected))
-        {
-            foreach (CategoryDetails categoryDetails in newCollection)
-                categoryDetails.IsSelected = false;
-        }
-        else
-        {
-            foreach (CategoryDetails oldItem in collection)
-            {
-                CategoryDetails? details = newCollection.FirstOrDefault(c => c.Name == oldItem.Name);
-                if (details != null)
-                    details.IsSelected = oldItem.IsSelected;
-            }
-        }
-        collection.Clear();
-        foreach (CategoryDetails categoryDetails in newCollection)
-        {
-            if (categoryDetails.Amount == 0)
-                continue;
-            collection.Add(categoryDetails);
-            categoryDetails.PropertyChanged += CategoryDetailsChanged;
-        }
-        UpdateAmount();
-        TextSummary = GetTextDescription(newCollection).ToString();
-    }
-
-    private static StringBuilder GetTextDescription(ICollection<CategoryDetails> newCollection)
-    {
-        decimal sum = 0;
-        StringBuilder result = new();
-        foreach (CategoryDetails categoryDetails in newCollection)
-        {
-            if (categoryDetails.Amount == 0)
-                continue;
-            result.Append('#');
-            result.Append(categoryDetails.Name);
-            result.Append(' ');
-            result.Append(categoryDetails.Amount.ToGoodString());
-            if (!string.IsNullOrEmpty(categoryDetails.Description))
-            {
-                result.Append(" (");
-                result.Append(categoryDetails.Description);
-                result.Append(')');
-            }
-            sum += categoryDetails.Amount;
-            result.AppendLine();
-        }
-
-        result.AppendLine($"*** Total = {sum.ToGoodString()}");
-        return result;
     }
 
     private void CategoryDetailsChanged(object? sender, PropertyChangedEventArgs e)
@@ -120,5 +62,83 @@ class SummaryVM : BaseNotifyProperty
     {
         foreach (CategoryDetails categoryDetails in collection)
             categoryDetails.IsSelected = !categoryDetails.IsSelected;
+    }
+
+    protected void UpdateCollection(ICollection<CategoryDetails> newCollection, string report)
+    {
+        if (collection.All(c => c.IsSelected))
+        {
+            foreach (CategoryDetails categoryDetails in newCollection)
+                categoryDetails.IsSelected = true;
+        }
+        else if (collection.All(c => !c.IsSelected))
+        {
+            foreach (CategoryDetails categoryDetails in newCollection)
+                categoryDetails.IsSelected = false;
+        }
+        else
+        {
+            foreach (CategoryDetails oldItem in collection)
+            {
+                CategoryDetails? details = newCollection.FirstOrDefault(c => c.Name == oldItem.Name);
+                if (details != null)
+                    details.IsSelected = oldItem.IsSelected;
+            }
+        }
+        collection.Clear();
+
+        foreach (CategoryDetails categoryDetails in newCollection)
+        {
+            if (categoryDetails.Amount == 0)
+                continue;
+            collection.Add(categoryDetails);
+            categoryDetails.PropertyChanged += CategoryDetailsChanged;
+        }
+        UpdateAmount();
+        TextSummary = report;
+    }
+}
+
+
+class MultiCurrencySummaryVM : BaseSummaryVM
+{
+    internal readonly record struct CategoriesInfo(IReadOnlyCollection<CategoryDetails> Collection, string Currency, decimal Course);
+
+    public void Update(IReadOnlyCollection<CategoriesInfo> collection)
+    {
+        SummaryHelperMultiCurrency.Prepare(collection, out List<CategoryDetails> categories, out string textSummary);
+        UpdateCollection(categories, textSummary);
+    }
+}
+
+class SingleCurrencySummaryVM : BaseSummaryVM
+{
+    public void Update(ICollection<CategoryDetails> newCollection)
+        => UpdateCollection(newCollection, GetTextDescription(newCollection));
+
+    private static string GetTextDescription(ICollection<CategoryDetails> newCollection)
+    {
+        decimal sum = 0;
+        StringBuilder result = new();
+        foreach (CategoryDetails categoryDetails in newCollection)
+        {
+            if (categoryDetails.Amount == 0)
+                continue;
+            result.Append('#');
+            result.Append(categoryDetails.Name);
+            result.Append(' ');
+            result.Append(categoryDetails.Amount.ToGoodString());
+            if (!string.IsNullOrEmpty(categoryDetails.AdditionalDescription))
+            {
+                result.Append(" (");
+                result.Append(categoryDetails.AdditionalDescription);
+                result.Append(')');
+            }
+            sum += categoryDetails.Amount;
+            result.AppendLine();
+        }
+
+        result.AppendLine($"*** Total = {sum.ToGoodString()}");
+        return result.ToString();
     }
 }
