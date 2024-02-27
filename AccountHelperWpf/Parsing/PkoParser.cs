@@ -291,7 +291,7 @@ class DescriptionParser
 	}
 }
 
-struct RecordIterator
+public struct RecordIterator
 {
 	private readonly string record;
 	private int index;
@@ -299,22 +299,26 @@ struct RecordIterator
 	public RecordIterator(string record)
 	{
 		this.record = record;
-		index = -1;
-	}
+    }
 
 	public bool TryGetNextSpan(out ReadOnlySpan<char> span)
 	{
-		const char bracketsSymbol = '"';
-		int startIndex = record.IndexOf(bracketsSymbol, index + 1);
-		if (startIndex < 0)
-		{
-			span = default;
-			return false;
-		}
+        const string separatorSet = "\",\"";
+        int endIndex = record.Length - 1;
 
-		int stopIndex = record.IndexOf(bracketsSymbol, startIndex + 1);
-		span = record.AsSpan(startIndex + 1, stopIndex - startIndex - 1);
-		index = stopIndex;
+        if (index >= endIndex)
+        {
+            span = default;
+            return false;
+        }
+        int textStartIndex = index == 0 ? 1 : index + separatorSet.Length;
+
+        int textStopIndex = record.IndexOf(separatorSet, textStartIndex, StringComparison.InvariantCulture);
+        if (textStopIndex < 0)
+            textStopIndex = endIndex;
+
+        span = record.AsSpan(textStartIndex, textStopIndex - textStartIndex);
+        index = textStopIndex;
 		return true;
 	}
 
