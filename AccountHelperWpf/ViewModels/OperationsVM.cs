@@ -163,10 +163,10 @@ class OperationsVM : BaseNotifyProperty
     {
         // Set null for all similar categories
         isOnRemoving = true;
-        foreach (OperationVM operation in allOperations)
+        IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(operationDescription, allOperations, op => op.Operation.Description);
+        foreach (OperationVM operation in collection)
         {
-            if (StringDistance.GetDistancePercent(operation.Operation.Description, operationDescription).HasValue)
-                operation.Category = null;
+            operation.Category = null;
         }
         isOnRemoving = false;
         summaryChanged();
@@ -231,10 +231,10 @@ class OperationsVM : BaseNotifyProperty
     {
         OperationVM selectedOperation = GetSelectedOperation();
         string description = selectedOperation.Operation.Description;
-        foreach (OperationVM operation in Operations)
+        IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(description, Operations, op => op.Operation.Description);
+        foreach (OperationVM operation in collection)
         {
-            if (StringDistance.GetDistancePercent(operation.Operation.Description, description).HasValue)
-                operation.Category = selectedOperation.Category;
+            operation.Category = selectedOperation.Category;
         }
     }
 
