@@ -68,37 +68,59 @@ public class StringDistanceTest
     }
 
     [TestMethod]
-    public void TestParallel_Big()
+    public void FindBest_Big()
     {
         RunCollectionTest(1000);
     }
 
     [TestMethod]
-    public void TestParallel_Small()
+    public void FindBest_Small()
     {
         RunCollectionTest(2);
     }
 
     private static void RunCollectionTest(int size)
     {
-        string target = GetRandomString(17);
-        List<string> data = new();
+        List<string> data = GetTestData(size);
 
-        StringBuilder sb = new StringBuilder(target)
+        string initial = GetRandomString(17);
+        StringBuilder sb = new StringBuilder(initial)
         {
             [4] = '$'
         };
-        target = sb.ToString();
+        string target = sb.ToString();
+        data[random.Next(data.Count)] = target;
 
-        int testDataSize = size;
-        for (int i = 0; i < testDataSize; i++)
+        string? res = CollectionSearchHelper.FindBest(initial, data, s => s);
+        Assert.AreEqual(target, res);
+    }
+
+    private static List<string> GetTestData(int size)
+    {
+        List<string> data = new(size);
+        for (int i = 0; i < data.Capacity; i++)
         {
             data.Add(GetRandomString(17));
         }
+        return data;
+    }
 
+    [TestMethod]
+    public void FindAll()
+    {
+        List<string> data = GetTestData(150);
+
+        string initial = GetRandomString(17);
+        StringBuilder sb = new StringBuilder(initial)
+        {
+            [4] = '$'
+        };
+        string target = sb.ToString();
         data[random.Next(data.Count)] = target;
+        data.Add(initial);
 
-        string? res = CollectionSearchHelper.FindBest(target, data, s => s);
-        Assert.AreEqual(target, res);
+        IReadOnlyList<string> coll = CollectionSearchHelper.FindAll(initial, data, s => s);
+
+        Assert.AreEqual(coll.Count, 2);
     }
 }

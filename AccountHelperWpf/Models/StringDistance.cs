@@ -78,14 +78,18 @@ public class CollectionSearchHelper
         {
             ProcessRange<TItem, TContainer, TResult>(target, collection, selector, ref containers[0], 0, collection.Count);
         }
-        int batchSize = collection.Count / processorCount;
-
-        Parallel.For(0, processorCount, index =>
+        else
         {
-            int startIndex = index * batchSize;
-            int stopIndex = Math.Min(startIndex + batchSize, collection.Count);
-            ProcessRange<TItem, TContainer, TResult>(target, collection, selector, ref containers[index], startIndex, stopIndex);
-        });
+            int batchSize = collection.Count / processorCount + (collection.Count % processorCount == 0 ? 0 : 1);
+            Parallel.For(0, processorCount, index =>
+            {
+                int startIndex = index * batchSize;
+                int stopIndex = Math.Min(startIndex + batchSize, collection.Count);
+                ProcessRange<TItem, TContainer, TResult>(target, collection, selector, ref containers[index],
+                    startIndex, stopIndex);
+            });
+        }
+
         return TContainer.PrecessSelected(containers);
     }
 
@@ -157,7 +161,7 @@ struct FindBestProcessor<T> : IProcessor<T, FindBestProcessor<T>, T?> where T : 
         {
             container.minDistance = newDistance;
             container.minObj = item;
-            if (newDistance == 1)
+            if (newDistance == 0)
                 return true;
         }
         return false;
@@ -220,7 +224,7 @@ readonly struct SelectAllProcessor<T> : IProcessor<T, SelectAllProcessor<T>, IRe
         {
             container.list.Add(item);
         }
-        return true;
+        return false;
     }
 
     public static IReadOnlyList<T> PrecessSelected(SelectAllProcessor<T>[] results)
