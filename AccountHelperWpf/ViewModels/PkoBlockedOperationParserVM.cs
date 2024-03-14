@@ -23,20 +23,25 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
         set => SetProperty(ref text, value);
     }
 
+    private bool closeTrigger;
+    public bool CloseTrigger
+    {
+        get => closeTrigger;
+        set => SetProperty(ref closeTrigger, value);
+    }
+
     public ICommand TryParse { get; }
     public ICommand Clear { get; }
+    public ICommand Accept { get; }
+    public ICommand Skip { get; }
 
     public PkoBlockedOperationParserVM(IViewResolver viewResolver)
     {
         this.viewResolver = viewResolver;
         TryParse = new DelegateCommand(TryParseHandler);
         Clear = new DelegateCommand(ClearOperations);
-    }
-
-    private void ClearOperations()
-    {
-        Operations = null;
-        BlockedOperations = null;
+        Accept = new DelegateCommand(AcceptHandler);
+        Skip = new DelegateCommand(SkipOperations);
     }
 
     private void TryParseHandler()
@@ -57,4 +62,20 @@ class PkoBlockedOperationParserVM : BaseNotifyProperty
             Operations = BlockedOperations;
         }
     }
+
+    private void AcceptHandler() => Close();
+
+    private void ClearOperations()
+    {
+        Operations = null;
+        BlockedOperations = null;
+    }
+
+    private void SkipOperations()
+    {
+        ClearOperations();
+        Close();
+    }
+
+    private void Close() => CloseTrigger = true;
 }

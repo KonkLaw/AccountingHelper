@@ -5,16 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
         xmlns:views="clr-namespace:AccountHelperWpf.Views"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:utils="clr-namespace:AccountHelperWpf.Utils"
         mc:Ignorable="d"
         Title="Copy info about blocked operations" Height="750" Width="800"
         d:DataContext="{d:DesignInstance viewModels:PkoBlockedOperationParserVM}">
+    <b:Interaction.Behaviors>
+        <utils:CloseWindowBehavior CloseTrigger="{Binding CloseTrigger}" />
+    </b:Interaction.Behaviors>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
+        <DockPanel Grid.Row="0">
+            <Button Margin="4" Width="100" Content="Try Parse" Command="{Binding TryParse}"/>
+            <Button Margin="4" Width="120" Content="Clear Operations" Command="{Binding Clear}"/>
+            <Button Margin="4" Width="100" Content="Accept" Command="{Binding Accept}"/>
+            <Button Margin="4" Content="Skip this step" Command="{Binding Skip}" HorizontalAlignment="Right"/>
+        </DockPanel>
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="2*"/>
@@ -26,10 +37,6 @@
                 <Image Source="../Resources/Untitled.png" MaxWidth="1240"/>
             </StackPanel>
         </Grid>
-        <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <Button Margin="4" Content="TryParse" Command="{Binding TryParse}"/>
-            <Button Margin="4" Content="Clear" Command="{Binding Clear}"/>
-        </StackPanel>
         <DataGrid Grid.Row="2" IsReadOnly="True" ItemsSource="{Binding Operations}" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="90" IsReadOnly="True" Binding="{Binding TransactionDateTime, StringFormat='yyyy-MM-dd'}" Header="Date Time" />
