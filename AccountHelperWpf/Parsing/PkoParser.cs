@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.IO;
 using System.Text;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace AccountHelperWpf.Parsing;
 
@@ -233,8 +234,17 @@ class DescriptionParser
 	private void GetTagAndContent(ReadOnlySpan<char> span, out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> content)
 	{
 		int indexOfTag = span.IndexOf(TagSeparator);
-		tagName = span.Slice(0, indexOfTag - 1);
-		content = span.Slice(indexOfTag + 2, span.Length - indexOfTag - 2);
+		if (indexOfTag < 0)
+		{
+			tagName = default;
+            content = span;
+		}
+		else
+		{
+			const char beginEndSymbol = ' ';
+			tagName = span.Slice(0, indexOfTag).Trim(beginEndSymbol);
+			content = span.Slice(indexOfTag + TagSeparator.Length, span.Length - indexOfTag - TagSeparator.Length).Trim(beginEndSymbol);
+		}
 	}
 
 	public void Parse(out string? originalAmount, out string shortDescription, out string otherDetails)
@@ -248,6 +258,13 @@ class DescriptionParser
                 continue;
 
 			GetTagAndContent(span, out ReadOnlySpan<char> tagName, out ReadOnlySpan<char> tagContent);
+
+			if (tagName == default)
+			{
+				descriptionResult.AddToDescription(TitleTagName, tagContent);
+                continue;
+			}
+
 			if (tagName.SequenceEqual(OriginalAmountTagName))
 			{
 				originalAmount = tagContent.ToString();
@@ -255,7 +272,7 @@ class DescriptionParser
 			}
 
 			// Trying to clarify: what kind of Title is that.
-			bool wasAdded = false;
+			
 			if (tagName.SequenceEqual(TitleTagName))
 			{
 				int digitCount = 0;
@@ -269,10 +286,11 @@ class DescriptionParser
 				if (digitCount / (float)tagContent.Length < acceptablePercent)
 				{
 					descriptionResult.AddToDescription(TitleTagName, tagContent);
-					wasAdded = true;
+					continue;
 				}
 			}
 
+			bool wasAdded = false;
 			foreach (string tag in TagsForShortDescription)
 			{
 				if (tagName.SequenceEqual(tag))
@@ -344,6 +362,9 @@ readonly ref struct DescriptionResult
 
 	public void AddToDescription(string tagName, ReadOnlySpan<char> tagContent)
 		=> cacheForMain.Append($"{tagName}: {tagContent}; ");
+
+	public void AddToDescription(ReadOnlySpan<char> tagContent)
+		=> cacheForMain.Append($"{tagContent}; ");
 
 	public void AddToOtherDetails(ReadOnlySpan<char> tagName, ReadOnlySpan<char> tagContent)
 		=> cacheForOther.Append($"{tagName}: {tagContent} || ");
