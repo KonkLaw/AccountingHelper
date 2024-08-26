@@ -3,7 +3,10 @@ using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.Models;
 
-public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string Description);
+public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string Description)
+{
+	public sealed override string ToString() => $"{TransactionDateTime:dd-MM-yyyy}|{Amount}|{Description}";
+};
 
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
     [property: StringFormat("dd-MM-yyyy")]

@@ -19,18 +19,6 @@ static class PkoParser
             string line = reader.ReadLine()!;
             operations.Add(ParseString(line));
         } while (!reader.EndOfStream);
-
-        List<(int orderId, PkoOperation operation)> list = operations.Select((operation, index) => (index, operation)).ToList();
-        var comparer = new DelegateComparer<(int, PkoOperation)>((i1, i2) =>
-        {
-            int result = Comparer<DateTime>.Default.Compare(i2.Item2.TransactionDateTime, i1.Item2.TransactionDateTime);
-            return result == 0 ? Comparer<int>.Default.Compare(i1.Item1, i2.Item1) : result;
-        });
-        list.Sort(comparer);
-        operations.Clear();
-        foreach ((_, PkoOperation operation) in list)
-            operations.Add(operation);
-
         return operations;
     }
 

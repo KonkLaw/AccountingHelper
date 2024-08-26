@@ -70,6 +70,8 @@ class OperationVM : BaseNotifyProperty
     }
 
     public OperationVM(BaseOperation operation) => Operation = operation;
+
+    public override string ToString() => Operation.ToString();
 }
 
 enum AssociationStatus
