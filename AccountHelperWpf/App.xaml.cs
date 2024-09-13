@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
+using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf;
 
@@ -15,5 +16,8 @@ public partial class App : Application
     }
 
     private void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-        => MessageBox.Show(e.Exception.ToString());
+    {
+	    var window = new ErrorWindow(e.Exception.ToString());
+        window.ShowDialog();
+    }
 }

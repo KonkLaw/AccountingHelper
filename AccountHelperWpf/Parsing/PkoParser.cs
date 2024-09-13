@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.IO;
 using System.Text;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace AccountHelperWpf.Parsing;
 
@@ -9,7 +8,7 @@ static class PkoParser
 {
     public static IReadOnlyList<PkoOperation>? TryParse(StreamReader reader)
     {
-        List<PkoOperation> operations = new();
+		List<PkoOperation> operations = [];
         string firstLine = reader.ReadLine()!;
         const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\"";
         if (!firstLine.AsSpan(0, knownFirstString.Length).SequenceEqual(knownFirstString))
@@ -17,7 +16,15 @@ static class PkoParser
         do
         {
             string line = reader.ReadLine()!;
-            operations.Add(ParseString(line));
+            try
+            {
+	            operations.Add(ParseString(line));
+            }
+            catch (Exception ex)
+            {
+	            var exception = new Exception($"Problem with following line {line}", ex);
+	            throw exception;
+            }
         } while (!reader.EndOfStream);
         return operations;
     }
