@@ -8,7 +8,7 @@
         xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:MainWindowVM}"
-        Title="MainWindow" Height="990" Width="1500"
+        Height="990" Width="1500"
         WindowState="Maximized">
 
     <b:Interaction.Triggers>
