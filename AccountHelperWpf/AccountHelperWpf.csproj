@@ -11,7 +11,11 @@
 
 	<PropertyGroup>
 		<Version>1.0.0</Version>
+		<PublishDir>..\Build\$(Version)\</PublishDir>
 	</PropertyGroup>
+	<Target Name="PostPublish" AfterTargets="Publish">
+		<Message Text="Published to $(PublishDir)" Importance="High" />
+	</Target>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />

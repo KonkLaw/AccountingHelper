@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1BC2E3B1-9D11-411E-8098-4A4CBD7BEA7E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		publish.bat = publish.bat
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProject", "TestProject\TestProject.csproj", "{46916884-1BEA-43A2-95EE-97E85257FB41}"
