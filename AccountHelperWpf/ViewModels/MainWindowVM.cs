@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.Parsing;
@@ -19,6 +20,7 @@ class MainWindowVM : BaseNotifyProperty
 
     public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociation { get; }
+    public ICommand About { get; }
     public ICommand WindowClosing { get; }
 
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
@@ -33,7 +35,15 @@ class MainWindowVM : BaseNotifyProperty
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociation = new DelegateCommand(saveController.Save);
+        About = new DelegateCommand(ShowAbout);
         WindowClosing = new DelegateCommand<CancelEventArgs>(WindowClosingHandler);
+    }
+
+    private void ShowAbout()
+    {
+        Version? version = Assembly.GetExecutingAssembly().GetName().Version;
+        string info = version == null ? "" : version.ToString();
+        viewResolver.ShowInfo("Account Helper v" + info, "About");
     }
 
     private void LoadOperationFile()

@@ -28,6 +28,9 @@ class ViewResolver : IViewResolver
     public void ShowWarning(string message)
         => MessageBox.Show(GetWindow(), message, string.Empty, MessageBoxButton.OK, MessageBoxImage.Warning);
 
+    public void ShowInfo(string message, string caption)
+        => MessageBox.Show(GetWindow(), message, caption, MessageBoxButton.OK, MessageBoxImage.Information);
+
     public MessageBoxResult ShowQuestion(string question, MessageBoxButton messageBoxButton)
     {
         MessageBoxResult result = MessageBox.Show(

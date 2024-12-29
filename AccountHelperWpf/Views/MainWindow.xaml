@@ -28,10 +28,11 @@
             <RowDefinition />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <Button Content="Load Operation File" Margin="7" Command="{Binding LoadOperationFileCommand}"/>
-            <Button Content="Save Association" Margin="7" Command="{Binding SaveAssociation}"/>
-        </StackPanel>
+        <DockPanel>
+            <Button HorizontalAlignment="Left" Content="Load Operation File" Margin="7" Command="{Binding LoadOperationFileCommand}"/>
+            <Button HorizontalAlignment="Left" Content="Save Association" Margin="7" Command="{Binding SaveAssociation}"/>
+            <Button HorizontalAlignment="Right" Content="About" Margin="7" Command="{Binding About}"/>
+        </DockPanel>
         <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}" ContentTemplateSelector="{StaticResource TabContentTemplateSelector}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
