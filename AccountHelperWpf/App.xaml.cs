@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
+using AccountHelperWpf.Updater;
 using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf;
@@ -11,8 +12,9 @@ public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
-        base.OnStartup(e);
         Current.DispatcherUnhandledException += CurrentOnDispatcherUnhandledException;
+        UpdateController.CheckUpdates();
+		base.OnStartup(e);
     }
 
     private void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
