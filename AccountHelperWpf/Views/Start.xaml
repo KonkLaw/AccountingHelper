@@ -6,7 +6,8 @@
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
         mc:Ignorable="d"
         Title="Load history?" Height="130" Width="350"
-        d:DataContext="{d:DesignInstance viewModels:StartVM}">
+        d:DataContext="{d:DesignInstance viewModels:StartVM}"
+        WindowStartupLocation="CenterScreen">
     <StackPanel>
         <Label Content="Do you have history file?" HorizontalAlignment="Center" Margin="5"/>
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
