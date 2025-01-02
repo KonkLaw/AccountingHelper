@@ -11,7 +11,9 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModels:OperationsVM}">
     <UserControl.Resources>
-        <viewUtils:AmountToColorConverter x:Key="AmountToColorConverter"/>
+        <viewUtils:AmountToColorConverter x:Key="AmountToColorConverter"
+                                          PositiveAmountColor="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                                          NegativeAmountColor="{DynamicResource ControlFillColorDefaultBrush}"/>
     </UserControl.Resources>
     <local:DataGridExt ColumnDescriptions="{Binding ColumnDescriptions, Mode=OneWay}"
                        SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"

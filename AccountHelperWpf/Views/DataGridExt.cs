@@ -29,7 +29,13 @@ public class DataGridExt : DataGrid
     }
 
     private (HashSet<string> properties, DataGridColumn[] columns)? xamlColumns;
-    
+
+    static DataGridExt()
+    {
+        DefaultStyleKeyProperty.OverrideMetadata(
+            typeof(DataGridExt), new FrameworkPropertyMetadata(typeof(DataGridExt)));
+    }
+
     public DataGridExt()
     {
         AutoGenerateColumns = false;

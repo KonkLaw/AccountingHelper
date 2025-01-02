@@ -36,7 +36,22 @@
         <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}" ContentTemplateSelector="{StaticResource TabContentTemplateSelector}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Header}" MinWidth="150" TextAlignment="Center" Foreground="{Binding IsHighlighted, Converter={StaticResource Converter}}" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Header}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                                        <Setter Property="Foreground" 
+                                                Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsHighlighted}" Value="False">
+                                        <Setter Property="Foreground" 
+                                                Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </DataTemplate>
             </TabControl.ItemTemplate>
         </TabControl>

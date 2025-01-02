@@ -11,8 +11,9 @@
                 <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <Style TargetType="{x:Type views:DataGridExt}" BasedOn="{StaticResource {x:Type DataGrid}}" />
+
             <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
-            <viewUtils:BackColorConverter x:Key="Converter" />
             <viewUtils:HighlightBackColorConverter x:Key="HighlightBackColorConverter" />
 
             <DataTemplate x:Key="FileSortingTemplate" DataType="{x:Type viewModels:TabInfo}">
