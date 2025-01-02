@@ -1,7 +1,6 @@
 ﻿<Application x:Class="AccountHelperWpf.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:views="clr-namespace:AccountHelperWpf.Views"
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
              xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
@@ -9,8 +8,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ui:ThemeResources />
-                <ui:XamlControlsResources />
+                <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
