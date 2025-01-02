@@ -13,7 +13,7 @@
     <UserControl.Resources>
         <viewUtils:AmountToColorConverter x:Key="AmountToColorConverter"/>
     </UserControl.Resources>
-    <local:DataGridExt AutoGenerateColumns="False"
+    <local:DataGridExt ColumnDescriptions="{Binding ColumnDescriptions, Mode=OneWay}"
                        SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"
                        ItemsSource="{Binding Operations}">
         <DataGrid.ContextMenu>

@@ -7,17 +7,14 @@ namespace AccountHelperWpf.Parsing;
 
 public record PriorOperation(
     DateTime TransactionDateTime, decimal Amount, string Description,
-    [property: Width(150)]
     string CategoryName,
     string Currency,
     decimal Fee,
     decimal InitialAmount,
-    [property: StringFormat("dd-MM-yyyy")]
     DateOnly AccountDate);
 
 public record PriorBlockedOperation(
     DateTime TransactionDateTime, decimal Amount, string Description,
-    [property: Width(150)]
     string CategoryName,
     string Currency,
     decimal InitialAmount,
@@ -44,10 +41,8 @@ public record PriorFile(
 // ==================== PKO
 
 public record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-        [property: StringFormat("dd-MM-yyyy")]
         DateOnly DateAccounting,
         string Currency,
-        [property: Width(160)]
         string OperationType,
         string? OriginalAmount,
         decimal SaldoBeforeTransaction,
@@ -58,6 +53,7 @@ public record PkoBlockedOperation(
     string Currency, string OtherDescription);
 
 public record PkoFile(
-    string FileName, 
+    string FileName,
     IReadOnlyList<PkoOperation> NonBlockedOperations,
-    IReadOnlyList<PkoBlockedOperation>? BlockedOperations);
+    IReadOnlyList<PkoBlockedOperation>? BlockedOperations,
+    bool WithSaldo);

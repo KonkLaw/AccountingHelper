@@ -50,7 +50,7 @@ class FileSortingVM : BaseNotifyProperty
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
         this.generalSummaryVM = generalSummaryVM;
-        operationsVM = new OperationsVM(file.Operations, categoriesVM, UpdateSummary, associationStorage);
+        operationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, UpdateSummary, associationStorage);
         TabInfo = new TabInfo(file.GetTitle(), this);
         SummaryVM = new SingleCurrencySummaryVM();
 

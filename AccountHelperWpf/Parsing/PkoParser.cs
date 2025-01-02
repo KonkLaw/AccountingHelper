@@ -6,19 +6,29 @@ namespace AccountHelperWpf.Parsing;
 
 static class PkoParser
 {
-    public static IReadOnlyList<PkoOperation>? TryParse(StreamReader reader)
+    public static IReadOnlyList<PkoOperation>? TryParse(StreamReader reader, out bool withSaldo)
     {
-		List<PkoOperation> operations = [];
         string firstLine = reader.ReadLine()!;
-        const string knownFirstString = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\"";
-        if (!firstLine.AsSpan(0, knownFirstString.Length).SequenceEqual(knownFirstString))
+
+        const string knownStartWithSaldo = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Saldo po transakcji\",\"Opis transakcji\"";
+        const string knownStartWithoutSaldo = "\"Data operacji\",\"Data waluty\",\"Typ transakcji\",\"Kwota\",\"Waluta\",\"Opis transakcji\"";
+        if (firstLine.AsSpan().StartsWith(knownStartWithSaldo))
+            withSaldo = true;
+        else if (firstLine.AsSpan().StartsWith(knownStartWithoutSaldo))
+            withSaldo = false;
+        else
+        {
+            withSaldo = false;
             return null;
+        }
+
+        List<PkoOperation> operations = [];
         do
         {
             string line = reader.ReadLine()!;
             try
             {
-	            operations.Add(ParseString(line));
+	            operations.Add(ParseString(line, withSaldo));
             }
             catch (Exception ex)
             {
@@ -29,7 +39,7 @@ static class PkoParser
         return operations;
     }
 
-    private static PkoOperation ParseString(string record)
+    private static PkoOperation ParseString(string record, bool withSaldo)
     {
         RecordIterator iterator = new RecordIterator(record);
 
@@ -38,7 +48,7 @@ static class PkoParser
         string operationType = iterator.GetNextSpan().ToString();
         decimal amount = decimal.Parse(iterator.GetNextSpan());
         string currency = iterator.GetNextSpan().ToString();
-        decimal saldoBeforeTransaction = decimal.Parse(iterator.GetNextSpan());
+        decimal saldoBeforeTransaction = withSaldo ? decimal.Parse(iterator.GetNextSpan()) : 0;
 		
         new DescriptionParser(iterator).Parse(out string? originalAmount, out string shortDescription, out string otherDetails);
 		

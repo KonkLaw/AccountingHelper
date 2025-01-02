@@ -1,17 +1,15 @@
 ﻿using AccountHelperWpf.Parsing;
-using AccountHelperWpf.ViewUtils;
+using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf.Models;
 
 public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string Description)
 {
 	public sealed override string ToString() => $"{TransactionDateTime:dd-MM-yyyy}|{Amount}|{Description}";
-};
+}
 
 record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
-    [property: StringFormat("dd-MM-yyyy")]
     DateOnly? DateAccounting,
-    [property: Width(160)]
     string? OperationType,
     string? OriginalAmount,
     decimal? SaldoBeforeTransaction,
@@ -44,10 +42,10 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
 
 public record PriorOperation(
     DateTime TransactionDateTime, decimal Amount, string Description,
-    [property: Width(150)] string CategoryName,
+    string CategoryName,
     decimal? Fee,
     decimal InitialAmount,
-    [property: StringFormat("dd-MM-yyyy")] DateOnly? AccountDate,
+    DateOnly? AccountDate,
     string? InitialCurrency,
     string OperationGroupName)
     :
@@ -78,9 +76,7 @@ public record PriorOperation(
             OperationGroupName: groupName);
 }
 
-
-
-public record OperationsFile(string Name, IReadOnlyList<BaseOperation> Operations, string Currency)
+public record OperationsFile(string Name, IReadOnlyList<BaseOperation> Operations, IReadOnlyCollection<ColumnDescription> ColumnDescriptions, string Currency)
 {
     public string GetTitle() => $"({Currency}) {Name}";
 }

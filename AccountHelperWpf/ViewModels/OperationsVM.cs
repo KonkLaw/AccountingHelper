@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.Utils;
+using AccountHelperWpf.Views;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
@@ -18,6 +19,8 @@ class OperationsVM : BaseNotifyProperty
     private OperationVM? lastIncluded;
 
     public IEnumerable<CategoryVM> Categories { get; }
+
+    public IEnumerable<ColumnDescription> ColumnDescriptions { get; }
 
     private IReadOnlyList<OperationVM> operations = null!;
     public IReadOnlyList<OperationVM> Operations
@@ -56,11 +59,13 @@ class OperationsVM : BaseNotifyProperty
 
     public OperationsVM(
         IReadOnlyList<BaseOperation> baseOperations,
+        IEnumerable<ColumnDescription> columnDescriptions,
         CategoriesVM categoriesVM,
         Action summaryChanged,
         AssociationStorage associationStorage)
     {
         Categories = categoriesVM.GetCategories();
+        ColumnDescriptions = columnDescriptions;
         this.summaryChanged = summaryChanged;
         this.associationStorage = associationStorage;
         allOperations = GetAllOperations(baseOperations);

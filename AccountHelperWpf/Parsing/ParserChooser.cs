@@ -24,12 +24,13 @@ class ParserChooser
 
                 reader = new(fileStream, EncodingHelper.PolandEncoding);
 
-                IReadOnlyList<PkoOperation>? nonBlockedOperations = PkoParser.TryParse(reader);
+                IReadOnlyList<PkoOperation>? nonBlockedOperations = PkoParser.TryParse(reader, out bool withSaldo);
                 if (nonBlockedOperations != null)
                 {
                     PkoBlockedOperationParserVM pkoBlockedOperationsVM = new(viewResolver);
                     viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
-                    return Converter.Convert(new PkoFile(fileName, nonBlockedOperations, pkoBlockedOperationsVM.BlockedOperations));
+                    return Converter.Convert(
+                        new PkoFile(fileName, nonBlockedOperations, pkoBlockedOperationsVM.BlockedOperations, withSaldo));
                 }
 
                 viewResolver.ShowWarning("Sorry, the fle wasn't recognized as any known bank report.");
