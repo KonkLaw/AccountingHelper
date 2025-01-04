@@ -10,7 +10,7 @@ class FileSortingVM : BaseNotifyProperty
     public readonly OperationsFile File;
     private readonly CategoriesVM categoriesVM;
     private readonly ISaveController saveController;
-    private readonly SummaryVM summaryVM;
+    private readonly ISummaryNotifier summaryNotifier;
     public TabInfo TabInfo { get; }
 
     private bool groupByComment = true;
@@ -39,12 +39,12 @@ class FileSortingVM : BaseNotifyProperty
         AssociationStorage associationStorage,
         Action<FileSortingVM> removeHandler,
         ISaveController saveController,
-        SummaryVM summaryVM)
+        ISummaryNotifier summaryNotifier)
     {
         File = file;
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
-        this.summaryVM = summaryVM;
+        this.summaryNotifier = summaryNotifier;
         OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, UpdateSummary, associationStorage);
         TabInfo = new TabInfo(file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
@@ -66,7 +66,7 @@ class FileSortingVM : BaseNotifyProperty
             out bool isSorted, out ICollection<CategoryDetails> collection);
         TabInfo.IsHighlighted = !isSorted;
         TextSummaryVM.Update(collection);
-        summaryVM.SummaryChanged();
+        summaryNotifier.NotifySummaryChanged();
     }
 
     private void CategoriesVMOnCategoryOrListChanged()

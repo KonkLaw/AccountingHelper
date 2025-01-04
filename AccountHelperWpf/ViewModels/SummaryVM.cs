@@ -3,47 +3,34 @@ using static AccountHelperWpf.ViewModels.MultiCurrencyTextSummaryVM;
 
 namespace AccountHelperWpf.ViewModels;
 
-class SummaryVM : BaseNotifyProperty
+class SummaryVM : BaseNotifyProperty, ISummaryFiles, ISummaryNotifier
 {
     private readonly HashSet<FileSortingVM> viewModels = new();
-    private List<CurrencyInfo>? currenciesInfo;
-    public List<CurrencyInfo>? CurrenciesInfo
+    private List<CurrencyInfo> currenciesInfo = new();
+    public List<CurrencyInfo> CurrenciesInfo
     {
         get => currenciesInfo;
         private set => SetProperty(ref currenciesInfo, value);
     }
     public MultiCurrencyTextSummaryVM TextSummaryVM { get; } = new ();
 
-    public void UpdateCurrencies(IReadOnlyList<string> currencies)
+    public void Register(FileSortingVM fileSortingVM)
     {
-        List<CurrencyInfo> newList = new();
-        foreach (string currency in currencies)
-        {
-            string courseText;
-            if (CurrenciesInfo != null)
-            {
-                CurrencyInfo? sameOldItem = CurrenciesInfo.FirstOrDefault(item => item.Currency == currency);
-                courseText = sameOldItem != null ? sameOldItem.CourseText : string.Empty;
-            }
-            else
-                courseText = string.Empty;
-
-
-            newList.Add(new CurrencyInfo(currency, courseText, this));
-        }
-        CurrenciesInfo = newList;
-        UpdateSummary();
+        viewModels.Add(fileSortingVM);
+        UpdateCurrencies();
     }
 
-    public void Register(FileSortingVM fileSortingVM) => viewModels.Add(fileSortingVM);
-
-    public void Unregister(FileSortingVM fileSortingVM) => viewModels.Remove(fileSortingVM);
-
-    public void SummaryChanged() => UpdateSummary();
-
-    public void UpdateSummary()
+    public void Unregister(FileSortingVM fileSortingVM)
     {
-        if (CurrenciesInfo == null || CurrenciesInfo.Any(info => !info.Course.HasValue))
+        if (viewModels.Remove(fileSortingVM))
+            UpdateCurrencies();
+    }
+
+    public void NotifySummaryChanged() => UpdateSummary();
+
+    private void UpdateSummary()
+    {
+        if (CurrenciesInfo.Any(info => !info.Course.HasValue))
         {
             TextSummaryVM.Update(Array.Empty<CategoriesInfo>());
             return;
@@ -61,12 +48,37 @@ class SummaryVM : BaseNotifyProperty
         }
         TextSummaryVM.Update(infos);
     }
+
+    private void UpdateCurrencies()
+    {
+        List<CurrencyInfo> newList = new();
+        foreach (FileSortingVM file in viewModels)
+        {
+            string currency = file.File.Currency;
+            CurrencyInfo? sameOldItem = CurrenciesInfo.FirstOrDefault(item => item.Currency == currency);
+            string courseText = sameOldItem != null ? sameOldItem.CourseText : string.Empty;
+            newList.Add(new CurrencyInfo(currency, courseText, this));
+        }
+        CurrenciesInfo = newList;
+        UpdateSummary();
+    }
+}
+
+interface ISummaryFiles
+{
+    void Register(FileSortingVM fileSortingVM);
+    void Unregister(FileSortingVM fileSortingVM);
+}
+
+interface ISummaryNotifier
+{
+    void NotifySummaryChanged();
 }
 
 class CurrencyInfo : BaseNotifyProperty
 {
     private string currency;
-    private readonly SummaryVM summaryVM;
+    private readonly ISummaryNotifier summaryNotifier;
 
     public string Currency
     {
@@ -96,16 +108,16 @@ class CurrencyInfo : BaseNotifyProperty
         private set
         {
             if (SetProperty(ref course, value))
-                summaryVM.SummaryChanged();
+                summaryNotifier.NotifySummaryChanged();
         }
     }
 
-    public CurrencyInfo(string currency, string courseText, SummaryVM summaryVM)
+    public CurrencyInfo(string currency, string courseText, ISummaryNotifier summaryNotifier)
     {
         this.currency = currency;
         this.courseText = courseText;
         if (decimal.TryParse(courseText, out decimal res))
             course = res;
-        this.summaryVM = summaryVM;
+        this.summaryNotifier = summaryNotifier;
     }
 }
