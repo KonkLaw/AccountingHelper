@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using AccountHelperWpf.ViewUtils;
@@ -14,6 +13,8 @@ class CategoriesVM : BaseNotifyProperty
     private readonly ReadOnlyObservableCollection<CategoryVM> collection;
     public ObservableCollection<CategoryVM> Categories { get; }
     public ICommand RemoveCommand { get; }
+    public ICommand MoveUpCommand { get; }
+    public ICommand MoveDownCommand { get; }
 
     public int SelectedIndex { get; set; }
 
@@ -27,6 +28,8 @@ class CategoriesVM : BaseNotifyProperty
         Categories = loadedCategories;
         collection = new ReadOnlyObservableCollection<CategoryVM>(Categories);
         RemoveCommand = new DelegateCommand<object>(RemoveCategory);
+        MoveUpCommand = new DelegateCommand<object>(MoveUp);
+        MoveDownCommand = new DelegateCommand<object>(MoveDown);
 
         Categories.CollectionChanged += CategoriesCollectionChanged;
         foreach (CategoryVM? categoryViewModel in Categories)
@@ -44,6 +47,20 @@ class CategoriesVM : BaseNotifyProperty
         OnCategoryRemoved?.Invoke();
     }
 
+    private void MoveUp(object? obj)
+    {
+        if (SelectedIndex < 1)
+            return;
+        Categories.Move(SelectedIndex, SelectedIndex - 1);
+    }
+
+    private void MoveDown(object? obj)
+    {
+        if (SelectedIndex > Categories.Count - 2)
+            return;
+        Categories.Move(SelectedIndex, SelectedIndex + 1);
+    }
+
     private void CategoriesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         switch (e.Action)
@@ -55,7 +72,6 @@ class CategoriesVM : BaseNotifyProperty
                     foreach (CategoryVM categoryViewModel in e.NewItems)
                     {
                         categoryViewModel.PropertyChanged += CategoryChanged;
-                        Debug.WriteLine("Add");
                     }
                 if (e.OldItems != null)
                     foreach (CategoryVM categoryViewModel in e.OldItems)
@@ -63,9 +79,10 @@ class CategoriesVM : BaseNotifyProperty
                         categoryViewModel.PropertyChanged -= CategoryChanged;
                     }
                 break;
-            case NotifyCollectionChangedAction.Move:
             case NotifyCollectionChangedAction.Reset:
                 throw new NotImplementedException();
+            case NotifyCollectionChangedAction.Move:
+                break;
         }
         Notify();
     }

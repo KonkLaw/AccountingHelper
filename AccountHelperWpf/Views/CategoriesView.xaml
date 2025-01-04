@@ -12,6 +12,8 @@
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Remove Category" Command="{Binding RemoveCommand}"/>
+                    <MenuItem Header="Move Up" Command="{Binding MoveUpCommand}"/>
+                    <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.CellStyle>
