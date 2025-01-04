@@ -36,7 +36,7 @@
                            HorizontalAlignment="Left"
                            Margin="3, 0"/>
                 <TextBlock Text="" HorizontalAlignment="Center"/>
-                <Image Source="../Resources/Untitled.png" MaxWidth="1240"/>
+                <Image Source="../Resources/BlokedOperationsExample.png" MaxWidth="1240"/>
             </StackPanel>
         </Grid>
         <DataGrid Grid.Row="2" IsReadOnly="True" ItemsSource="{Binding Operations}" AutoGenerateColumns="False">

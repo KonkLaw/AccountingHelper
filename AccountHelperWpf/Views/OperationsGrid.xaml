@@ -54,10 +54,10 @@
                                 <Style TargetType="Image">
                                     <Style.Triggers>
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="NotMatch">
-                                            <Setter Property="Source" Value="/Resources/Icons/warning.png"/>
+                                            <Setter Property="Source" Value="/Resources/UtilsIcons/warning.png"/>
                                         </DataTrigger >
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="Excluded">
-                                            <Setter Property="Source" Value="/Resources/Icons/exclamation.png"/>
+                                            <Setter Property="Source" Value="/Resources/UtilsIcons/exclamation.png"/>
                                         </DataTrigger >
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="None">
                                             <Setter Property="Source" Value="{x:Null}"/>

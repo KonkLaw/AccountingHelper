@@ -22,13 +22,12 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<None Remove="Resources\Icons\exclamation.png" />
-		<None Remove="Resources\Icons\warning.png" />
-		<None Remove="Resources\Untitled.png" />
+		<None Remove="Resources\UtilsIcons\exclamation.png" />
+		<None Remove="Resources\UtilsIcons\warning.png" />
 		<Content Include="icon.ico" />
-		<Resource Include="Resources\Icons\exclamation.png" />
-		<Resource Include="Resources\Icons\warning.png" />
-		<Resource Include="Resources\Untitled.png" />
+		<Resource Include="Resources\UtilsIcons\exclamation.png" />
+		<Resource Include="Resources\UtilsIcons\warning.png" />
+		<Resource Include="Resources\BlokedOperationsExample.png" />
 	</ItemGroup>
 
 </Project>
