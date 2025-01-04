@@ -59,12 +59,16 @@ class SummaryHelperMultiCurrency
     {
         switch (currencyFullName)
         {
+            case "BYN":
+                return "Br";
             case "PLN":
                 return "Zł";
             case "USD":
                 return "$";
             case "EUR":
                 return "€";
+            case "RUB":
+                return "₽";
             default:
                 return currencyFullName;
         }
