@@ -16,7 +16,7 @@ class TabContentTemplateSelector : DataTemplateSelector
             return (DataTemplate)Application.Current!.FindResource("CategoriesTemplate")!;
         if (content is AssociationsVM)
             return (DataTemplate)Application.Current!.FindResource("AssociationsTemplate")!;
-        if (content is GeneralSummaryVM)
+        if (content is SummaryVM)
             return (DataTemplate)Application.Current!.FindResource("SummaryTemplate")!;
 
         throw new InvalidOperationException();

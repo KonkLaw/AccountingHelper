@@ -7,7 +7,7 @@
              xmlns:views="clr-namespace:AccountHelperWpf.Views"
              mc:Ignorable="d" 
              d:DesignHeight="750" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance viewModels:GeneralSummaryVM}">
+             d:DataContext="{d:DesignInstance viewModels:SummaryVM}">
     <DockPanel>
         <Grid DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
@@ -34,6 +34,6 @@
                 Coefficient in front of each currency will be used as multiplier for each currency to get final sums.
             </TextBlock>
         </Grid>
-        <views:SummaryView DataContext="{Binding SummaryVM, Mode=OneTime}"/>
+        <views:SummaryView DataContext="{Binding TextSummaryVM, Mode=OneTime}"/>
     </DockPanel>
 </UserControl>

@@ -71,12 +71,12 @@ class SummaryHelperMultiCurrency
     }
 
     public static void Prepare(
-        IReadOnlyCollection<MultiCurrencySummaryVM.CategoriesInfo> collection,
+        IReadOnlyCollection<MultiCurrencyTextSummaryVM.CategoriesInfo> collection,
         out List<CategoryDetails> categories,
         out string details)
     {
         Dictionary<string, CategorySummaryTemp> dict = new();
-        foreach (MultiCurrencySummaryVM.CategoriesInfo categoriesInfo in collection)
+        foreach (MultiCurrencyTextSummaryVM.CategoriesInfo categoriesInfo in collection)
         {
             foreach (CategoryDetails categoryDetails in categoriesInfo.Collection)
             {

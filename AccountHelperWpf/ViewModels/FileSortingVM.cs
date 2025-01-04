@@ -10,9 +10,8 @@ class FileSortingVM : BaseNotifyProperty
     public readonly OperationsFile File;
     private readonly CategoriesVM categoriesVM;
     private readonly ISaveController saveController;
-    private readonly GeneralSummaryVM generalSummaryVM;
+    private readonly SummaryVM summaryVM;
     public TabInfo TabInfo { get; }
-    private OperationsVM operationsVM;
 
     private bool groupByComment = true;
     public bool GroupByComment
@@ -25,18 +24,14 @@ class FileSortingVM : BaseNotifyProperty
         }
     }
 
-    public OperationsVM OperationsVM
-    {
-        get => operationsVM;
-        set => SetProperty(ref operationsVM, value);
-    }
+    public OperationsVM OperationsVM { get; }
 
     public ICommand SetForAllCommand { get; }
     public ICommand ResetFiltersCommand { get; }
     public ICommand RemoveFileCommand { get; }
     public ICommand ApproveAllCommand { get; }
 
-    public SingleCurrencySummaryVM SummaryVM { get; }
+    public SingleCurrencyTextSummaryVM TextSummaryVM { get; }
 
     public FileSortingVM(
         OperationsFile file,
@@ -44,15 +39,15 @@ class FileSortingVM : BaseNotifyProperty
         AssociationStorage associationStorage,
         Action<FileSortingVM> removeHandler,
         ISaveController saveController,
-        GeneralSummaryVM generalSummaryVM)
+        SummaryVM summaryVM)
     {
         File = file;
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
-        this.generalSummaryVM = generalSummaryVM;
-        operationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, UpdateSummary, associationStorage);
+        this.summaryVM = summaryVM;
+        OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, UpdateSummary, associationStorage);
         TabInfo = new TabInfo(file.GetTitle(), this);
-        SummaryVM = new SingleCurrencySummaryVM();
+        TextSummaryVM = new SingleCurrencyTextSummaryVM();
 
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
@@ -67,11 +62,11 @@ class FileSortingVM : BaseNotifyProperty
     private void UpdateSummary()
     {
         SummaryHelperSingleCurrency.PrepareSummary(
-            categoriesVM.GetCategories(), operationsVM.Operations, groupByComment,
+            categoriesVM.GetCategories(), OperationsVM.Operations, groupByComment,
             out bool isSorted, out ICollection<CategoryDetails> collection);
         TabInfo.IsHighlighted = !isSorted;
-        SummaryVM.Update(collection);
-        generalSummaryVM.SummaryChanged();
+        TextSummaryVM.Update(collection);
+        summaryVM.SummaryChanged();
     }
 
     private void CategoriesVMOnCategoryOrListChanged()

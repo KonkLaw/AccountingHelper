@@ -16,7 +16,7 @@ class MainWindowVM : BaseNotifyProperty
     private readonly SaveController saveController;
     private readonly AssociationStorage associationStorage;
     private readonly CategoriesVM categoriesVM;
-    private readonly GeneralSummaryVM generalSummaryVM;
+    private readonly SummaryVM summaryVM;
 
     public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociation { get; }
@@ -30,8 +30,8 @@ class MainWindowVM : BaseNotifyProperty
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
         associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
-        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM, out generalSummaryVM);
-        filesContainer = new FilesContainer(Tabs, generalSummaryVM);
+        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM, out summaryVM);
+        filesContainer = new FilesContainer(Tabs, summaryVM);
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociation = new DelegateCommand(saveController.Save);
@@ -61,7 +61,7 @@ class MainWindowVM : BaseNotifyProperty
             OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
             if (operationsFile == null)
                 return;
-            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController, generalSummaryVM);
+            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController, summaryVM);
             filesContainer.Add(fullPath, fileSortingVM);
         }
     }
@@ -82,13 +82,13 @@ class MainWindowVM : BaseNotifyProperty
         ObservableCollection<TabInfo> tabs,
         InitData initData,
         out CategoriesVM categoriesVM,
-        out GeneralSummaryVM generalSummaryVM)
+        out SummaryVM summaryVM)
     {
         categoriesVM = new CategoriesVM(initData.Categories, viewResolver);
         tabs.Add(new TabInfo("Categories", categoriesVM));
         var associationVM = new AssociationsVM(storage);
         tabs.Add(new TabInfo("Associations", associationVM));
-        generalSummaryVM = new GeneralSummaryVM();
-        tabs.Add(new TabInfo("Summary", generalSummaryVM));
+        summaryVM = new SummaryVM();
+        tabs.Add(new TabInfo("Summary", summaryVM));
     }
 }

@@ -1,144 +1,111 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Text;
-using System.Windows.Input;
-using AccountHelperWpf.Models;
-using AccountHelperWpf.Utils;
-using AccountHelperWpf.ViewUtils;
+﻿using AccountHelperWpf.ViewUtils;
+using static AccountHelperWpf.ViewModels.MultiCurrencyTextSummaryVM;
 
 namespace AccountHelperWpf.ViewModels;
 
-class BaseSummaryVM : BaseNotifyProperty
+class SummaryVM : BaseNotifyProperty
 {
-    private readonly ObservableCollection<CategoryDetails> collection;
-    public IReadOnlyCollection<CategoryDetails> CategoriesDetails => collection;
-
-    private string textSummary;
-    public string TextSummary
+    private readonly HashSet<FileSortingVM> viewModels = new();
+    private List<CurrencyInfo>? currenciesInfo;
+    public List<CurrencyInfo>? CurrenciesInfo
     {
-        get => textSummary;
-        set => SetProperty(ref textSummary, value);
+        get => currenciesInfo;
+        private set => SetProperty(ref currenciesInfo, value);
     }
+    public MultiCurrencyTextSummaryVM TextSummaryVM { get; } = new ();
 
-    private decimal amount;
-    public decimal Amount
+    public void UpdateCurrencies(IReadOnlyList<string> currencies)
     {
-        get => amount;
-        private set => SetProperty(ref amount, value);
-    }
-
-    public ICommand UnselectCommand { get; }
-    public ICommand SelectCommand { get; }
-    public ICommand InvertCommand { get; }
-
-    public BaseSummaryVM()
-    {
-        collection = new ObservableCollection<CategoryDetails>();
-        textSummary = string.Empty;
-        UnselectCommand = new DelegateCommand(Unselect);
-        SelectCommand = new DelegateCommand(Select);
-        InvertCommand = new DelegateCommand(Invert);
-    }
-
-    private void CategoryDetailsChanged(object? sender, PropertyChangedEventArgs e)
-        => UpdateAmount();
-
-    private void UpdateAmount()
-        => Amount = CategoriesDetails.Where(c => c.IsSelected).Sum(c => c.Amount);
-
-    private void Unselect()
-    {
-        foreach (CategoryDetails categoryDetails in collection)
-            categoryDetails.IsSelected = false;
-    }
-
-    private void Select()
-    {
-        foreach (CategoryDetails categoryDetails in collection)
-            categoryDetails.IsSelected = true;
-    }
-
-    private void Invert()
-    {
-        foreach (CategoryDetails categoryDetails in collection)
-            categoryDetails.IsSelected = !categoryDetails.IsSelected;
-    }
-
-    protected void UpdateCollection(ICollection<CategoryDetails> newCollection, string report)
-    {
-        if (collection.All(c => c.IsSelected))
+        List<CurrencyInfo> newList = new();
+        foreach (string currency in currencies)
         {
-            foreach (CategoryDetails categoryDetails in newCollection)
-                categoryDetails.IsSelected = true;
-        }
-        else if (collection.All(c => !c.IsSelected))
-        {
-            foreach (CategoryDetails categoryDetails in newCollection)
-                categoryDetails.IsSelected = false;
-        }
-        else
-        {
-            foreach (CategoryDetails oldItem in collection)
+            string courseText;
+            if (CurrenciesInfo != null)
             {
-                CategoryDetails? details = newCollection.FirstOrDefault(c => c.Name == oldItem.Name);
-                if (details != null)
-                    details.IsSelected = oldItem.IsSelected;
+                CurrencyInfo? sameOldItem = CurrenciesInfo.FirstOrDefault(item => item.Currency == currency);
+                courseText = sameOldItem != null ? sameOldItem.CourseText : string.Empty;
             }
-        }
-        collection.Clear();
+            else
+                courseText = string.Empty;
 
-        foreach (CategoryDetails categoryDetails in newCollection)
-        {
-            if (categoryDetails.Amount == 0)
-                continue;
-            collection.Add(categoryDetails);
-            categoryDetails.PropertyChanged += CategoryDetailsChanged;
+
+            newList.Add(new CurrencyInfo(currency, courseText, this));
         }
-        UpdateAmount();
-        TextSummary = report;
+        CurrenciesInfo = newList;
+        UpdateSummary();
+    }
+
+    public void Register(FileSortingVM fileSortingVM) => viewModels.Add(fileSortingVM);
+
+    public void Unregister(FileSortingVM fileSortingVM) => viewModels.Remove(fileSortingVM);
+
+    public void SummaryChanged() => UpdateSummary();
+
+    public void UpdateSummary()
+    {
+        if (CurrenciesInfo == null || CurrenciesInfo.Any(info => !info.Course.HasValue))
+        {
+            TextSummaryVM.Update(Array.Empty<CategoriesInfo>());
+            return;
+        }
+
+        List<CategoriesInfo> infos = new List<CategoriesInfo>();
+        foreach (FileSortingVM fileSortingVM in viewModels)
+        {
+            string currency = fileSortingVM.File.Currency;
+            CurrencyInfo currencyInfo = CurrenciesInfo.First(ci => ci.Currency == currency);
+            infos.Add(new CategoriesInfo(
+                fileSortingVM.TextSummaryVM.CategoriesDetails,
+                currency,
+                currencyInfo.Course!.Value));
+        }
+        TextSummaryVM.Update(infos);
     }
 }
 
-
-class MultiCurrencySummaryVM : BaseSummaryVM
+class CurrencyInfo : BaseNotifyProperty
 {
-    internal readonly record struct CategoriesInfo(IReadOnlyCollection<CategoryDetails> Collection, string Currency, decimal Course);
+    private string currency;
+    private readonly SummaryVM summaryVM;
 
-    public void Update(IReadOnlyCollection<CategoriesInfo> collection)
+    public string Currency
     {
-        SummaryHelperMultiCurrency.Prepare(collection, out List<CategoryDetails> categories, out string textSummary);
-        UpdateCollection(categories, textSummary);
+        get => currency;
+        set => SetProperty(ref currency, value);
     }
-}
 
-class SingleCurrencySummaryVM : BaseSummaryVM
-{
-    public void Update(ICollection<CategoryDetails> newCollection)
-        => UpdateCollection(newCollection, GetTextDescription(newCollection));
-
-    private static string GetTextDescription(ICollection<CategoryDetails> newCollection)
+    private string courseText;
+    public string CourseText
     {
-        decimal sum = 0;
-        StringBuilder result = new();
-        foreach (CategoryDetails categoryDetails in newCollection)
+        get => courseText;
+        set
         {
-            if (categoryDetails.Amount == 0)
-                continue;
-            result.Append('#');
-            result.Append(categoryDetails.Name);
-            result.Append(' ');
-            result.Append(categoryDetails.Amount.ToGoodString());
-            if (!string.IsNullOrEmpty(categoryDetails.AdditionalDescription))
-            {
-                result.Append(" (");
-                result.Append(categoryDetails.AdditionalDescription);
-                result.Append(')');
-            }
-            sum += categoryDetails.Amount;
-            result.AppendLine();
+            if (!SetProperty(ref courseText, value))
+                return;
+            if (decimal.TryParse(courseText, out decimal newValue))
+                Course = newValue;
+            else
+                Course = null;
         }
+    }
 
-        result.AppendLine($"*** Total = {sum.ToGoodString()}");
-        return result.ToString();
+    private decimal? course;
+    public decimal? Course
+    {
+        get => course;
+        private set
+        {
+            if (SetProperty(ref course, value))
+                summaryVM.SummaryChanged();
+        }
+    }
+
+    public CurrencyInfo(string currency, string courseText, SummaryVM summaryVM)
+    {
+        this.currency = currency;
+        this.courseText = courseText;
+        if (decimal.TryParse(courseText, out decimal res))
+            course = res;
+        this.summaryVM = summaryVM;
     }
 }

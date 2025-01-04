@@ -5,14 +5,14 @@ namespace AccountHelperWpf.ViewModels;
 class FilesContainer
 {
     private readonly ObservableCollection<TabInfo> tabCollection;
-    private readonly GeneralSummaryVM generalSummaryVM;
+    private readonly SummaryVM summaryVM;
     private readonly int rightTabCount;
     private readonly Dictionary<string, FileSortingVM> filesToVm = new();
 
-    public FilesContainer(ObservableCollection<TabInfo> tabCollection, GeneralSummaryVM generalSummaryVM)
+    public FilesContainer(ObservableCollection<TabInfo> tabCollection, SummaryVM summaryVM)
     {
         this.tabCollection = tabCollection;
-        this.generalSummaryVM = generalSummaryVM;
+        this.summaryVM = summaryVM;
         rightTabCount = tabCollection.Count;
     }
 
@@ -22,7 +22,7 @@ class FilesContainer
     {
         tabCollection.Insert(tabCollection.Count - rightTabCount, fileSortingVM.TabInfo);
         filesToVm.Add(fullPath, fileSortingVM);
-        generalSummaryVM.Register(fileSortingVM);
+        summaryVM.Register(fileSortingVM);
         UpdateCurrencies();
     }
 
@@ -32,11 +32,11 @@ class FilesContainer
         tabCollection.Remove(tabToRemove);
         string fileToDell = filesToVm.First(p => p.Value == viewModel).Key;
         filesToVm.Remove(fileToDell);
-        generalSummaryVM.Unregister(viewModel);
+        summaryVM.Unregister(viewModel);
         UpdateCurrencies();
     }
 
-    private void UpdateCurrencies() => generalSummaryVM.UpdateCurrencies(GetAllCurrencies());
+    private void UpdateCurrencies() => summaryVM.UpdateCurrencies(GetAllCurrencies());
 
     public IReadOnlyList<string> GetAllCurrencies()
     {

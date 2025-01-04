@@ -22,7 +22,7 @@
                 <Button Width="130" HorizontalAlignment="Left" Margin="7" Content="Approve all" Command="{Binding ApproveAllCommand}"/>
                 <CheckBox Margin="7" Content="Group by comment" IsChecked="{Binding GroupByComment}"/>
             </StackPanel>
-            <local:SummaryView DataContext="{Binding SummaryVM}" HorizontalAlignment="Stretch"/>
+            <local:SummaryView DataContext="{Binding TextSummaryVM}" HorizontalAlignment="Stretch"/>
         </DockPanel>
     </Grid>
 </UserControl>
