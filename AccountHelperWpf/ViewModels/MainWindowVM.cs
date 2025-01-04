@@ -23,6 +23,13 @@ class MainWindowVM : BaseNotifyProperty
     public ICommand About { get; }
     public ICommand WindowClosing { get; }
 
+    private TabInfo? selectedTab;
+    public TabInfo? SelectedTab
+    {
+        get => selectedTab;
+        set => SetProperty(ref selectedTab, value);
+    }
+
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
 
     public MainWindowVM(IViewResolver viewResolver, InitData initData)
@@ -66,6 +73,7 @@ class MainWindowVM : BaseNotifyProperty
                 return;
             var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController, summaryVM);
             filesContainer.Add(fullPath, fileSortingVM);
+            SelectedTab = fileSortingVM.TabInfo;
         }
     }
 

@@ -34,7 +34,9 @@
             <Button HorizontalAlignment="Left" Content="Save Association" Command="{Binding SaveAssociation}"/>
             <Button HorizontalAlignment="Right" Content="About" Command="{Binding About}"/>
         </DockPanel>
-        <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}" ContentTemplateSelector="{StaticResource TabContentTemplateSelector}">
+        <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}"
+                    ContentTemplateSelector="{StaticResource TabContentTemplateSelector}"
+                    SelectedItem="{Binding SelectedTab, Mode=TwoWay}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Header}">
