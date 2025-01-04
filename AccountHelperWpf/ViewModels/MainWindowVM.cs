@@ -43,7 +43,10 @@ class MainWindowVM : BaseNotifyProperty
     {
         Version? version = Assembly.GetExecutingAssembly().GetName().Version;
         string info = version == null ? "" : version.ToString();
-        viewResolver.ShowInfo("Account Helper v" + info, "About");
+        string content = "Account Helper v" + info + Environment.NewLine +
+                         "Made by KonkLaw" + Environment.NewLine +
+                         "https://github.com/KonkLaw/AccountingHelper";
+        viewResolver.ShowInfo(content, "About");
     }
 
     private void LoadOperationFile()

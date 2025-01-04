@@ -9,7 +9,8 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:MainWindowVM}"
         Height="990" Width="1500"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        Title="Account Helper">
 
     <b:Interaction.Triggers>
         <b:EventTrigger EventName="Closing">
