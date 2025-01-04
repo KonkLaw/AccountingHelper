@@ -7,12 +7,13 @@
         mc:Ignorable="d"
         Title="Load history?" Height="130" Width="350"
         d:DataContext="{d:DesignInstance viewModels:StartVM}"
-        WindowStartupLocation="CenterScreen">
-    <StackPanel>
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <StackPanel VerticalAlignment="Center">
         <Label Content="Do you have history file?" HorizontalAlignment="Center" Margin="5"/>
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-            <Button Content="Start with empty history" Margin="5" Command="{Binding StartWithEmptyCommand}"/>
-            <Button Content="Load History" Margin="5" Command="{Binding LoadFileCommand}"/>
+            <Button Content="Start with empty history" Command="{Binding StartWithEmptyCommand}"/>
+            <Button Content="Load History" Command="{Binding LoadFileCommand}"/>
         </StackPanel>
     </StackPanel>
 </Window>

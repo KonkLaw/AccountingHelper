@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Height="110" Width="300">
+        Height="110" Width="400">
     <StackPanel>
         <Label HorizontalAlignment="Center" Content="Are you sure you want exit without saving?"/>
         <Grid>
@@ -16,9 +16,9 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Save And Exit" Margin="9" HorizontalAlignment="Center" Click="SaveAndExit_OnClick"/>
-            <Button Grid.Column="1" Content="Exit" HorizontalAlignment="Center" Margin="9" Click="Exit_OnClick"/>
-            <Button Grid.Column="2" Content="Cancel" Margin="9" HorizontalAlignment="Center" Click="Cancel_OnClick"/>
+            <Button Grid.Column="0" Content="Save And Exit" HorizontalAlignment="Center" Click="SaveAndExit_OnClick"/>
+            <Button Grid.Column="1" Content="Exit" HorizontalAlignment="Center" Click="Exit_OnClick"/>
+            <Button Grid.Column="2" Content="Cancel" HorizontalAlignment="Center" Click="Cancel_OnClick"/>
         </Grid>
     </StackPanel>
 </Window>

@@ -16,11 +16,11 @@
         <local:OperationsGrid Grid.Row="0" DataContext="{Binding OperationsVM}"></local:OperationsGrid>
         <DockPanel Grid.Row="1">
             <StackPanel Orientation="Vertical">
-                <Button Width="130" HorizontalAlignment="Left" Margin="7" Content="Set For All" Command="{Binding SetForAllCommand}"/>
-                <Button Width="130" HorizontalAlignment="Left" Margin="7" Content="Reset filters" Command="{Binding ResetFiltersCommand}"/>
-                <Button Width="130" HorizontalAlignment="Left" Margin="7" Content="Remove this file" Command="{Binding RemoveFileCommand}"/>
-                <Button Width="130" HorizontalAlignment="Left" Margin="7" Content="Approve all" Command="{Binding ApproveAllCommand}"/>
-                <CheckBox Margin="7" Content="Group by comment" IsChecked="{Binding GroupByComment}"/>
+                <Button Width="130" HorizontalAlignment="Left" Content="Set For All" Command="{Binding SetForAllCommand}"/>
+                <Button Width="130" HorizontalAlignment="Left" Content="Reset filters" Command="{Binding ResetFiltersCommand}"/>
+                <Button Width="130" HorizontalAlignment="Left" Content="Remove this file" Command="{Binding RemoveFileCommand}"/>
+                <Button Width="130" HorizontalAlignment="Left" Content="Approve all" Command="{Binding ApproveAllCommand}"/>
+                <CheckBox Content="Group by comment" IsChecked="{Binding GroupByComment}"/>
             </StackPanel>
             <local:SummaryView DataContext="{Binding TextSummaryVM}" HorizontalAlignment="Stretch"/>
         </DockPanel>
