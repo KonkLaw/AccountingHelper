@@ -138,7 +138,7 @@ class SingleCurrencyTextSummaryVM : BaseTextSummaryVM
             result.AppendLine();
         }
 
-        result.AppendLine($"*** Total = {sum.ToGoodString()}");
+        result.AppendLine($"Total = {sum.ToGoodString()}");
         return result.ToString();
     }
 }

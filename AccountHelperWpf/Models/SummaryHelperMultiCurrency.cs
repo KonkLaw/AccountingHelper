@@ -5,7 +5,7 @@ using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Models;
 
-class SummaryHelperMultiCurrency
+static class SummaryHelperMultiCurrency
 {
     class CategorySummaryTemp
     {
