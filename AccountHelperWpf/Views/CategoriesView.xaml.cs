@@ -13,26 +13,16 @@ public partial class CategoriesView : UserControl
     {
         InitializeComponent();
     }
-    
+
     private void DataGrid_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         => DataGrid.CancelEdit(DataGridEditingUnit.Row);
 
-    private void CellLostFocus(object sender, RoutedEventArgs e)
+    private void DataGrid_OnCellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
     {
-        var dataGridCell = (DataGridCell)sender;
-        //Debug.WriteLine($"OnLostFocus IsKeyboardFocusWithin={dataGridCell.IsKeyboardFocusWithin}; IsEditing={dataGridCell.IsEditing}; Content={dataGridCell.Content}; Id={dataGridCell.Column.DisplayIndex}");
-        if (dataGridCell.Content is TextBox textBox && dataGridCell.Column.DisplayIndex == 0)
+        FrameworkElement frameworkElement = e.EditingElement;
+        if (frameworkElement is TextBox textBox && e.Column.DisplayIndex == 0)
         {
-            if (dataGridCell.IsKeyboardFocusWithin && !dataGridCell.IsEditing)
-            {
-                //Debug.WriteLine($"--Lost focus with enter. Text={textBox.Text}");
-                textBox.Text = ProcessUniqueness(textBox.Text);
-            }
-            else if (!dataGridCell.IsKeyboardFocusWithin && dataGridCell.IsEditing)
-            {
-                //Debug.WriteLine($"--Lost focus with mouse. Text={textBox.Text}");
-                textBox.Text = ProcessUniqueness(textBox.Text);
-            }
+            textBox.Text = ProcessUniqueness(textBox.Text);
         }
     }
 

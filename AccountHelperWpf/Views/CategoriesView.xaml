@@ -8,7 +8,10 @@
              d:DataContext="{d:DesignInstance viewModels:CategoriesVM}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DataGrid Name="DataGrid" ItemsSource="{Binding Categories}" SelectionMode="Single" SelectedIndex="{Binding SelectedIndex}" IsVisibleChanged="DataGrid_OnIsVisibleChanged">
+        <DataGrid Name="DataGrid" ItemsSource="{Binding Categories}" SelectionMode="Single"
+                  SelectedIndex="{Binding SelectedIndex}"
+                  IsVisibleChanged="DataGrid_OnIsVisibleChanged"
+                  CellEditEnding="DataGrid_OnCellEditEnding">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Remove Category" Command="{Binding RemoveCommand}"/>
@@ -16,11 +19,6 @@
                     <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
-            <DataGrid.CellStyle>
-                <Style TargetType="DataGridCell">
-                    <EventSetter Event="LostFocus" Handler="CellLostFocus" />
-                </Style>
-            </DataGrid.CellStyle>
         </DataGrid>
     </Grid>
 </UserControl>
