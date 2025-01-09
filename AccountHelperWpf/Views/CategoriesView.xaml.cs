@@ -22,32 +22,33 @@ public partial class CategoriesView : UserControl
         FrameworkElement frameworkElement = e.EditingElement;
         if (frameworkElement is TextBox textBox && e.Column.DisplayIndex == 0)
         {
-            textBox.Text = ProcessUniqueness(textBox.Text);
+            ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
+            string[] names = categories.Select(c => c.Name).ToArray();
+
+            // for some reason wpf have different behaviour for new record and for editing existing row
+            // while editing existing row, category is not updated
+            names[DataGrid.SelectedIndex] = textBox.Text;
+            textBox.Text = ProcessUniqueness(names, textBox.Text);
         }
     }
 
-    private string ProcessUniqueness(string text)
+    private static string ProcessUniqueness(string[] names, string text)
     {
-        var categoryVm = (CategoryVM)DataGrid.SelectedItem;
-        if (categoryVm.Name == text)
-            return text;
-
-        ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
-        if (categories.Any(c => c.Name == text))
+        if (names.Count(n => n == text) > 1)
         {
-            return GetUniqueName(categories, text);
+            return GetUniqueName(names, text);
         }
         return text;
     }
 
-    private static string GetUniqueName(ObservableCollection<CategoryVM> categories, string text)
+    private static string GetUniqueName(string[] names, string text)
     {
         string original = text;
         int counter = 2;
         do
         {
             string toTest = $"{original}({counter})";
-            if (categories.Any(c => c.Name == toTest))
+            if (names.Any(n => n == toTest))
             {
                 counter++;
             }
