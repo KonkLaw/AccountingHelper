@@ -14,10 +14,9 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Border Grid.Row="0" BorderThickness="0.5" BorderBrush="Black">
-            <DataGrid IsReadOnly="True"
-                      SelectionMode="Single"
-                      ItemsSource="{Binding Associations}"
-                      SelectedIndex="{Binding SelectedAssociationIndex}">
+            <DataGrid ItemsSource="{Binding Associations}"
+                      SelectedIndex="{Binding SelectedAssociationIndex}"
+                      SelectionMode="Single" IsReadOnly="True">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}"/>
@@ -27,8 +26,9 @@
         </Border>
         <Label Grid.Row="1" Content="Excluded from auto-mapping operations"/>
         <DataGrid Grid.Row="2" ItemsSource="{Binding Exceptions}"
-                  SelectionMode="Single"
-                  SelectedIndex="{Binding SelectedExceptionIndex}">
+                  SelectedIndex="{Binding SelectedExceptionIndex}"
+                  SelectionMode="Single" IsReadOnly="True"
+                  AutoGeneratingColumn="DataGrid_OnAutoGeneratingColumn">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand, Mode=OneTime}"/>
