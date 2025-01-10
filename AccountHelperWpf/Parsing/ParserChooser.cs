@@ -28,7 +28,8 @@ class ParserChooser
                 if (nonBlockedOperations != null)
                 {
                     PkoBlockedOperationParserVM pkoBlockedOperationsVM = new(viewResolver);
-                    viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
+                    // temp solution
+                    //viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
                     return Converter.Convert(
                         new PkoFile(fileName, nonBlockedOperations, pkoBlockedOperationsVM.BlockedOperations, withSaldo));
                 }
