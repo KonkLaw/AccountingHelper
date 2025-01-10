@@ -59,6 +59,9 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     public ICommand AddExceptionCommand { get; }
     public ICommand ApproveSelectedCommand { get; }
     public ICommand AddCommand { get; }
+    public ICommand HighlightSimilarOperations { get; }
+    public ICommand HighlightSameCategory { get; }
+    public ICommand ResetHighlight { get; }
 
     public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
@@ -84,6 +87,9 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         AddExceptionCommand = new DelegateCommand(AddException);
         ApproveSelectedCommand = new DelegateCommand(ApproveSelectedHandler);
         AddCommand = new DelegateCommand<OperationVM>(AddAssociation);
+        HighlightSimilarOperations = new DelegateCommand(HighlightSimilarOperationsHandler);
+        HighlightSameCategory = new DelegateCommand(HighlightSameCategoryHandler);
+        ResetHighlight = new DelegateCommand(ResetHighlightHandler);
     }
 
     private List<OperationVM> GetAllOperations(IReadOnlyList<BaseOperation> baseOperations)
@@ -235,6 +241,36 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         associationsManager.AddOrUpdateAssociation(operationVM.Operation.Description, operationVM.Category);
     }
 
+    private void HighlightSimilarOperationsHandler()
+    {
+        OperationVM operation = GetSelectedOperation();
+        IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(
+            operation.Operation.Description, allOperations, op => op.Operation.Description);
+
+        ResetHighlightHandler();
+        
+        foreach (OperationVM operationVM in collection)
+        {
+            operationVM.IsHighlighted = true;
+        }
+    }
+
+    private void HighlightSameCategoryHandler()
+    {
+        CategoryVM category = GetSelectedOperation().Category;
+        foreach (OperationVM operationVM in allOperations)
+        {
+            operationVM.IsHighlighted = operationVM.Category == category;
+        }
+    }
+
+    private void ResetHighlightHandler()
+    {
+        foreach (OperationVM operationVM in allOperations)
+        {
+            operationVM.IsHighlighted = false;
+        }
+    }
 
     void IAssociationStorageListener.AssociationChanged(Association? oldAssociation, Association newAssociation)
     {

@@ -86,6 +86,13 @@ class OperationVM : BaseNotifyProperty
         }
     }
 
+    private bool isHighlighted;
+    public bool IsHighlighted
+    {
+        get => isHighlighted;
+        set => SetProperty(ref isHighlighted, value);
+    }
+
     public OperationVM(BaseOperation operation, CategoryVM category)
     {
         Operation = operation;
