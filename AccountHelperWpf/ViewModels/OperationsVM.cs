@@ -57,7 +57,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     public ICommand SetFirstOperationCommand { get; }
     public ICommand ApplyCategoryForSimilarOperationsCommand { get; }
     public ICommand AddExceptionCommand { get; }
-    public ICommand ApproveCommand { get; }
+    public ICommand ApproveSelectedCommand { get; }
     public ICommand AddCommand { get; }
 
     public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
@@ -82,7 +82,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
         ApplyCategoryForSimilarOperationsCommand = new DelegateCommand(ApplyCategoryForSimilarOperations);
         AddExceptionCommand = new DelegateCommand(AddException);
-        ApproveCommand = new DelegateCommand(Approve);
+        ApproveSelectedCommand = new DelegateCommand(ApproveSelectedHandler);
         AddCommand = new DelegateCommand<OperationVM>(AddAssociation);
     }
 
@@ -223,7 +223,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 
     private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
 
-    private void Approve()
+    private void ApproveSelectedHandler()
     {
         foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
             operationViewModel.IsAutoMappedNotApproved = false;

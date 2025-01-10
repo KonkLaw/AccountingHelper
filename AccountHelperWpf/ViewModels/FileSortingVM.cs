@@ -52,7 +52,7 @@ class FileSortingVM : BaseNotifyProperty
         SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
         RemoveFileCommand = new DelegateCommand(() => removeHandler(this));
-        ApproveAllCommand = new DelegateCommand(ApproveHandler);
+        ApproveAllCommand = new DelegateCommand(ApproveAllHandler);
 
         UpdateSummary();
 
@@ -104,9 +104,12 @@ class FileSortingVM : BaseNotifyProperty
         UpdateSummary();
     }
 
-    private void ApproveHandler()
+    private void ApproveAllHandler()
     {
         foreach (OperationVM operationVM in OperationsVM.Operations)
-            operationVM.IsAutoMappedNotApproved = false;
+        {
+            if (operationVM is { IsAutoMappedNotApproved: true, Category.IsDefault: false })
+                operationVM.IsAutoMappedNotApproved = false;
+        }
     }
 }

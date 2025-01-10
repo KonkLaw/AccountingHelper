@@ -74,8 +74,8 @@
             <DataGridTemplateColumn>
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Button Content="OK" ToolTip="Category was mapped automatically. Approve?"
-                                Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveCommand}"
+                        <Button Content="OK" ToolTip="Approve operation with auto-mapped category (where there is some association)"
+                                Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
                                 Visibility="{Binding IsAutoMappedNotApproved, Converter={StaticResource VisibilityConverter}}"/>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
