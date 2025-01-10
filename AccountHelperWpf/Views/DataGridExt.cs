@@ -125,9 +125,12 @@ public class DataGridExt : DataGrid
                 column.Width = customDescription.CustomWidth.Value;
             if (customDescription.CustomFormat != null)
                 column.Binding.StringFormat = customDescription.CustomFormat;
-
+            
             columns.Add(column);
         }
+
+        // last column should take all available space, not more
+        columns[^1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
     }
 }
 
