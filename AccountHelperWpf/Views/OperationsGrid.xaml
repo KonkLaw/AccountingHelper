@@ -49,7 +49,13 @@
                     </Style>
                 </DataGridTextColumn.ElementStyle>
             </DataGridTextColumn>
-            <DataGridTextColumn Width="520" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Comment" />
+            <DataGridTextColumn Width="520" IsReadOnly="True" Binding="{Binding Operation.Description}" Header="Comment">
+                <DataGridTextColumn.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="ToolTip" Value="{Binding Operation.Description}" />
+                    </Style>
+                </DataGridTextColumn.CellStyle>
+            </DataGridTextColumn>
             <DataGridTemplateColumn>
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
@@ -79,13 +85,13 @@
             <DataGridTemplateColumn>
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Button Content="OK" ToolTip="Approve operation with auto-mapped category (where there is some association)"
+                        <Button Content="OK" ToolTip="Approve operation with auto-mapped category"
                                 Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
                                 Visibility="{Binding IsAutoMappedNotApproved, Converter={StaticResource VisibilityConverter}}"/>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn x:Name="CategoriesColumn" Width="130" Header="Categories" CanUserSort="True" SortMemberPath="Category">
+            <DataGridTemplateColumn x:Name="CategoriesColumn" Width="150" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
                         <ComboBox ItemsSource="{Binding ElementName=OperationGrid, Path=DataContext.Categories, Mode=OneTime}"
