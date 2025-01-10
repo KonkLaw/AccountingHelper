@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Views;
@@ -83,7 +84,7 @@ public class DataGridExt : DataGrid
         if (!enumerator.MoveNext())
             return;
 
-        Dictionary<string, ColumnDescription> customization = columnDescriptions.ToDictionary(cd => cd.PropertyName, cd => cd);
+        Dictionary<string, ColumnDescription> customization = GetCustomization();
 
         OperationVM firstItem = (OperationVM)enumerator.Current!;
         Type operationType = firstItem.Operation.GetType();
@@ -131,6 +132,14 @@ public class DataGridExt : DataGrid
 
         // last column should take all available space, not more
         columns[^1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+    }
+
+    public Dictionary<string, ColumnDescription> GetCustomization()
+    {
+        Dictionary<string, ColumnDescription> customization = ColumnDescriptions.ToDictionary(cd => cd.PropertyName, cd => cd);
+        string propName = nameof(BaseOperation.TransactionDateTime);
+        customization.Add(propName, new ColumnDescription(propName, null, null, true));
+        return customization;
     }
 }
 

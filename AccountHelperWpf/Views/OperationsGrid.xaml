@@ -37,7 +37,17 @@
             </ContextMenu>
         </DataGrid.ContextMenu>
         <DataGrid.Columns>
-            <DataGridTextColumn Width="140" IsReadOnly="True" Binding="{Binding Operation.TransactionDateTime, StringFormat='yyyy-MM-dd HH:mm:ss'}" Header="Operation Date Time" />
+            <DataGridTemplateColumn Width="75" IsReadOnly="True" Header="Date/Time">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate DataType="{x:Type viewModels:OperationVM}">
+                        <TextBlock DataContext="{Binding Operation.TransactionDateTime}">
+                            <Run FontSize="12" Text="{Binding Mode=OneWay, StringFormat=yyyy-MM-dd}"/>
+                            <LineBreak/>
+                            <Run FontSize="9" Text="{Binding Mode=OneWay, StringFormat=HH:mm:ss}"/>
+                        </TextBlock>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
             <DataGridTextColumn Width="65" IsReadOnly="True" Binding="{Binding Operation.Amount}"
                                 Header="Amount" FontWeight="Bold">
                 <DataGridTextColumn.ElementStyle>
