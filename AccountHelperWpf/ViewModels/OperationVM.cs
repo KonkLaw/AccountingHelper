@@ -7,25 +7,17 @@ class OperationVM : BaseNotifyProperty
 {
     public BaseOperation Operation { get; }
 
-    private CategoryVM? category;
-    public CategoryVM? Category
+    private CategoryVM category;
+    public CategoryVM Category
     {
         get => category;
         set
         {
-            SetProperty(ref category, value);
-            IsApproved = true;
-        }
-    }
-
-    private bool isApproved = true;
-    public bool IsApproved
-    {
-        get => isApproved;
-        set
-        {
-            if (SetProperty(ref isApproved, value))
-                OnPropertyChanged(nameof(ApprovedComment));
+            if (!SetProperty(ref category, value))
+                return;
+            OnPropertyChanged(nameof(IsAddAssociationPossible));
+            OnPropertyChanged(nameof(AssociationStatus));
+            OnPropertyChanged(nameof(AssociationStatusComment));
         }
     }
 
@@ -36,28 +28,53 @@ class OperationVM : BaseNotifyProperty
         set => SetProperty(ref comment, value);
     }
 
-    private AssociationStatus associationStatus = AssociationStatus.None;
-    public AssociationStatus AssociationStatus
+    private bool isAutoMappedNotApproved;
+    public bool IsAutoMappedNotApproved
     {
-        get => associationStatus;
+        get => isAutoMappedNotApproved;
+        set => SetProperty(ref isAutoMappedNotApproved, value);
+    }
+
+    private Association? association;
+    public Association? Association
+    {
+        get => association;
         set
         {
-            if (SetProperty(ref associationStatus, value))
-                OnPropertyChanged(nameof(AssociationStatusComment));
+            if (!SetProperty(ref association, value))
+                return;
+            OnPropertyChanged(nameof(IsAddAssociationPossible));
+            OnPropertyChanged(nameof(AssociationStatus));
+            OnPropertyChanged(nameof(AssociationStatusComment));
         }
     }
 
-    public string ApprovedComment => isApproved
-            ? string.Empty
-            : "Category was mapped automatically, not approved";
+    public bool IsAddAssociationPossible => !Category.IsDefault && Association == null;
+
+    public AssociationStatus AssociationStatus
+    {
+        get
+        {
+            if (Association == null)
+                return AssociationStatus.None;
+            if (Association.Category.IsDefault)
+                return AssociationStatus.Excluded;
+            if (Association.Category == Category)
+                return AssociationStatus.Associated;
+            else
+                return AssociationStatus.NotMatch;
+        }
+    }
 
     public string AssociationStatusComment
     {
         get
         {
-            string associationComment = associationStatus switch
+            string associationComment = AssociationStatus switch
             {
                 AssociationStatus.None => string.Empty,
+                AssociationStatus.Associated
+                    => "Selected, category corresponds to category in auto-mapping.",
                 AssociationStatus.NotMatch
                     => "Selected, category do not correspond to category in auto-mapping." +
                                                    "Use other category or add to exceptions",
@@ -69,7 +86,11 @@ class OperationVM : BaseNotifyProperty
         }
     }
 
-    public OperationVM(BaseOperation operation) => Operation = operation;
+    public OperationVM(BaseOperation operation, CategoryVM category)
+    {
+        Operation = operation;
+        this.category = category;
+    }
 
     public override string ToString() => Operation.ToString();
 }
@@ -77,9 +98,7 @@ class OperationVM : BaseNotifyProperty
 enum AssociationStatus
 {
     None,
-    /// <summary>
-    /// Category doesn't match already existing association
-    /// </summary>
+    Associated,
     NotMatch,
-    Excluded,
+    Excluded
 }

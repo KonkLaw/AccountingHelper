@@ -14,7 +14,7 @@ class MainWindowVM : BaseNotifyProperty
     private readonly IViewResolver viewResolver;
     private readonly FilesContainer filesContainer;
     private readonly SaveController saveController;
-    private readonly AssociationStorage associationStorage;
+    private readonly AssociationsManager associationsManager;
     private readonly CategoriesVM categoriesVM;
     private readonly SummaryVM summaryVM;
 
@@ -36,8 +36,8 @@ class MainWindowVM : BaseNotifyProperty
     {
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
-        associationStorage = new AssociationStorage(initData.Associations, initData.ExcludedOperations, saveController);
-        InitCategories(viewResolver, associationStorage, Tabs, initData, out categoriesVM, out summaryVM);
+        associationsManager = new AssociationsManager(initData.AssociationStorage);
+        InitCategories(viewResolver, associationsManager, Tabs, initData, out categoriesVM, out summaryVM);
         filesContainer = new FilesContainer(Tabs, summaryVM);
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
@@ -71,7 +71,8 @@ class MainWindowVM : BaseNotifyProperty
             OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
             if (operationsFile == null)
                 return;
-            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationStorage, RemoveHandler, saveController, summaryVM);
+            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationsManager, RemoveHandler, saveController, summaryVM);
+            associationsManager.AddListener(fileSortingVM.OperationsVM);
             filesContainer.Add(fullPath, fileSortingVM);
             SelectedTab = fileSortingVM.TabInfo;
         }
@@ -84,12 +85,13 @@ class MainWindowVM : BaseNotifyProperty
         if (viewResolver.ShowYesNoQuestion("Are you sure you want to remove current file from sorting?"))
         {
             filesContainer.CloseFile(viewModel);
+            associationsManager.RemoveListener(viewModel.OperationsVM);
         }
     }
 
     private static void InitCategories(
         IViewResolver viewResolver,
-        AssociationStorage storage,
+        AssociationsManager storage,
         ObservableCollection<TabInfo> tabs,
         InitData initData,
         out CategoriesVM categoriesVM,

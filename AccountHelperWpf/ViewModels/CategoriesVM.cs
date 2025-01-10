@@ -18,7 +18,7 @@ class CategoriesVM : BaseNotifyProperty
 
     public int SelectedIndex { get; set; }
 
-    public event Action? OnCategoryRemoving;
+    public event Action<CategoryVM>? OnCategoryRemoving;
     public event Action? OnCategoryRemoved;
     public event Action? CategoryOrListChanged;
 
@@ -27,9 +27,9 @@ class CategoriesVM : BaseNotifyProperty
         this.viewResolver = viewResolver;
         Categories = loadedCategories;
         collection = new ReadOnlyObservableCollection<CategoryVM>(Categories);
-        RemoveCommand = new DelegateCommand<object>(RemoveCategory);
-        MoveUpCommand = new DelegateCommand<object>(MoveUp);
-        MoveDownCommand = new DelegateCommand<object>(MoveDown);
+        RemoveCommand = new DelegateCommand(RemoveCategory);
+        MoveUpCommand = new DelegateCommand(MoveUp);
+        MoveDownCommand = new DelegateCommand(MoveDown);
 
         Categories.CollectionChanged += CategoriesCollectionChanged;
         foreach (CategoryVM? categoryViewModel in Categories)
@@ -38,24 +38,34 @@ class CategoriesVM : BaseNotifyProperty
         }
     }
 
-    private void RemoveCategory(object? qwe)
+    private void RemoveCategory()
     {
-        if (viewResolver.ShowQuestion("Are you sure? All associations will be removed", MessageBoxButton.YesNo) == MessageBoxResult.No)
+        if (SelectedIndex == 0)
             return;
-        OnCategoryRemoving?.Invoke();
+
+        if (viewResolver.ShowQuestion("Are you sure? All saved associations for this category will be removed", MessageBoxButton.YesNo) == MessageBoxResult.No)
+            return;
+        CategoryVM categoryToRemove = Categories[SelectedIndex];
+        OnCategoryRemoving?.Invoke(categoryToRemove);
         Categories.RemoveAt(SelectedIndex);
         OnCategoryRemoved?.Invoke();
     }
 
-    private void MoveUp(object? obj)
+    private void MoveUp()
     {
-        if (SelectedIndex < 1)
+        if (SelectedIndex == 0)
+            return;
+
+        if (SelectedIndex < 2)
             return;
         Categories.Move(SelectedIndex, SelectedIndex - 1);
     }
 
-    private void MoveDown(object? obj)
+    private void MoveDown()
     {
+        if (SelectedIndex == 0)
+            return;
+
         if (SelectedIndex > Categories.Count - 2)
             return;
         Categories.Move(SelectedIndex, SelectedIndex + 1);
@@ -96,6 +106,12 @@ class CategoriesVM : BaseNotifyProperty
 
 class CategoryVM : BaseNotifyProperty, IComparable<CategoryVM>, IComparable
 {
+    public static CategoryVM Default { get; } = new()
+    {
+        Name = "# Not assigned",
+        Description = "Default category for all not assigned operations"
+    };
+
     private string name = string.Empty;
     public string Name
     {
@@ -109,6 +125,8 @@ class CategoryVM : BaseNotifyProperty, IComparable<CategoryVM>, IComparable
         get => description;
         set => SetProperty(ref description, value);
     }
+
+    public bool IsDefault => ReferenceEquals(this, Default);
 
     public int CompareTo(CategoryVM? other)
         => other == null ? 1 : string.Compare(Name, other.Name, StringComparison.Ordinal);

@@ -4,7 +4,6 @@ class HistoryData
 {
     public List<AssociationRecord>? Associations { get; set; }
     public List<CategoryRecord>? Categories { get; set; }
-    public List<string>? ExcludedOperations { get; set; }
 }
 
 class AssociationRecord

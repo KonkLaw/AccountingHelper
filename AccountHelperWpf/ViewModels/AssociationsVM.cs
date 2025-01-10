@@ -1,5 +1,4 @@
-﻿using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
@@ -7,11 +6,10 @@ namespace AccountHelperWpf.ViewModels;
 
 class AssociationsVM : BaseNotifyProperty
 {
-    private readonly AssociationStorage storage;
+    private readonly AssociationsManager storage;
     public IEnumerable<AssociationVM> Associations { get; }
-    public IEnumerable<string> ExcludedOperations { get; }
+    public IEnumerable<AssociationVM> Exceptions { get; }
     public ICommand DeleteAssociationCommand { get; }
-    public ICommand DeleteAndClearOperationCommand { get; }
     public ICommand DeleteExceptionCommand { get; }
 
     private int selectedAssociationIndex;
@@ -28,26 +26,15 @@ class AssociationsVM : BaseNotifyProperty
         set => SetProperty(ref selectedExceptionIndex, value);
     }
 
-    private DataGridCellInfo selectedAssociation;
-    public DataGridCellInfo SelectedAssociation
-    {
-        get => selectedAssociation;
-        set => SetProperty(ref selectedAssociation, value);
-    }
-
-    public AssociationsVM(AssociationStorage storage)
+    public AssociationsVM(AssociationsManager storage)
     {
         this.storage = storage;
         DeleteAssociationCommand = new DelegateCommand(DeleteAssociation);
-        DeleteAndClearOperationCommand = new DelegateCommand(DeleteAndClearOperation);
         DeleteExceptionCommand = new DelegateCommand(DeleteException);
 
         Associations = storage.Associations;
-        ExcludedOperations = storage.ExcludedOperations;
+        Exceptions = storage.Exceptions;
     }
-
-    private void DeleteAndClearOperation()
-        => storage.DeleteAssociationAndClearOperations(SelectedAssociationIndex);
 
     private void DeleteAssociation()
         => storage.DeleteAssociation(SelectedAssociationIndex);

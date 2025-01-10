@@ -36,7 +36,7 @@ class FileSortingVM : BaseNotifyProperty
     public FileSortingVM(
         OperationsFile file,
         CategoriesVM categoriesVM,
-        AssociationStorage associationStorage,
+        IAssociationsManager associationsManager,
         Action<FileSortingVM> removeHandler,
         ISaveController saveController,
         ISummaryNotifier summaryNotifier)
@@ -45,7 +45,7 @@ class FileSortingVM : BaseNotifyProperty
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
         this.summaryNotifier = summaryNotifier;
-        OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, UpdateSummary, associationStorage);
+        OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, UpdateSummary, UpdateIsSorted, associationsManager);
         TabInfo = new TabInfo(file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
 
@@ -63,10 +63,14 @@ class FileSortingVM : BaseNotifyProperty
     {
         SummaryHelperSingleCurrency.PrepareSummary(
             categoriesVM.GetCategories(), OperationsVM.Operations, groupByComment,
-            out bool isSorted, out ICollection<CategoryDetails> collection);
-        TabInfo.IsHighlighted = !isSorted;
+            out ICollection<CategoryDetails> collection);
         TextSummaryVM.Update(collection);
         summaryNotifier.NotifySummaryChanged();
+    }
+
+    private void UpdateIsSorted()
+    {
+        TabInfo.IsHighlighted = !SummaryHelperSingleCurrency.GetIsSorted(OperationsVM.Operations);
     }
 
     private void CategoriesVMOnCategoryOrListChanged()
@@ -77,14 +81,20 @@ class FileSortingVM : BaseNotifyProperty
 
     private void SetForAllHandler()
     {
-        ObjectSelectorWindow window = new(categoriesVM.GetCategories());
+        // default for select is not supported
+        CategorySelectorWindow window = new(categoriesVM.GetCategories().Where(c => !c.IsDefault).ToList());
+
         window.ShowDialog();
         if (window.SelectedItem == null)
             return;
         CategoryVM selectedItem = (CategoryVM)window.SelectedItem;
         foreach (OperationVM operation in OperationsVM.Operations)
         {
-            operation.Category ??= selectedItem;
+            if (!operation.Category.IsDefault)
+            {
+                operation.Category = selectedItem;
+                operation.IsAutoMappedNotApproved = false;
+            }
         }
     }
 
@@ -97,6 +107,6 @@ class FileSortingVM : BaseNotifyProperty
     private void ApproveHandler()
     {
         foreach (OperationVM operationVM in OperationsVM.Operations)
-            operationVM.IsApproved = true;
+            operationVM.IsAutoMappedNotApproved = false;
     }
 }

@@ -16,27 +16,24 @@
         <Border Grid.Row="0" BorderThickness="0.5" BorderBrush="Black">
             <DataGrid IsReadOnly="True"
                       SelectionMode="Single"
-                      CurrentCell="{Binding SelectedAssociation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Associations}"
-                      SelectedIndex="{Binding SelectedAssociationIndex}"
-            >
+                      SelectedIndex="{Binding SelectedAssociationIndex}">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Delete (leave operations)" Command="{Binding DeleteAssociationCommand}"/>
-                        <MenuItem Header="Delete (clear operations)" Command="{Binding DeleteAndClearOperationCommand}"/>
+                        <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
         </Border>
         <Label Grid.Row="1" Content="Excluded from auto-mapping operations"/>
-        <ListBox Grid.Row="2" ItemsSource="{Binding ExcludedOperations}"
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Exceptions}"
                   SelectionMode="Single"
                   SelectedIndex="{Binding SelectedExceptionIndex}">
-            <ListBox.ContextMenu>
+            <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand}"/>
+                    <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand, Mode=OneTime}"/>
                 </ContextMenu>
-            </ListBox.ContextMenu>
-        </ListBox>
+            </DataGrid.ContextMenu>
+        </DataGrid>
     </Grid>
 </UserControl>

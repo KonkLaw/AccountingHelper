@@ -9,12 +9,15 @@ using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
 
-class OperationsVM : BaseNotifyProperty
+class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 {
-    private readonly Action summaryChanged;
-    private readonly AssociationStorage associationStorage;
+    private readonly IAssociationsManager associationsManager;
     private readonly List<OperationVM> allOperations;
-    private bool isOnRemoving;
+    private readonly BatchProcessingMutex mutex = new ();
+
+    private readonly Action summaryChanged;
+    private readonly Action updateIsSorted;
+
     private OperationVM? firstIncluded;
     private OperationVM? lastIncluded;
 
@@ -50,68 +53,37 @@ class OperationsVM : BaseNotifyProperty
     }
 
     public ICommand SearchInfoCommand { get; }
-    public ICommand SetNullCategoryCommand { get; }
     public ICommand SetLastOperationCommand { get; }
     public ICommand SetFirstOperationCommand { get; }
     public ICommand ApplyCategoryForSimilarOperationsCommand { get; }
-    public ICommand ExcludeFromAssociations { get; }
+    public ICommand AddExceptionCommand { get; }
     public ICommand ApproveCommand { get; }
+    public ICommand AddCommand { get; }
 
-    public OperationsVM(
-        IReadOnlyList<BaseOperation> baseOperations,
+    public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
         CategoriesVM categoriesVM,
-        Action summaryChanged,
-        AssociationStorage associationStorage)
+        Action summaryChanged, Action updateIsSorted,
+        IAssociationsManager associationsManager)
     {
         Categories = categoriesVM.GetCategories();
         ColumnDescriptions = columnDescriptions;
         this.summaryChanged = summaryChanged;
-        this.associationStorage = associationStorage;
+        this.updateIsSorted = updateIsSorted;
+        this.associationsManager = associationsManager;
         allOperations = GetAllOperations(baseOperations);
         UpdateByFilter();
 
         categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
         categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
-        associationStorage.AssociationRemoved += AssociationStorageAssociationRemoved;
-        associationStorage.AssociationsChanged += AssociationStorageOnAssociationsChanged;
-
+        
         SearchInfoCommand = new DelegateCommand(SearchInfo);
-        SetNullCategoryCommand = new DelegateCommand(SetCategoryToNull);
         SetLastOperationCommand = new DelegateCommand(SetLastOperation);
         SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
         ApplyCategoryForSimilarOperationsCommand = new DelegateCommand(ApplyCategoryForSimilarOperations);
-        ExcludeFromAssociations = new DelegateCommand(ExcludeFromAssociationHandler);
+        AddExceptionCommand = new DelegateCommand(AddException);
         ApproveCommand = new DelegateCommand(Approve);
-
-        isOnRemoving = true;
-        AssociationStorageOnAssociationsChanged();
-        isOnRemoving = false;
-    }
-
-    private void AssociationStorageOnAssociationsChanged()
-    {
-        foreach (OperationVM operation in allOperations)
-        {
-            if (associationStorage.IsExcluded(operation.Operation.Description))
-            {
-                operation.AssociationStatus = AssociationStatus.Excluded;
-            }
-            else
-            {
-                if (operation.Category == null)
-                {
-                    operation.AssociationStatus = AssociationStatus.None;
-                }
-                else
-                {
-                    CategoryVM? category = associationStorage.TryGetBestCategory(operation.Operation.Description);
-                    operation.AssociationStatus = operation.Category == category
-                        ? AssociationStatus.None
-                        : AssociationStatus.NotMatch;
-                }
-            }
-        }
+        AddCommand = new DelegateCommand<OperationVM>(AddAssociation);
     }
 
     private List<OperationVM> GetAllOperations(IReadOnlyList<BaseOperation> baseOperations)
@@ -119,13 +91,14 @@ class OperationsVM : BaseNotifyProperty
         var result = new List<OperationVM>(baseOperations.Count);
         foreach (BaseOperation operation in baseOperations)
         {
-            OperationVM operationVM = new(operation);
-            CategoryVM? categoryVM = associationStorage.TryGetBestCategory(operation.Description);
-            if (categoryVM != null)
+            Association? association = associationsManager.TryGetBestAssociation(operation.Description);
+            CategoryVM category = association == null ? CategoryVM.Default : association.Category;
+            OperationVM operationVM = new(operation, category)
             {
-                operationVM.Category = categoryVM;
-                operationVM.IsApproved = false;
-            }
+                // regardless existing of prediction - it's auto-mapped
+                IsAutoMappedNotApproved = true,
+                Association = association
+            };
             result.Add(operationVM);
             operationVM.PropertyChanged += OperationViewModelOnPropertyChanged;
         }
@@ -134,47 +107,51 @@ class OperationsVM : BaseNotifyProperty
 
     private void OperationViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (isOnRemoving)
+        if (mutex.IsBatchProcessing)
             return;
 
         switch (e.PropertyName)
         {
             case nameof(OperationVM.Category):
             {
-                OperationVM vm = (OperationVM)sender!;
-                foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-                    operationViewModel.Category = vm.Category;
-                associationStorage.UpdateAssociation(vm.Operation.Description, vm.Category!);
+                using var _ = mutex.EnterBatchProcessing();
+                CategoryVM newCategory = ((OperationVM)sender!).Category;
+                foreach (OperationVM operationVM in SelectedItems.CheckNull())
+                {
+                    operationVM.Category = newCategory;
+                    operationVM.IsAutoMappedNotApproved = false;
+                }
                 summaryChanged();
+                updateIsSorted();
                 break;
             }
-            case nameof(OperationVM.AssociationStatus):
             case nameof(OperationVM.Comment):
-            case nameof(OperationVM.IsApproved):
                 summaryChanged();
+                break;
+            case nameof(OperationVM.AssociationStatus):
+            case nameof(OperationVM.IsAutoMappedNotApproved):
+                updateIsSorted();
                 break;
         }
     }
 
-    private void CategoriesVMOnOnCategoryRemoving() => isOnRemoving = true;
+    private void CategoriesVMOnOnCategoryRemoving(CategoryVM categoryToRemove)
+    {
+        using var _ = mutex.EnterBatchProcessing();
+        foreach (OperationVM operation in allOperations)
+        {
+            if (operation.Category == categoryToRemove)
+            {
+                operation.Category = CategoryVM.Default;
+            }
+        }
+        associationsManager.RemoveAssociation(categoryToRemove);
+    }
 
     private void CategoriesVMOnOnCategoryRemoved()
     {
-        isOnRemoving = false;
         summaryChanged();
-    }
-
-    private void AssociationStorageAssociationRemoved(string operationDescription)
-    {
-        // Set null for all similar categories
-        isOnRemoving = true;
-        IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(operationDescription, allOperations, op => op.Operation.Description);
-        foreach (OperationVM operation in collection)
-        {
-            operation.Category = null;
-        }
-        isOnRemoving = false;
-        summaryChanged();
+        updateIsSorted();
     }
 
     private void UpdateByFilter()
@@ -212,12 +189,6 @@ class OperationsVM : BaseNotifyProperty
         });
     }
 
-    private void SetCategoryToNull()
-    {
-        foreach (OperationVM operationVM in SelectedItems.CheckNull())
-            operationVM.Category = null;
-    }
-
     private void SetFirstOperation()
     {
         firstIncluded = GetSelectedOperation();
@@ -240,13 +211,14 @@ class OperationsVM : BaseNotifyProperty
         foreach (OperationVM operation in collection)
         {
             operation.Category = selectedOperation.Category;
+            operation.IsAutoMappedNotApproved = true;
         }
     }
 
-    private void ExcludeFromAssociationHandler()
+    private void AddException()
     {
         foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-            associationStorage.AddSimilarToExcluded(operationViewModel.Operation.Description);
+            associationsManager.AddOrUpdateAssociation(operationViewModel.Operation.Description, CategoryVM.Default);
     }
 
     private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
@@ -254,6 +226,95 @@ class OperationsVM : BaseNotifyProperty
     private void Approve()
     {
         foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-            operationViewModel.IsApproved = true;
+            operationViewModel.IsAutoMappedNotApproved = false;
+    }
+
+    private void AddAssociation(OperationVM? obj)
+    {
+        OperationVM operationVM = obj!;
+        associationsManager.AddOrUpdateAssociation(operationVM.Operation.Description, operationVM.Category);
+    }
+
+
+    void IAssociationStorageListener.AssociationChanged(Association? oldAssociation, Association newAssociation)
+    {
+        using var _ = mutex.EnterBatchProcessing();
+
+        if (oldAssociation == null)
+        {
+            IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(
+                newAssociation.OperationDescription, allOperations, op => op.Operation.Description);
+            foreach (OperationVM operation in collection)
+            {
+                operation.Association = newAssociation;
+                if (operation.IsAutoMappedNotApproved)
+                {
+                    operation.Category = newAssociation.Category;
+                }
+            }
+        }
+        else
+        {
+            foreach (OperationVM operation in allOperations)
+            {
+                if (operation.Association != null && operation.Association.Equals(oldAssociation))
+                {
+                    operation.Association = newAssociation;
+                    if (operation.IsAutoMappedNotApproved)
+                    {
+                        operation.Category = newAssociation.Category;
+                    }
+                }
+            }
+        }
+
+        summaryChanged();
+        updateIsSorted();
+    }
+
+    void IAssociationStorageListener.AssociationRemoved(Association association)
+    {
+        using var _ = mutex.EnterBatchProcessing();
+        foreach (OperationVM operation in allOperations)
+        {
+            if (operation.Association != null && operation.Association.Equals(association))
+            {
+                Association? newAssociation = associationsManager.TryGetBestAssociation(operation.Operation.Description);
+                operation.Association = newAssociation;
+                if (operation.IsAutoMappedNotApproved)
+                {
+                    if (newAssociation == null)
+                        operation.Category = CategoryVM.Default;
+                    else
+                        operation.Category = newAssociation.Category;
+                    ;
+                } // else leave user choice
+            }
+        }
+        summaryChanged();
+        updateIsSorted();
+    }
+}
+
+public class BatchProcessingMutex
+{
+    public bool IsBatchProcessing { get; private set; }
+
+    public Guard EnterBatchProcessing() => new(this);
+
+    public readonly struct Guard : IDisposable
+    {
+        private readonly BatchProcessingMutex mutex;
+
+        public Guard(BatchProcessingMutex mutex)
+        {
+            this.mutex = mutex;
+            mutex.IsBatchProcessing = true;
+        }
+
+        public void Dispose()
+        {
+            mutex.IsBatchProcessing = false;
+        }
     }
 }

@@ -15,6 +15,7 @@ class SaveController : ISaveController
     {
         this.viewResolver = viewResolver;
         this.initData = initData;
+        initData.AssociationStorage.Changed += MarkChanged;
     }
 
     public void MarkChanged() => wasSaved = false;

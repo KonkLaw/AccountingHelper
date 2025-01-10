@@ -17,7 +17,7 @@ public class HighlightBackColorConverter : IValueConverter
 public class VisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => (bool)value!? Visibility.Hidden : Visibility.Visible;
+        => (bool)value! ? Visibility.Visible : Visibility.Hidden;
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new InvalidOperationException();

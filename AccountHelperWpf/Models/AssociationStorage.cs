@@ -4,83 +4,58 @@ namespace AccountHelperWpf.Models;
 
 class AssociationStorage
 {
-    public event Action<string>? AssociationRemoved;
-    public event Action? AssociationsChanged;
+    private readonly List<AssociationVM> list;
 
-    private readonly ObservableDictionary associations;
-    private readonly ObservableHashset excludedOperations;
-    private readonly ISaveController saveController;
+    public event Action? Changed;
 
-    public IEnumerable<AssociationVM> Associations => associations.Collection;
-    public IEnumerable<string> ExcludedOperations => excludedOperations.Collection;
+    public ICollection<AssociationVM> Associations => list;
 
-    public AssociationStorage(
-        ObservableDictionary associations,
-        ObservableHashset excludedOperations,
-        ISaveController saveController)
+    public AssociationStorage(List<AssociationVM> associations)
     {
-        this.associations = associations;
-        this.excludedOperations = excludedOperations;
-        this.saveController = saveController;
+        list = associations;
     }
 
-    public CategoryVM? TryGetBestCategory(string operationDescription) => associations.TryGetBestMatch(operationDescription)?.CategoryVM;
+    private void RaiseChanged() => Changed?.Invoke();
 
-    public bool IsExcluded(string operationDescription) => excludedOperations.ContainsSimilar(operationDescription);
-
-    public void UpdateAssociation(string operationDescription, CategoryVM category)
+    public AssociationVM? TryGetBestMatch(string description, out int index)
     {
-        if (string.IsNullOrEmpty(operationDescription) || excludedOperations.ContainsSimilar(operationDescription))
-            return;
+        AssociationVM? bestMath = CollectionSearchHelper.FindBest(
+            description, list, assoc => assoc.OperationDescription);
+        index = bestMath == null ? -1 : list.IndexOf(bestMath);
+        return bestMath;
+    }
 
-        AssociationVM? associationVM = associations.TryGetBestMatch(operationDescription);
-        if (associationVM == null)
+    public void Add(AssociationVM associationVM)
+    {
+        list.Add(associationVM);
+        RaiseChanged();
+    }
+
+    public void Remove(AssociationVM associationVM)
+    {
+        list.Remove(associationVM);
+        RaiseChanged();
+    }
+
+    public void DeleteAt(int index)
+    {
+        list.RemoveAt(index);
+        RaiseChanged();
+    }
+
+    public List<string> Remove(CategoryVM category)
+    {
+        List<string> deleted = new();
+        for (var i = list.Count - 1; i >= 0; i--)
         {
-            AssociationVM newAssociation = new (operationDescription, category, true);
-            associations.Add(newAssociation);
+            AssociationVM associationVM = list[i];
+            if (associationVM.CategoryVM == category)
+            {
+                deleted.Add(associationVM.OperationDescription);
+                list.RemoveAt(i);
+            }
         }
-        else
-        {
-            associationVM.CategoryVM = category;
-            associationVM.IsNew = true;
-        }
-        OnAssociationChanged();
-        saveController.MarkChanged();
+        RaiseChanged();
+        return deleted;
     }
-
-    public void AddSimilarToExcluded(string operationDescription)
-    {
-        associations.DeleteBetsMatch(operationDescription);
-
-        if (excludedOperations.ContainsSimilar(operationDescription))
-            return;
-        excludedOperations.Add(operationDescription);
-        OnAssociationChanged();
-        saveController.MarkChanged();
-    }
-
-    public void DeleteAssociationAndClearOperations(int selectedAssociationIndex)
-    {
-        AssociationVM associationVM = associations.GetByIndexAt(selectedAssociationIndex);
-        associations.DeleteAt(selectedAssociationIndex);
-        AssociationRemoved?.Invoke(associationVM.OperationDescription);
-        OnAssociationChanged();
-        saveController.MarkChanged();
-    }
-
-    public void DeleteAssociation(int index)
-    {
-        associations.DeleteAt(index);
-        OnAssociationChanged();
-        saveController.MarkChanged();
-    }
-
-    public void DeleteException(int selectedExceptionIndex)
-    {
-        excludedOperations.RemoveAt(selectedExceptionIndex);
-        OnAssociationChanged();
-        saveController.MarkChanged();
-    }
-
-    private void OnAssociationChanged() => AssociationsChanged?.Invoke();
 }

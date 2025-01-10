@@ -47,32 +47,27 @@ class SummaryHelperSingleCurrency
     public static void PrepareSummary(
         IEnumerable<CategoryVM> categoriesVM,
         IEnumerable<OperationVM> operationsVM,
-        bool groupWithSameComment,
-        out bool isSorted, out ICollection<CategoryDetails> details)
+        bool groupWithSameComment, out ICollection<CategoryDetails> details)
     {
-        CategorySummaryTemp notAssigned = new("Not assigned");
         Dictionary<CategoryVM, CategorySummaryTemp> dictionary = categoriesVM.
             ToDictionary(c => c, c => new CategorySummaryTemp(c.Name));
-        isSorted = true;
         foreach (OperationVM operation in operationsVM)
         {
-            if (!operation.IsApproved)
-                isSorted = false;
-            if (operation.Category == null)
-            {
-                notAssigned.Add(operation, groupWithSameComment);
-                isSorted = false;
-            }
-            else
-                dictionary[operation.Category].Add(operation, groupWithSameComment);
-
-            if (operation.AssociationStatus == AssociationStatus.NotMatch)
-                isSorted = false;
+            dictionary[operation.Category].Add(operation, groupWithSameComment);
         }
-        List<CategoryDetails> list = new (dictionary.Values.Select(c => c.GetDetails()))
-        {
-            notAssigned.GetDetails()
-        };
+        List<CategoryDetails> list = [..dictionary.Values.Select(c => c.GetDetails())];
         details = list;
+    }
+
+    public static bool GetIsSorted(IEnumerable<OperationVM> operationsVM)
+    {
+        foreach (OperationVM operation in operationsVM)
+        {
+            if (operation.IsAutoMappedNotApproved
+                || operation.Category.IsDefault
+                || operation.AssociationStatus == AssociationStatus.NotMatch)
+                return false;
+        }
+        return true;
     }
 }

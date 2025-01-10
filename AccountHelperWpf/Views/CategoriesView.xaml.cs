@@ -59,4 +59,13 @@ public partial class CategoriesView : UserControl
 
         } while (true);
     }
+
+    private void BeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
+    {
+        // it makes some row not editable
+        if (((CategoryVM)e.Row.Item).IsDefault)
+        {
+            e.Cancel = true;
+        }
+    }
 }

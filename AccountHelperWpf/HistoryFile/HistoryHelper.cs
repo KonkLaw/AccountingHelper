@@ -1,6 +1,5 @@
 ﻿using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewModels;
-using System.Collections.ObjectModel;
 
 namespace AccountHelperWpf.HistoryFile;
 
@@ -18,15 +17,15 @@ class HistoryHelper
     }
 
     public static InitData GetEmpty() => new (
-        new ObservableCollection<CategoryVM>
+        new List<CategoryVM>
         {
+            CategoryVM.Default,
             new() { Name = "Здоровье", Description = "Траты на здоровье" },
             new() { Name = "Подарки", Description = "Подарки" },
             new() { Name = "Пополнения", Description = "Пополнения" },
             new() { Name = "Транспорт", Description = "Транспорт" },
         },
-        new ObservableCollection<AssociationVM>(),
-        new ObservableCollection<string>());
+        new List<AssociationVM>());
 
     public static void Save(string path, InitData initData)
         => HistoryStorageHelper.Save(DataConverter.ConvertTo(initData), path);
@@ -36,33 +35,32 @@ class DataConverter
 {
     public static InitData ConvertFrom(HistoryData historyData)
     {
-        List<CategoryVM> categories = historyData.Categories!.Select(c => new CategoryVM
+        List<CategoryVM> categories = [CategoryVM.Default];
+        categories.AddRange(historyData.Categories!.Select(c => new CategoryVM
         {
             Description = c.Description!,
             Name = c.Name!
-        }).ToList();
+        }));
+        var dictionary = new Dictionary<string, CategoryVM>(categories.Select(c => new KeyValuePair<string, CategoryVM>(c.Name, c)));
+
         List<AssociationVM> associations = historyData.Associations!.Select(a => new AssociationVM(
             a.OperationDescription!,
-            categories.Find(c => c.Name == a.Category!)!,
+            a.Category == null ? CategoryVM.Default : dictionary[a.Category!],
             false)).ToList();
-        return new InitData(
-            new ObservableCollection<CategoryVM>(categories),
-            new ObservableCollection<AssociationVM>(associations),
-            new ObservableCollection<string>(historyData.ExcludedOperations!));
+        return new InitData(categories, associations);
     }
 
     public static HistoryData ConvertTo(InitData initData) => new HistoryData
+    {
+        Categories = initData.Categories.Where(c => !c.IsDefault).Select(c => new CategoryRecord
         {
-            Categories = initData.Categories.Select(c => new CategoryRecord
-            {
-                Description = c.Description,
-                Name = c.Name
-            }).ToList(),
-            Associations = initData.Associations.Collection.Select(a => new AssociationRecord
-            {
-                OperationDescription = a.OperationDescription,
-                Category = a.CategoryVM.Name
-            }).ToList(),
-            ExcludedOperations = initData.ExcludedOperations.Collection.ToList(),
-        };
+            Description = c.Description,
+            Name = c.Name
+        }).ToList(),
+        Associations = initData.AssociationStorage.Associations.Select(a => new AssociationRecord
+        {
+            OperationDescription = a.OperationDescription,
+            Category = a.CategoryVM.IsDefault ? null : a.CategoryVM.Name
+        }).ToList()
+    };
 }

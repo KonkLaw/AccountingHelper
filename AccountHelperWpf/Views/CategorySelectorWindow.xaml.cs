@@ -1,14 +1,13 @@
 ﻿using System.Windows;
+using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Views;
-/// <summary>
-/// Interaction logic for ObjectSelectorWindow.xaml
-/// </summary>
-public partial class ObjectSelectorWindow : Window
+
+partial class CategorySelectorWindow : Window
 {
     public object? SelectedItem => ListBox.SelectedItem;
 
-    public ObjectSelectorWindow(IEnumerable<object> items)
+    public CategorySelectorWindow(IEnumerable<CategoryVM> items)
     {
         InitializeComponent();
         ListBox.ItemsSource = items;

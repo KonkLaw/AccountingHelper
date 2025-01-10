@@ -11,7 +11,8 @@
         <DataGrid Name="DataGrid" ItemsSource="{Binding Categories}" SelectionMode="Single"
                   SelectedIndex="{Binding SelectedIndex}"
                   IsVisibleChanged="DataGrid_OnIsVisibleChanged"
-                  CellEditEnding="DataGrid_OnCellEditEnding">
+                  CellEditEnding="DataGrid_OnCellEditEnding"
+                  BeginningEdit="BeginningEdit">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Remove Category" Command="{Binding RemoveCommand}"/>
