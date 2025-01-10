@@ -20,15 +20,27 @@ public partial class CategoriesView : UserControl
     private void DataGrid_OnCellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
     {
         FrameworkElement frameworkElement = e.EditingElement;
-        if (frameworkElement is TextBox textBox && e.Column.DisplayIndex == 0)
+        // we are interested only in finishing of edit.
+        // this check is important for canceling functionality
+        bool isCommit = e.EditAction == DataGridEditAction.Commit;
+        if (isCommit && frameworkElement is TextBox textBox && e.Column.DisplayIndex == 0)
         {
             ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
-            string[] names = categories.Select(c => c.Name).ToArray();
 
-            // for some reason wpf have different behaviour for new record and for editing existing row
-            // while editing existing row, category is not updated
-            names[DataGrid.SelectedIndex] = textBox.Text;
-            textBox.Text = ProcessUniqueness(names, textBox.Text);
+            // if last row and is empty string - don't add
+            if (e.Row.Item == categories[^1] && textBox.Text.Trim() == string.Empty)
+            {
+                e.Cancel = true; // prevent commit
+                ((DataGrid)sender).CancelEdit(); // cancel editing
+            }
+            else
+            {
+                string[] names = categories.Select(c => c.Name).ToArray();
+                // for some reason wpf have different behaviour for new record and for editing existing row
+                // while editing existing row, category is not updated
+                names[DataGrid.SelectedIndex] = textBox.Text;
+                textBox.Text = ProcessUniqueness(names, textBox.Text);
+            }
         }
     }
 
