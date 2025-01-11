@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using AccountHelperWpf.Models;
+using AccountHelperWpf.Parsing.Pko;
 using AccountHelperWpf.ViewModels;
 using AccountHelperWpf.ViewUtils;
 
@@ -24,7 +25,7 @@ class ParserChooser
 
                 reader = new(fileStream, EncodingHelper.PolandEncoding);
 
-                IReadOnlyList<PkoOperation>? nonBlockedOperations = PkoParser.TryParse(reader, out bool withSaldo);
+                IReadOnlyList<PkoOperation>? nonBlockedOperations = PkoParser.TryParseFile(reader, out bool withSaldo);
                 if (nonBlockedOperations != null)
                 {
                     PkoBlockedOperationParserVM pkoBlockedOperationsVM = new(viewResolver);

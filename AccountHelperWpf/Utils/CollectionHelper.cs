@@ -18,6 +18,19 @@ public static class CollectionHelper
         collection.Add(valueToInsert);
     }
 
+    public static KeyValuePair<TKey, TValue>[] ToArray<TKey, TValue>(this SortedDictionary<TKey, TValue> dictionary)
+        where TKey : notnull
+    {
+        // in .Net sorted dictionary to array is not optimized for know count
+        var result = new KeyValuePair<TKey, TValue>[dictionary.Count];
+        int i = 0;
+        foreach (KeyValuePair<TKey, TValue> keyValuePair in dictionary)
+        {
+            result[i++] = keyValuePair;
+        }
+        return result;
+    }
+
     public static IEnumerable CheckNull(this IEnumerable? collection)
     {
         if (collection == null)
