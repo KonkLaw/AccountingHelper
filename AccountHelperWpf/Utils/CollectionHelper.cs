@@ -1,32 +1,18 @@
 ﻿using System.Collections;
+using AccountHelperWpf.Models;
 
 namespace AccountHelperWpf.Utils;
 
 public static class CollectionHelper
 {
-    public static void PrependBeforeBigger<T>(this IList<T> collection, T valueToInsert, Func<T, T, int> comparator)
-    {
-        int i = 0;
-        for (; i < collection.Count; i++)
-        {
-            if (comparator(collection[i], valueToInsert) >= 0)
-            {
-                collection.Insert(i, valueToInsert);
-                return;
-            }
-        }
-        collection.Add(valueToInsert);
-    }
-
-    public static KeyValuePair<TKey, TValue>[] ToArray<TKey, TValue>(this SortedDictionary<TKey, TValue> dictionary)
-        where TKey : notnull
+    public static KeyValue[] ToArray(this SortedDictionary<string, string> dictionary)
     {
         // in .Net sorted dictionary to array is not optimized for know count
-        var result = new KeyValuePair<TKey, TValue>[dictionary.Count];
+        var result = new KeyValue[dictionary.Count];
         int i = 0;
-        foreach (KeyValuePair<TKey, TValue> keyValuePair in dictionary)
+        foreach (KeyValuePair<string, string> keyValuePair in dictionary)
         {
-            result[i++] = keyValuePair;
+            result[i++] = new KeyValue(keyValuePair.Key, keyValuePair.Value);
         }
         return result;
     }

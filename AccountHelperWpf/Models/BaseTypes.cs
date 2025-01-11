@@ -80,3 +80,20 @@ public record OperationsFile(string Name, IReadOnlyList<BaseOperation> Operation
 {
     public string GetTitle() => $"({Currency}) {Name}";
 }
+
+public readonly struct KeyValue
+{
+    public string Key { get; }
+    public string Value { get; }
+
+    public KeyValue(string key, string value)
+    {
+        Key = key;
+        Value = value;
+    }
+
+    public override string ToString()
+    {
+        return $"({Key} : {Value})";
+    }
+}

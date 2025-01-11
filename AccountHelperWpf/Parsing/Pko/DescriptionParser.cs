@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.Utils;
 
 namespace AccountHelperWpf.Parsing.Pko;
@@ -39,10 +40,7 @@ struct DescriptionParser
         }
     }
 
-    public void Parse(
-        out KeyValuePair<string, string>[] main,
-        out KeyValuePair<string, string>[] other,
-        out string? originalAmount)
+    public void Parse(out KeyValue[] main, out KeyValue[] other, out string? originalAmount)
     {
         originalAmount = null;
         cache.Main.Clear();

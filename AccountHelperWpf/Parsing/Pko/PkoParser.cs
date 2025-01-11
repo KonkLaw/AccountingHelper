@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.IO;
+using AccountHelperWpf.Models;
 
 namespace AccountHelperWpf.Parsing.Pko;
 
@@ -51,9 +52,7 @@ static class PkoParser
         decimal saldoBeforeTransaction = withSaldo ? decimal.Parse(iterator.GetNextSpan()) : 0;
 
         new DescriptionParser(iterator, cache).Parse(
-            out KeyValuePair<string, string>[] main,
-            out KeyValuePair<string, string>[] other,
-            out string? originalAmount);
+            out KeyValue[] main, out KeyValue[] other, out string? originalAmount);
 
         var shortDescription = string.Join(" || ", main.Select(kvp => $"{kvp.Key} : {kvp.Value}"));
         var otherDetails = string.Join(" || ", other.Select(kvp => $"{kvp.Key} : {kvp.Value}"));
