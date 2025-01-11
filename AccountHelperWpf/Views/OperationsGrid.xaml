@@ -92,10 +92,11 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn>
+            <DataGridTemplateColumn Width="50">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Button Content="OK" ToolTip="Approve operation with auto-mapped category"
+                        <Button Margin="2, 0, 2, 0" Content="Ok" ToolTip="Approve operation with auto-mapped category"
+                                BorderThickness="0" Background="Transparent"
                                 Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
                                 Visibility="{Binding IsAutoMappedNotApproved, Converter={StaticResource VisibilityConverter}}"/>
                     </DataTemplate>
