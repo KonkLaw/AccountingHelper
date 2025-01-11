@@ -43,24 +43,29 @@ class DataConverter
         }));
         var dictionary = new Dictionary<string, CategoryVM>(categories.Select(c => new KeyValuePair<string, CategoryVM>(c.Name, c)));
 
-        List<AssociationVM> associations = historyData.Associations!.Select(a => new AssociationVM(
-            a.OperationDescription!,
-            a.Category == null ? CategoryVM.Default : dictionary[a.Category!],
-            false)).ToList();
-        return new InitData(categories, associations);
+        throw new NotImplementedException();
+        //List<AssociationVM> associations = historyData.Associations!.Select(a => new AssociationVM(
+        //    a.OperationDescription!,
+        //    a.Category == null ? CategoryVM.Default : dictionary[a.Category!],
+        //    false)).ToList();
+        //return new InitData(categories, associations);
     }
 
-    public static HistoryData ConvertTo(InitData initData) => new HistoryData
+    public static HistoryData ConvertTo(InitData initData)
     {
-        Categories = initData.Categories.Where(c => !c.IsDefault).Select(c => new CategoryRecord
-        {
-            Description = c.Description,
-            Name = c.Name
-        }).ToList(),
-        Associations = initData.AssociationStorage.Associations.Select(a => new AssociationRecord
-        {
-            OperationDescription = a.OperationDescription,
-            Category = a.CategoryVM.IsDefault ? null : a.CategoryVM.Name
-        }).ToList()
-    };
+        throw new NotImplementedException();
+        //return new HistoryData
+        //{
+        //    Categories = initData.Categories.Where(c => !c.IsDefault).Select(c => new CategoryRecord
+        //    {
+        //        Description = c.Description,
+        //        Name = c.Name
+        //    }).ToList(),
+        //    Associations = initData.AssociationStorage.Associations.Select(a => new AssociationRecord
+        //    {
+        //        OperationDescription = a.OperationDescription,
+        //        Category = a.CategoryVM.IsDefault ? null : a.CategoryVM.Name
+        //    }).ToList()
+        //};
+    }
 }

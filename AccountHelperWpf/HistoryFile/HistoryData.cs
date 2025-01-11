@@ -8,8 +8,10 @@ class HistoryData
 
 class AssociationRecord
 {
-    public string? OperationDescription { get; set; }
+    public string? BankId { get; set; }
+    public SortedDictionary<string, string>? Description { get; set; }
     public string? Category { get; set; }
+    public string? Comment { get; set; }
 }
 
 class CategoryRecord
