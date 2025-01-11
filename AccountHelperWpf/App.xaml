@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:AccountHelperWpf.Views"
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
-             xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
-             StartupUri="Views/Start.xaml">
+             xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

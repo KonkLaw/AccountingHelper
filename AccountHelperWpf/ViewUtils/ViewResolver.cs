@@ -64,15 +64,16 @@ class ViewResolver : IViewResolver
     public void RegisterWindow<TView, TViewModel>(Func<TView> creator) where TView : Window
         => viewModelToWindow.Add(typeof(TViewModel), creator);
 
-    public void ShowMain(InitData initData)
+    public void ShowMain(InitData initData, string? optionalFile = null)
     {
+        Window? oldWindow = Application.Current.MainWindow;
         var mainWindow = new MainWindow
         {
-            DataContext = new MainWindowVM(this, initData)
+            DataContext = new MainWindowVM(this, initData, optionalFile)
         };
-        Application.Current.MainWindow?.Close();
         Application.Current.MainWindow = mainWindow;
         mainWindow.Show();
+        oldWindow?.Close();
     }
 
     public ExitState? ShowExitWindow()

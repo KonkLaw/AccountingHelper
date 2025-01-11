@@ -15,6 +15,6 @@ interface IViewResolver
 
     string? SaveFileDialogTryGetPath(string? defaultExtension);
     string? OpenFileDialogTryGetPath(string filer);
-    void ShowMain(InitData initData);
+    void ShowMain(InitData initData, string? optionalFile = null);
     ExitState? ShowExitWindow();
 }

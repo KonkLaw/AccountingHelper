@@ -32,7 +32,7 @@ class MainWindowVM : BaseNotifyProperty
 
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
 
-    public MainWindowVM(IViewResolver viewResolver, InitData initData)
+    public MainWindowVM(IViewResolver viewResolver, InitData initData, string? optionalFile)
     {
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
@@ -44,6 +44,9 @@ class MainWindowVM : BaseNotifyProperty
         SaveAssociation = new DelegateCommand(saveController.Save);
         About = new DelegateCommand(ShowAbout);
         WindowClosing = new DelegateCommand<CancelEventArgs>(WindowClosingHandler);
+
+        if (optionalFile != null)
+            LoadFile(optionalFile);
     }
 
     private void ShowAbout()
@@ -62,20 +65,24 @@ class MainWindowVM : BaseNotifyProperty
         bool? dialogResult = fileDialog.ShowDialog();
         if (dialogResult.HasValue && dialogResult.Value)
         {
-            string fullPath = fileDialog.FileName;
-            if (filesContainer.HasFile(fullPath))
-            {
-                viewResolver.ShowWarning("File already added");
-                return;
-            }
-            OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
-            if (operationsFile == null)
-                return;
-            var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationsManager, RemoveHandler, saveController, summaryVM);
-            associationsManager.AddListener(fileSortingVM.OperationsVM);
-            filesContainer.Add(fullPath, fileSortingVM);
-            SelectedTab = fileSortingVM.TabInfo;
+            LoadFile(fileDialog.FileName);
         }
+    }
+
+    private void LoadFile(string fullPath)
+    {
+        if (filesContainer.HasFile(fullPath))
+        {
+            viewResolver.ShowWarning("File already added");
+            return;
+        }
+        OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
+        if (operationsFile == null)
+            return;
+        var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationsManager, RemoveHandler, saveController, summaryVM);
+        associationsManager.AddListener(fileSortingVM.OperationsVM);
+        filesContainer.Add(fullPath, fileSortingVM);
+        SelectedTab = fileSortingVM.TabInfo;
     }
 
     private void WindowClosingHandler(CancelEventArgs? arg) => arg!.Cancel = !saveController.RequestForClose();

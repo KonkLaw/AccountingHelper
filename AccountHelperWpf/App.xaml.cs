@@ -1,7 +1,10 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using System.Windows.Threading;
+using AccountHelperWpf.HistoryFile;
 using AccountHelperWpf.Updater;
 using AccountHelperWpf.Views;
+using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf;
 
@@ -14,7 +17,21 @@ public partial class App : Application
     {
         Current.DispatcherUnhandledException += CurrentOnDispatcherUnhandledException;
         UpdateController.CheckUpdates();
-		base.OnStartup(e);
+        base.OnStartup(e);
+
+        const bool fastStart = true;
+        if (fastStart)
+        {
+            string testPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "test.csv");
+            if (File.Exists(testPath))
+            {
+                new ViewResolver().ShowMain(HistoryHelper.GetEmpty(), testPath);
+            }
+        }
+        else
+        {
+            StartupUri = new Uri("Views/Start.xaml", UriKind.Relative);
+        }
     }
 
     private void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
