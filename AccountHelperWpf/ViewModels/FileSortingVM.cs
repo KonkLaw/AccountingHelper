@@ -5,7 +5,7 @@ using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf.ViewModels;
 
-class FileSortingVM : BaseNotifyProperty
+class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
 {
     public readonly OperationsFile File;
     private readonly CategoriesVM categoriesVM;
@@ -45,7 +45,7 @@ class FileSortingVM : BaseNotifyProperty
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
         this.summaryNotifier = summaryNotifier;
-        OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, UpdateSummary, UpdateIsSorted, associationsManager);
+        OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, associationsManager, this);
         TabInfo = new TabInfo(file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
 
@@ -68,11 +68,6 @@ class FileSortingVM : BaseNotifyProperty
         summaryNotifier.NotifySummaryChanged();
     }
 
-    private void UpdateIsSorted()
-    {
-        TabInfo.IsHighlighted = !SummaryHelperSingleCurrency.GetIsSorted(OperationsVM.Operations);
-    }
-
     private void CategoriesVMOnCategoryOrListChanged()
     {
         saveController.MarkChanged();
@@ -90,10 +85,9 @@ class FileSortingVM : BaseNotifyProperty
         Category selectedItem = (Category)window.SelectedItem;
         foreach (OperationVM operation in OperationsVM.Operations)
         {
-            if (!operation.Category.IsDefault)
+            if (operation.Category.IsDefault)
             {
                 operation.Category = selectedItem;
-                operation.IsAutoMappedNotApproved = false;
             }
         }
     }
@@ -112,4 +106,15 @@ class FileSortingVM : BaseNotifyProperty
                 operationVM.IsAutoMappedNotApproved = false;
         }
     }
+
+    void ISummaryChangedListener.SummaryDescriptionChanged() => UpdateSummary();
+
+    void ISummaryChangedListener.IsSortedChanged()
+        => TabInfo.IsHighlighted = !SummaryHelperSingleCurrency.GetIsSorted(OperationsVM.Operations);
+}
+
+interface ISummaryChangedListener
+{
+    void SummaryDescriptionChanged();
+    void IsSortedChanged();
 }

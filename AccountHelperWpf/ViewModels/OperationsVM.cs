@@ -13,11 +13,9 @@ namespace AccountHelperWpf.ViewModels;
 class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 {
     private readonly IAssociationsManager associationsManager;
+    private readonly ISummaryChangedListener summaryChangedListener;
     private readonly List<OperationVM> allOperations;
     private readonly BatchProcessingMutex mutex = new ();
-
-    private readonly Action summaryChanged;
-    private readonly Action updateIsSorted;
 
     private OperationVM? firstIncluded;
     private OperationVM? lastIncluded;
@@ -67,14 +65,13 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
         CategoriesVM categoriesVM,
-        Action summaryChanged, Action updateIsSorted,
-        IAssociationsManager associationsManager)
+        IAssociationsManager associationsManager,
+        ISummaryChangedListener summaryChangedListener)
     {
         Categories = categoriesVM.GetCategories();
         ColumnDescriptions = columnDescriptions;
-        this.summaryChanged = summaryChanged;
-        this.updateIsSorted = updateIsSorted;
         this.associationsManager = associationsManager;
+        this.summaryChangedListener = summaryChangedListener;
         allOperations = GetAllOperations(baseOperations);
         UpdateByFilter();
 
@@ -128,16 +125,16 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
                     operationVM.Category = newCategory;
                     operationVM.IsAutoMappedNotApproved = false;
                 }
-                summaryChanged();
-                updateIsSorted();
+                summaryChangedListener.SummaryDescriptionChanged();
+                summaryChangedListener.IsSortedChanged();
                 break;
             }
             case nameof(OperationVM.Comment):
-                summaryChanged();
+                summaryChangedListener.SummaryDescriptionChanged();
                 break;
             case nameof(OperationVM.AssociationStatus):
             case nameof(OperationVM.IsAutoMappedNotApproved):
-                updateIsSorted();
+                summaryChangedListener.IsSortedChanged();
                 break;
         }
     }
@@ -157,8 +154,8 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 
     private void CategoriesVMOnOnCategoryRemoved()
     {
-        summaryChanged();
-        updateIsSorted();
+        summaryChangedListener.SummaryDescriptionChanged();
+        summaryChangedListener.IsSortedChanged();
     }
 
     private void UpdateByFilter()
@@ -200,14 +197,14 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     {
         firstIncluded = GetSelectedOperation();
         UpdateByFilter();
-        summaryChanged();
+        summaryChangedListener.SummaryDescriptionChanged();
     }
 
     private void SetLastOperation()
     {
         lastIncluded = GetSelectedOperation();
         UpdateByFilter();
-        summaryChanged();
+        summaryChangedListener.SummaryDescriptionChanged();
     }
 
     private void ApplyCategoryForSimilarOperations()
@@ -290,8 +287,8 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
             }
         }
 
-        summaryChanged();
-        updateIsSorted();
+        summaryChangedListener.SummaryDescriptionChanged();
+        summaryChangedListener.IsSortedChanged();
     }
 
     void IAssociationStorageListener.AssociationRemoved(IAssociation association)
@@ -305,15 +302,15 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
                 operation.Association = newAssociation;
                 if (operation.IsAutoMappedNotApproved)
                 {
-                    if (newAssociation == null)
-                        operation.Category = Category.Default;
-                    else
-                        operation.Category = newAssociation.Category;
+                    operation.Category = newAssociation == null
+                        ? Category.Default
+                        : newAssociation.Category;
                 } // else leave user choice
             }
         }
-        summaryChanged();
-        updateIsSorted();
+
+        summaryChangedListener.SummaryDescriptionChanged();
+        summaryChangedListener.IsSortedChanged();
     }
 
     private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
