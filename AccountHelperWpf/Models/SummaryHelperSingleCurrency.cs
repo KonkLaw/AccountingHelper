@@ -45,11 +45,11 @@ class SummaryHelperSingleCurrency
     }
 
     public static void PrepareSummary(
-        IEnumerable<CategoryVM> categoriesVM,
+        IEnumerable<Category> categoriesVM,
         IEnumerable<OperationVM> operationsVM,
         bool groupWithSameComment, out ICollection<CategoryDetails> details)
     {
-        Dictionary<CategoryVM, CategorySummaryTemp> dictionary = categoriesVM.
+        Dictionary<Category, CategorySummaryTemp> dictionary = categoriesVM.
             ToDictionary(c => c, c => new CategorySummaryTemp(c.Name));
         foreach (OperationVM operation in operationsVM)
         {

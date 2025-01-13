@@ -21,7 +21,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     private OperationVM? firstIncluded;
     private OperationVM? lastIncluded;
 
-    public IEnumerable<CategoryVM> Categories { get; }
+    public IEnumerable<Category> Categories { get; }
 
     public IEnumerable<ColumnDescription> ColumnDescriptions { get; }
 
@@ -97,8 +97,8 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         var result = new List<OperationVM>(baseOperations.Count);
         foreach (BaseOperation operation in baseOperations)
         {
-            Association? association = associationsManager.TryGetBestAssociation(operation.Description);
-            CategoryVM category = association == null ? CategoryVM.Default : association.Category;
+            IAssociation? association = associationsManager.TryFindBestMatch(operation.Description);
+            Category category = association == null ? Category.Default : association.Category;
             OperationVM operationVM = new(operation, category)
             {
                 // regardless existing of prediction - it's auto-mapped
@@ -121,7 +121,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
             case nameof(OperationVM.Category):
             {
                 using var _ = mutex.EnterBatchProcessing();
-                CategoryVM newCategory = ((OperationVM)sender!).Category;
+                Category newCategory = ((OperationVM)sender!).Category;
                 foreach (OperationVM operationVM in SelectedItems.CheckNull())
                 {
                     operationVM.Category = newCategory;
@@ -141,17 +141,17 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         }
     }
 
-    private void CategoriesVMOnOnCategoryRemoving(CategoryVM categoryToRemove)
+    private void CategoriesVMOnOnCategoryRemoving(Category categoryToRemove)
     {
         using var _ = mutex.EnterBatchProcessing();
         foreach (OperationVM operation in allOperations)
         {
             if (operation.Category == categoryToRemove)
             {
-                operation.Category = CategoryVM.Default;
+                operation.Category = Category.Default;
             }
         }
-        associationsManager.RemoveAssociation(categoryToRemove);
+        associationsManager.RemoveAssociations(categoryToRemove);
     }
 
     private void CategoriesVMOnOnCategoryRemoved()
@@ -184,7 +184,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 
     private void SearchInfo()
     {
-        string searchQuery = GetSelectedOperation().Operation.Description;
+        string searchQuery = GetSelectedOperation().Operation.Description.DisplayName;
         string encodedQuery = Uri.EscapeDataString(searchQuery);
         string searchUrl = $"https://www.google.com/search?q={encodedQuery}";
         // Starts the default web browser with the search URL
@@ -212,8 +212,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     private void ApplyCategoryForSimilarOperations()
     {
         OperationVM selectedOperation = GetSelectedOperation();
-        string description = selectedOperation.Operation.Description;
-        IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(description, Operations, op => op.Operation.Description);
+        IReadOnlyList<OperationVM> collection = GetSimilarOperations(selectedOperation.Operation.Description);
         foreach (OperationVM operation in collection)
         {
             operation.Category = selectedOperation.Category;
@@ -224,10 +223,8 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     private void AddException()
     {
         foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-            associationsManager.AddOrUpdateAssociation(operationViewModel.Operation.Description, CategoryVM.Default);
+            associationsManager.AddException(operationViewModel.Operation.Description);
     }
-
-    private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
 
     private void ApproveSelectedHandler()
     {
@@ -238,14 +235,13 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     private void AddAssociation(OperationVM? obj)
     {
         OperationVM operationVM = obj!;
-        associationsManager.AddOrUpdateAssociation(operationVM.Operation.Description, operationVM.Category);
+        associationsManager.AddAssociation(operationVM.Operation.Description, operationVM.Category);
     }
 
     private void HighlightSimilarOperationsHandler()
     {
         OperationVM operation = GetSelectedOperation();
-        IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(
-            operation.Operation.Description, allOperations, op => op.Operation.Description);
+        IReadOnlyList<OperationVM> collection = GetSimilarOperations(operation.Operation.Description);
 
         ResetHighlightHandler();
         
@@ -257,7 +253,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 
     private void HighlightSameCategoryHandler()
     {
-        CategoryVM category = GetSelectedOperation().Category;
+        Category category = GetSelectedOperation().Category;
         foreach (OperationVM operationVM in allOperations)
         {
             operationVM.IsHighlighted = operationVM.Category == category;
@@ -272,35 +268,16 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         }
     }
 
-    void IAssociationStorageListener.AssociationChanged(Association? oldAssociation, Association newAssociation)
+    void IAssociationStorageListener.AssociationAdded(IAssociation newAssociation)
     {
         using var _ = mutex.EnterBatchProcessing();
-
-        if (oldAssociation == null)
+        IReadOnlyList<OperationVM> collection = GetSimilarOperations(newAssociation.Description);
+        foreach (OperationVM operation in collection)
         {
-            IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(
-                newAssociation.OperationDescription, allOperations, op => op.Operation.Description);
-            foreach (OperationVM operation in collection)
+            operation.Association = newAssociation;
+            if (operation.IsAutoMappedNotApproved)
             {
-                operation.Association = newAssociation;
-                if (operation.IsAutoMappedNotApproved)
-                {
-                    operation.Category = newAssociation.Category;
-                }
-            }
-        }
-        else
-        {
-            foreach (OperationVM operation in allOperations)
-            {
-                if (operation.Association != null && operation.Association.Equals(oldAssociation))
-                {
-                    operation.Association = newAssociation;
-                    if (operation.IsAutoMappedNotApproved)
-                    {
-                        operation.Category = newAssociation.Category;
-                    }
-                }
+                operation.Category = newAssociation.Category;
             }
         }
 
@@ -308,27 +285,35 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         updateIsSorted();
     }
 
-    void IAssociationStorageListener.AssociationRemoved(Association association)
+    void IAssociationStorageListener.AssociationRemoved(IAssociation association)
     {
         using var _ = mutex.EnterBatchProcessing();
         foreach (OperationVM operation in allOperations)
         {
-            if (operation.Association != null && operation.Association.Equals(association))
+            if (operation.Association != null && operation.Association == association)
             {
-                Association? newAssociation = associationsManager.TryGetBestAssociation(operation.Operation.Description);
+                IAssociation? newAssociation = associationsManager.TryFindBestMatch(operation.Operation.Description);
                 operation.Association = newAssociation;
                 if (operation.IsAutoMappedNotApproved)
                 {
                     if (newAssociation == null)
-                        operation.Category = CategoryVM.Default;
+                        operation.Category = Category.Default;
                     else
                         operation.Category = newAssociation.Category;
-                    ;
                 } // else leave user choice
             }
         }
         summaryChanged();
         updateIsSorted();
+    }
+
+    private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
+
+    private IReadOnlyList<OperationVM> GetSimilarOperations(OperationDescription description)
+    {
+        IReadOnlyList<OperationVM> collection = CollectionSearchHelper.FindAll(
+            description.ComparisonKey, allOperations, operationVM => operationVM.Operation.Description.ComparisonKey);
+        return collection;
     }
 }
 

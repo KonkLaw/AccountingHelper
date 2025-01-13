@@ -9,7 +9,7 @@ class HistoryData
 class AssociationRecord
 {
     public string? BankId { get; set; }
-    public SortedDictionary<string, string>? Description { get; set; }
+    public IDictionary<string, string>? TagsToContents { get; set; }
     public string? Category { get; set; }
     public string? Comment { get; set; }
 }

@@ -7,8 +7,8 @@ namespace AccountHelperWpf.ViewModels;
 class AssociationsVM : BaseNotifyProperty
 {
     private readonly AssociationsManager storage;
-    public IEnumerable<AssociationVM> Associations { get; }
-    public IEnumerable<AssociationVM> Exceptions { get; }
+    public IEnumerable<IAssociation> Associations { get; }
+    public IEnumerable<IAssociation> Exceptions { get; }
     public ICommand DeleteAssociationCommand { get; }
     public ICommand DeleteExceptionCommand { get; }
 

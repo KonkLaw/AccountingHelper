@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Views;
 /// <summary>
@@ -13,11 +12,11 @@ public partial class AssociationsView : UserControl
         InitializeComponent();
     }
 
-    private void DataGrid_OnAutoGeneratingColumn(object? sender, DataGridAutoGeneratingColumnEventArgs e)
+    private void FrameworkElement_OnUnloaded(object sender, RoutedEventArgs e)
     {
-        if (e.Column.SortMemberPath == nameof(AssociationVM.CategoryVM))
-        {
-            e.Column.Visibility = Visibility.Collapsed;
-        }
+        // otherwise
+        // System.InvalidOperationException: ''DeferRefresh' is not allowed during an AddNew or EditItem transaction.'
+        DataGrid grid = ((DataGrid)sender);
+        grid.CommitEdit(DataGridEditingUnit.Row, true);
     }
 }

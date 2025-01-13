@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using AccountHelperWpf.HistoryFile;
 using AccountHelperWpf.ViewModels;
+using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.Models;
 
@@ -8,8 +10,8 @@ class AssociationsManager : IAssociationsManager
     private readonly HashSet<IAssociationStorageListener> listeners = new();
     private readonly AssociationStorage storage;
 
-    public ObservableCollection<AssociationVM> Associations { get; }
-    public ObservableCollection<AssociationVM> Exceptions { get; set; }
+    public ObservableCollection<IAssociation> Associations { get; }
+    public ObservableCollection<IAssociation> Exceptions { get; set; }
 
     public AssociationsManager(AssociationStorage storage)
     {
@@ -17,9 +19,9 @@ class AssociationsManager : IAssociationsManager
 
         Associations = new();
         Exceptions = new();
-        foreach (AssociationVM association in storage.Associations)
+        foreach (IAssociation association in storage.Associations)
         {
-            if (association.CategoryVM.IsDefault)
+            if (association.Category.IsDefault)
                 Exceptions.Add(association);
             else
                 Associations.Add(association);
@@ -30,122 +32,144 @@ class AssociationsManager : IAssociationsManager
 
     public void RemoveListener(IAssociationStorageListener listener) => listeners.Remove(listener);
 
-    private void ExecuteForAll<TArg>(TArg arg, Action<IAssociationStorageListener, TArg> handler)
+    private void ExecuteForAllAdd(IAssociation newAssociation)
     {
         foreach (IAssociationStorageListener listener in listeners)
         {
-            handler(listener, arg);
+            listener.AssociationAdded(newAssociation);
+        }
+    }
+
+    private void ExecuteForAllRemove(IAssociation oldAssociation)
+    {
+        foreach (IAssociationStorageListener listener in listeners)
+        {
+            listener.AssociationRemoved(oldAssociation);
         }
     }
 
 
-    void IAssociationsManager.AddOrUpdateAssociation(string operationDescription, CategoryVM category)
+    public IAssociation? TryFindBestMatch(OperationDescription operationDescription)
+        => storage.TryFindBestMatch(operationDescription);
+
+    void IAssociationsManager.AddException(OperationDescription description)
     {
-        // Default means - not associated category by default = exception
-        if (string.IsNullOrEmpty(operationDescription))
-            return;
+        IAssociation? oldAssociation = storage.DeleteByOperation(description);
+        if (oldAssociation != null)
+        {
+            Associations.Remove(oldAssociation);
+            ExecuteForAllRemove(oldAssociation);
+        }
+        IAssociation newAssociation = new Association(description, Category.Default, true);
+        storage.Add(newAssociation);
+        Exceptions.Add(newAssociation);
+        ExecuteForAllAdd(newAssociation);
+    }
 
-        AssociationVM? associationVM = storage.TryGetBestMatch(operationDescription, out int index);
-        if (associationVM is { CategoryVM.IsDefault: true })
-            return;
-
-        Association? oldAssociation = associationVM == null ? null : new Association(associationVM);
-        AssociationVM newAssociationVM;
+    void IAssociationsManager.AddAssociation(OperationDescription description, Category category)
+    {
         if (category.IsDefault)
-        {
-            if (associationVM != null)
-            {
-                storage.DeleteAt(index);
-                Associations.Remove(associationVM);
-                ExecuteForAll(
-                    new Association(associationVM),
-                    static (l, d) => l.AssociationRemoved(d));
-            }
-            newAssociationVM = new AssociationVM(operationDescription, category, true);
-            storage.Add(newAssociationVM);
-            Exceptions.Add(newAssociationVM);
-        }
-        else
-        {
-            if (associationVM == null)
-            {
-                newAssociationVM = new(operationDescription, category, true);
-                storage.Add(newAssociationVM);
-                Associations.Add(newAssociationVM);
-            }
-            else
-            {
-                if (associationVM.CategoryVM.IsDefault)
-                {
-                    associationVM.CategoryVM = category;
-                    associationVM.IsNew = true;
-                    Associations.Add(associationVM);
-                    Exceptions.Remove(associationVM);
-                }
-                else
-                {
-                    associationVM.CategoryVM = category;
-                    associationVM.IsNew = true;
-                }
-                newAssociationVM = associationVM;
-            }
-            
-        }
-        Association newAssociation = new Association(newAssociationVM);
-        ExecuteForAll(
-            (oldAssociation, newAssociation),
-            static (l, arg) => l.AssociationChanged(arg.oldAssociation, arg.newAssociation));
+            throw new InvalidOperationException("Can't add default category to associations");
+
+        IAssociation? oldAssociation = storage.TryFindBestMatch(description);
+
+        if (oldAssociation != null)
+            throw new InvalidOperationException("Can't change existing association.");
+
+        IAssociation newAssociation = new Association(description, category, true);
+        storage.Add(newAssociation);
+        Associations.Add(newAssociation);
+        ExecuteForAllAdd(newAssociation);
     }
     
-    Association? IAssociationsManager.TryGetBestAssociation(string operationDescription)
+    void IAssociationsManager.RemoveAssociations(Category category)
     {
-        AssociationVM? associationVM = storage.TryGetBestMatch(operationDescription, out _);
-        return associationVM == null ? null : new Association(associationVM);
-    }
-
-    void IAssociationsManager.RemoveAssociation(CategoryVM category)
-    {
-        List<string> deleted = storage.Remove(category);
-        foreach (string operationDescription in deleted)
+        List<IAssociation> associations = storage.Remove(category);
+        foreach (IAssociation association in associations)
         {
-            ExecuteForAll(
-                (operationDescription, category),
-                static (l, arg) => l.AssociationRemoved(new Association(arg.operationDescription, arg.category)));
+            ExecuteForAllRemove(association);
         }
     }
 
     public void DeleteAssociation(int selectedIndex)
     {
-        AssociationVM associationVM = Associations[selectedIndex];
+        IAssociation association = Associations[selectedIndex];
         Associations.RemoveAt(selectedIndex);
-        storage.Remove(associationVM);
-        ExecuteForAll(new Association(associationVM), static (l, d) => l.AssociationRemoved(d));
+        storage.Remove(association);
+        ExecuteForAllRemove(association);
     }
     
     public void DeleteException(int selectedIndex)
     {
-        AssociationVM associationVM = Exceptions[selectedIndex];
+        IAssociation association = Exceptions[selectedIndex];
         Exceptions.RemoveAt(selectedIndex);
-        storage.Remove(associationVM);
-        ExecuteForAll(new Association(associationVM), static (l, d) => l.AssociationRemoved(d));
+        storage.Remove(association);
+        ExecuteForAllRemove(association);
+    }
+
+
+
+    
+
+    public static InitData PrepareInitData(HistoryData historyData)
+    {
+        List<Category> categories = [Category.Default];
+        categories.AddRange(historyData.Categories!.Select(c => new Category
+        {
+            Description = c.Description!,
+            Name = c.Name!
+        }));
+        var dictionary = new Dictionary<string, Category>(categories.Select(c => new KeyValuePair<string, Category>(c.Name, c)));
+
+
+        IAssociation Selector(AssociationRecord association)
+        {
+            OperationDescription operationDescription = OperationDescription.Create(bankId: association.BankId!,
+                // recreate to be sure that dictionary is ordered by key
+                tagsContents: new SortedDictionary<string, string>(association.TagsToContents!));
+            Category category = association.Category == null ? Category.Default : dictionary[association.Category!];
+            return new Association(operationDescription, category, false) { Comment = association.Comment };
+        }
+
+        List<IAssociation> associations = historyData.Associations!.Select(Selector).ToList();
+
+        return new InitData(categories, associations);
+    }
+
+    class Association : BaseNotifyProperty, IAssociation
+    {
+        public OperationDescription Description { get; }
+
+        public Category Category { get; }
+
+        public bool IsNew { get; }
+
+        private string? comment;
+        public string? Comment
+        {
+            get => comment;
+            set => SetProperty(ref comment, value);
+        }
+
+        public Association(OperationDescription description, Category category, bool isNew)
+        {
+            Description = description;
+            Category = category;
+            IsNew = isNew;
+        }
     }
 }
 
 interface IAssociationsManager
 {
-    Association? TryGetBestAssociation(string operationDescription);
-    void AddOrUpdateAssociation(string operationDescription, CategoryVM category);
-    void RemoveAssociation(CategoryVM category);
+    IAssociation? TryFindBestMatch(OperationDescription operationDescription);
+    void AddException(OperationDescription description);
+    void AddAssociation(OperationDescription description, Category category);
+    void RemoveAssociations(Category category);
 }
 
 interface IAssociationStorageListener
 {
-    void AssociationChanged(Association? oldAssociation, Association newAssociation);
-    void AssociationRemoved(Association association);
-}
-
-record Association(string OperationDescription, CategoryVM Category)
-{
-    public Association(AssociationVM associationVM)
-        : this(associationVM.OperationDescription, associationVM.CategoryVM) { }
+    void AssociationAdded(IAssociation newAssociation);
+    void AssociationRemoved(IAssociation association);
 }

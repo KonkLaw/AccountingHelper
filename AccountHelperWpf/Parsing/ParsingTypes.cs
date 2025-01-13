@@ -1,10 +1,12 @@
-﻿namespace AccountHelperWpf.Parsing;
+﻿using AccountHelperWpf.Models;
+
+namespace AccountHelperWpf.Parsing;
 
 
 // ==================== Prior
 
 public record PriorOperation(
-    DateTime TransactionDateTime, decimal Amount, string Description,
+    DateTime TransactionDateTime, decimal Amount, OperationDescription Description,
     string CategoryName,
     string Currency,
     decimal Fee,
@@ -12,7 +14,7 @@ public record PriorOperation(
     DateOnly AccountDate);
 
 public record PriorBlockedOperation(
-    DateTime TransactionDateTime, decimal Amount, string Description,
+    DateTime TransactionDateTime, decimal Amount, OperationDescription Description,
     string CategoryName,
     string Currency,
     decimal InitialAmount,
@@ -38,7 +40,7 @@ public record PriorFile(
 
 // ==================== PKO
 
-public record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
+public record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescription Description,
         DateOnly DateAccounting,
         string Currency,
         string OperationType,
@@ -47,7 +49,7 @@ public record PkoOperation(DateTime TransactionDateTime, decimal Amount, string 
         string OtherDescription);
 
 public record PkoBlockedOperation(
-    DateTime TransactionDateTime, decimal Amount, string Description,
+    DateTime TransactionDateTime, decimal Amount, OperationDescription Description,
     string Currency, string OtherDescription);
 
 public record PkoFile(

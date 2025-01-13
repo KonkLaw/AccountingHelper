@@ -1,57 +1,61 @@
-﻿using AccountHelperWpf.ViewModels;
-
-namespace AccountHelperWpf.Models;
+﻿namespace AccountHelperWpf.Models;
 
 class AssociationStorage
 {
-    private readonly List<AssociationVM> list;
+    private readonly List<IAssociation> list;
 
     public event Action? Changed;
 
-    public ICollection<AssociationVM> Associations => list;
+    public IEnumerable<IAssociation> Associations => list;
 
-    public AssociationStorage(List<AssociationVM> associations)
+    public AssociationStorage(List<IAssociation> associations)
     {
         list = associations;
     }
 
     private void RaiseChanged() => Changed?.Invoke();
 
-    public AssociationVM? TryGetBestMatch(string description, out int index)
+    public IAssociation? TryFindBestMatch(OperationDescription description)
     {
-        AssociationVM? bestMath = CollectionSearchHelper.FindBest(
-            description, list, assoc => assoc.OperationDescription);
-        index = bestMath == null ? -1 : list.IndexOf(bestMath);
+        IAssociation? bestMath = CollectionSearchHelper.FindBest(
+            description.ComparisonKey, list, association => association.Description.ComparisonKey);
         return bestMath;
     }
 
-    public void Add(AssociationVM associationVM)
+    public void Add(IAssociation association)
     {
-        list.Add(associationVM);
+        list.Add(association);
         RaiseChanged();
     }
 
-    public void Remove(AssociationVM associationVM)
+    public IAssociation? DeleteByOperation(OperationDescription description)
     {
-        list.Remove(associationVM);
+        int index = list.FindIndex(association => association.Description == description);
+        if (index > 0)
+        {
+            IAssociation deleted = list[index];
+            list.RemoveAt(index);
+            RaiseChanged();
+            return deleted;
+        }
+        return null;
+    }
+
+    public void Remove(IAssociation association)
+    {
+        list.Remove(association);
         RaiseChanged();
     }
 
-    public void DeleteAt(int index)
+    public List<IAssociation> Remove(Category category)
     {
-        list.RemoveAt(index);
-        RaiseChanged();
-    }
-
-    public List<string> Remove(CategoryVM category)
-    {
-        List<string> deleted = new();
+        List<IAssociation> deleted = new();
         for (var i = list.Count - 1; i >= 0; i--)
         {
-            AssociationVM associationVM = list[i];
-            if (associationVM.CategoryVM == category)
+            IAssociation association = list[i];
+            if (association.Category == category)
             {
-                deleted.Add(associationVM.OperationDescription);
+                deleted.Add(association);
                 list.RemoveAt(i);
             }
         }

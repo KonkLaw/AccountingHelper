@@ -6,6 +6,8 @@ namespace AccountHelperWpf.Parsing.Pko;
 
 static class PkoParser
 {
+    public const string BankId = "pkopl";
+
     public static IReadOnlyList<PkoOperation>? TryParseFile(StreamReader reader, out bool withSaldo)
     {
         string firstLine = reader.ReadLine()!;
@@ -23,13 +25,12 @@ static class PkoParser
         }
 
         List<PkoOperation> operations = [];
-        DescriptionParserCache cache = new();
         do
         {
             string line = reader.ReadLine()!;
             try
             {
-                operations.Add(ParseRecord(line, cache, withSaldo));
+                operations.Add(ParseRecord(line, withSaldo));
             }
             catch (Exception ex)
             {
@@ -40,7 +41,7 @@ static class PkoParser
         return operations;
     }
 
-    private static PkoOperation ParseRecord(string record, DescriptionParserCache cache, bool withSaldo)
+    private static PkoOperation ParseRecord(string record, bool withSaldo)
     {
         RecordIterator iterator = new RecordIterator(record);
 
@@ -51,14 +52,15 @@ static class PkoParser
         string currency = iterator.GetNextSpan().ToString();
         decimal saldoBeforeTransaction = withSaldo ? decimal.Parse(iterator.GetNextSpan()) : 0;
 
-        new DescriptionParser(iterator, cache).Parse(
-            out KeyValue[] main, out KeyValue[] other, out string? originalAmount);
+        new PkoDescriptionParser(iterator).Parse(
+            out SortedDictionary<string, string> main,
+            out SortedDictionary<string, string> other,
+            out string? originalAmount);
 
-        var shortDescription = string.Join(" || ", main.Select(kvp => $"{kvp.Key} : {kvp.Value}"));
         var otherDetails = string.Join(" || ", other.Select(kvp => $"{kvp.Key} : {kvp.Value}"));
 
         return new PkoOperation(
-            dateOperation, amount, shortDescription,
+            dateOperation, amount, OperationDescription.Create(BankId, main), 
             dateAccounting, currency, operationType, originalAmount,
             saldoBeforeTransaction, otherDetails);
     }

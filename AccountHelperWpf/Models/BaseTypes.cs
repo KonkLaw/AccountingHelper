@@ -1,14 +1,15 @@
 ﻿using AccountHelperWpf.Parsing;
 using AccountHelperWpf.Views;
+using System.Collections.ObjectModel;
 
 namespace AccountHelperWpf.Models;
 
-public record BaseOperation(DateTime TransactionDateTime, decimal Amount, string Description)
+public record BaseOperation(DateTime TransactionDateTime, decimal Amount, OperationDescription Description)
 {
 	public sealed override string ToString() => $"{TransactionDateTime:dd-MM-yyyy}|{Amount}|{Description}";
 }
 
-record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Description,
+record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescription Description,
     DateOnly? DateAccounting,
     string? OperationType,
     string? OriginalAmount,
@@ -41,7 +42,7 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, string Descrip
 
 
 public record PriorOperation(
-    DateTime TransactionDateTime, decimal Amount, string Description,
+    DateTime TransactionDateTime, decimal Amount, OperationDescription Description,
     string CategoryName,
     decimal? Fee,
     decimal InitialAmount,
@@ -81,19 +82,38 @@ public record OperationsFile(string Name, IReadOnlyList<BaseOperation> Operation
     public string GetTitle() => $"({Currency}) {Name}";
 }
 
-public readonly struct KeyValue
+public class OperationDescription
 {
-    public string Key { get; }
-    public string Value { get; }
+    private readonly string bankId;
+    private readonly SortedDictionary<string, string> tagsContents;
 
-    public KeyValue(string key, string value)
+    public string DisplayName { get; }
+    public string ComparisonKey { get; }
+
+    public static OperationDescription Create(
+        string bankId, SortedDictionary<string, string> tagsContents)
     {
-        Key = key;
-        Value = value;
+        return new OperationDescription(bankId, tagsContents);
     }
 
-    public override string ToString()
+    private OperationDescription(
+        string bankId, SortedDictionary<string, string> tagsContents)
     {
-        return $"({Key} : {Value})";
+        this.bankId = bankId;
+        this.tagsContents = tagsContents;
+        OperationDescriptionHelper.GetOperationDisplayName(
+            bankId, tagsContents,
+            out string displayName, out string comparisonKey);
+        DisplayName = displayName;
+        ComparisonKey = comparisonKey;
     }
+
+    public void GetData(out string bankIdOut, out ReadOnlyDictionary<string, string> tagContentsOut)
+    {
+        bankIdOut = bankId;
+        // wrap to prevent accidental modification
+        tagContentsOut = new ReadOnlyDictionary<string, string>(tagsContents);
+    }
+
+    public override string ToString() => DisplayName;
 }

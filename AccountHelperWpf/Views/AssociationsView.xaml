@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
+             xmlns:views="clr-namespace:AccountHelperWpf.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModels:AssociationsVM}">
@@ -16,24 +17,71 @@
         <Border Grid.Row="0" BorderThickness="0.5" BorderBrush="Black">
             <DataGrid ItemsSource="{Binding Associations}"
                       SelectedIndex="{Binding SelectedAssociationIndex}"
-                      SelectionMode="Single" IsReadOnly="True">
+                      SelectionMode="Single" AutoGenerateColumns="False"
+                      Unloaded="FrameworkElement_OnUnloaded">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="*" MaxWidth="800" IsReadOnly="True" Header="Operation Description"
+                                        Binding="{Binding Description.DisplayName, Mode=OneWay}">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="ToolTip" Value="{Binding Description.DisplayName, Mode=OneWay}" />
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="250" IsReadOnly="True" Header="Category"
+                                        Binding="{Binding Category, Mode=OneWay}" />
+                    <DataGridCheckBoxColumn Width="70" IsReadOnly="True" Header="Is New"
+                                            Binding="{Binding IsNew, Mode=OneWay}">
+                        <DataGridCheckBoxColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForIsNewColumn}"/>
+                            </Style>
+                        </DataGridCheckBoxColumn.HeaderStyle>
+                    </DataGridCheckBoxColumn>
+                    <DataGridTextColumn Width="600" Header="Comment" Binding="{Binding Comment}">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForCommentColumn}"/>
+                            </Style>
+                        </DataGridTextColumn.HeaderStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
             </DataGrid>
         </Border>
         <Label Grid.Row="1" Content="Excluded from auto-mapping operations"/>
         <DataGrid Grid.Row="2" ItemsSource="{Binding Exceptions}"
                   SelectedIndex="{Binding SelectedExceptionIndex}"
-                  SelectionMode="Single" IsReadOnly="True"
-                  AutoGeneratingColumn="DataGrid_OnAutoGeneratingColumn">
+                  SelectionMode="Single" AutoGenerateColumns="False"
+                  Unloaded="FrameworkElement_OnUnloaded">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand, Mode=OneTime}"/>
+                    <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="*" MaxWidth="800" IsReadOnly="True" Header="Operation Description"
+                                    Binding="{Binding Description.DisplayName, Mode=OneWay}"/>
+                <DataGridCheckBoxColumn Width="70" IsReadOnly="True" Header="Is New"
+                                        Binding="{Binding IsNew, Mode=OneWay}">
+                    <DataGridCheckBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForIsNewColumn}"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.HeaderStyle>
+                </DataGridCheckBoxColumn>
+                <DataGridTextColumn Width="600" Header="Comment" Binding="{Binding Comment}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForCommentColumn}"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
         </DataGrid>
     </Grid>
 </UserControl>

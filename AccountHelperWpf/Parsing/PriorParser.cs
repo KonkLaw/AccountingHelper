@@ -5,6 +5,8 @@ namespace AccountHelperWpf.Parsing;
 
 static class PriorParser
 {
+    public const string BankId = "priorby";
+
     private const string ColumnSeparator = ";";
 
     public static PriorFile? TryParse(StreamReader reader, string name)
@@ -105,8 +107,10 @@ static class PriorParser
         decimal fee = decimal.Parse(parts[5], NumberFormatHelper.NumberFormat);
         decimal amount = decimal.Parse(parts[6], NumberFormatHelper.NumberFormat);
         string categoryName = parts[8];
-        return new PriorOperation(
-            transactionDateTime, amount, description, categoryName, currency, fee, initialAmount, accountDateTime);
+
+        throw new NotImplementedException();
+        //return new PriorOperation(
+        //    transactionDateTime, amount, description, categoryName, currency, fee, initialAmount, accountDateTime);
     }
 
     private static PriorBlockedOperation ParseBlockedOperationLine(string line)
@@ -121,9 +125,9 @@ static class PriorParser
         decimal amount = -decimal.Parse(parts[4], NumberFormatHelper.NumberFormat);
         string currency = parts[5];
         string categoryName = parts[7];
-
-        return new PriorBlockedOperation(
-            transactionDateTime, amount, description, categoryName, currency, initialAmount, initialCurrency);
+        throw new NotImplementedException();
+        //return new PriorBlockedOperation(
+        //    transactionDateTime, amount, description, categoryName, currency, initialAmount, initialCurrency);
     }
 }
 

@@ -7,8 +7,8 @@ class OperationVM : BaseNotifyProperty
 {
     public BaseOperation Operation { get; }
 
-    private CategoryVM category;
-    public CategoryVM Category
+    private Category category;
+    public Category Category
     {
         get => category;
         set
@@ -35,8 +35,8 @@ class OperationVM : BaseNotifyProperty
         set => SetProperty(ref isAutoMappedNotApproved, value);
     }
 
-    private Association? association;
-    public Association? Association
+    private IAssociation? association;
+    public IAssociation? Association
     {
         get => association;
         set
@@ -93,7 +93,7 @@ class OperationVM : BaseNotifyProperty
         set => SetProperty(ref isHighlighted, value);
     }
 
-    public OperationVM(BaseOperation operation, CategoryVM category)
+    public OperationVM(BaseOperation operation, Category category)
     {
         Operation = operation;
         this.category = category;

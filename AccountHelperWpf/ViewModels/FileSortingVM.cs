@@ -87,7 +87,7 @@ class FileSortingVM : BaseNotifyProperty
         window.ShowDialog();
         if (window.SelectedItem == null)
             return;
-        CategoryVM selectedItem = (CategoryVM)window.SelectedItem;
+        Category selectedItem = (Category)window.SelectedItem;
         foreach (OperationVM operation in OperationsVM.Operations)
         {
             if (!operation.Category.IsDefault)

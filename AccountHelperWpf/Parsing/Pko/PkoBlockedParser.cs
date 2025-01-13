@@ -42,14 +42,15 @@ class PkoBlockedParser
                 ReadAmountAndCurrency(amountAndCurrency, out decimal amount, out string currency);
 
                 string otherDetails = $"{details}; {additionalDescription1} {additionalDescription2}";
-                var operation = new PkoBlockedOperation(dateTime, amount, description.ToString(),
-                    currency, otherDetails);
-                operations.Add(operation);
-
-                iterator.SkipEmptyLines();
-                if (iterator.IsEnded) // do we ended text
-                    break;
-                iterator.TryReadDate(out dateTime); // trying update data. ok - if not.
+                throw new NotImplementedException();
+                //var operation = new PkoBlockedOperation(dateTime, amount, description.ToString(),
+                //    currency, otherDetails);
+                //operations.Add(operation);
+                //
+                //iterator.SkipEmptyLines();
+                //if (iterator.IsEnded) // do we ended text
+                //    break;
+                //iterator.TryReadDate(out dateTime); // trying update data. ok - if not.
             }
             while (true);
         }

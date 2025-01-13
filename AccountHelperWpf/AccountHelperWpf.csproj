@@ -31,5 +31,20 @@
 		<Resource Include="Resources\UtilsIcons\warning.png" />
 		<Resource Include="Resources\BlokedOperationsExample.png" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Compile Update="Views\ResourceUI.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>ResourceUI.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <EmbeddedResource Update="Views\ResourceUI.resx">
+	    <Generator>PublicResXFileCodeGenerator</Generator>
+	    <LastGenOutput>ResourceUI.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
 
 </Project>

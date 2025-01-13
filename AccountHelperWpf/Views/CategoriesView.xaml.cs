@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewModels;
 
 namespace AccountHelperWpf.Views;
@@ -25,7 +26,7 @@ public partial class CategoriesView : UserControl
         bool isCommit = e.EditAction == DataGridEditAction.Commit;
         if (isCommit && frameworkElement is TextBox textBox && e.Column.DisplayIndex == 0)
         {
-            ObservableCollection<CategoryVM> categories = ((CategoriesVM)DataContext).Categories;
+            ObservableCollection<Category> categories = ((CategoriesVM)DataContext).Categories;
 
             // if last row and is empty string - don't add
             if (e.Row.Item == categories[^1] && textBox.Text.Trim() == string.Empty)
@@ -75,7 +76,7 @@ public partial class CategoriesView : UserControl
     private void BeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
     {
         // it makes some row not editable
-        if (((CategoryVM)e.Row.Item).IsDefault)
+        if (((Category)e.Row.Item).IsDefault)
         {
             e.Cancel = true;
         }

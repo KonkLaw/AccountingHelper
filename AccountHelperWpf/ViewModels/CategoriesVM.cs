@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
@@ -10,29 +11,29 @@ namespace AccountHelperWpf.ViewModels;
 class CategoriesVM : BaseNotifyProperty
 {
     private readonly IViewResolver viewResolver;
-    private readonly ReadOnlyObservableCollection<CategoryVM> collection;
-    public ObservableCollection<CategoryVM> Categories { get; }
+    private readonly ReadOnlyObservableCollection<Category> collection;
+    public ObservableCollection<Category> Categories { get; }
     public ICommand RemoveCommand { get; }
     public ICommand MoveUpCommand { get; }
     public ICommand MoveDownCommand { get; }
 
     public int SelectedIndex { get; set; }
 
-    public event Action<CategoryVM>? OnCategoryRemoving;
+    public event Action<Category>? OnCategoryRemoving;
     public event Action? OnCategoryRemoved;
     public event Action? CategoryOrListChanged;
 
-    public CategoriesVM(ObservableCollection<CategoryVM> loadedCategories, IViewResolver viewResolver)
+    public CategoriesVM(ObservableCollection<Category> loadedCategories, IViewResolver viewResolver)
     {
         this.viewResolver = viewResolver;
         Categories = loadedCategories;
-        collection = new ReadOnlyObservableCollection<CategoryVM>(Categories);
+        collection = new ReadOnlyObservableCollection<Category>(Categories);
         RemoveCommand = new DelegateCommand(RemoveCategory);
         MoveUpCommand = new DelegateCommand(MoveUp);
         MoveDownCommand = new DelegateCommand(MoveDown);
 
         Categories.CollectionChanged += CategoriesCollectionChanged;
-        foreach (CategoryVM? categoryViewModel in Categories)
+        foreach (Category? categoryViewModel in Categories)
         {
             categoryViewModel.PropertyChanged += CategoryChanged;
         }
@@ -45,7 +46,7 @@ class CategoriesVM : BaseNotifyProperty
 
         if (viewResolver.ShowQuestion("Are you sure? All saved associations for this category will be removed", MessageBoxButton.YesNo) == MessageBoxResult.No)
             return;
-        CategoryVM categoryToRemove = Categories[SelectedIndex];
+        Category categoryToRemove = Categories[SelectedIndex];
         OnCategoryRemoving?.Invoke(categoryToRemove);
         Categories.RemoveAt(SelectedIndex);
         OnCategoryRemoved?.Invoke();
@@ -79,12 +80,12 @@ class CategoriesVM : BaseNotifyProperty
             case NotifyCollectionChangedAction.Remove:
             case NotifyCollectionChangedAction.Replace:
                 if (e.NewItems!= null)
-                    foreach (CategoryVM categoryViewModel in e.NewItems)
+                    foreach (Category categoryViewModel in e.NewItems)
                     {
                         categoryViewModel.PropertyChanged += CategoryChanged;
                     }
                 if (e.OldItems != null)
-                    foreach (CategoryVM categoryViewModel in e.OldItems)
+                    foreach (Category categoryViewModel in e.OldItems)
                     {
                         categoryViewModel.PropertyChanged -= CategoryChanged;
                     }
@@ -101,37 +102,5 @@ class CategoriesVM : BaseNotifyProperty
 
     private void Notify() => CategoryOrListChanged?.Invoke();
 
-    public ReadOnlyObservableCollection<CategoryVM> GetCategories() => collection;
-}
-
-class CategoryVM : BaseNotifyProperty, IComparable<CategoryVM>, IComparable
-{
-    public static CategoryVM Default { get; } = new()
-    {
-        Name = "# Not assigned",
-        Description = "Default category for all not assigned operations"
-    };
-
-    private string name = string.Empty;
-    public string Name
-    {
-        get => name;
-        set => SetProperty(ref name, value);
-    }
-
-    private string description = string.Empty;
-    public string Description
-    {
-        get => description;
-        set => SetProperty(ref description, value);
-    }
-
-    public bool IsDefault => ReferenceEquals(this, Default);
-
-    public int CompareTo(CategoryVM? other)
-        => other == null ? 1 : string.Compare(Name, other.Name, StringComparison.Ordinal);
-
-    public int CompareTo(object? obj) => CompareTo(obj as CategoryVM);
-
-    public override string ToString() => Name;
+    public ReadOnlyObservableCollection<Category> GetCategories() => collection;
 }

@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using AccountHelperWpf.ViewModels;
+using AccountHelperWpf.Models;
 
 namespace AccountHelperWpf.Views;
 
@@ -7,7 +7,7 @@ partial class CategorySelectorWindow : Window
 {
     public object? SelectedItem => ListBox.SelectedItem;
 
-    public CategorySelectorWindow(IEnumerable<CategoryVM> items)
+    public CategorySelectorWindow(IEnumerable<Category> items)
     {
         InitializeComponent();
         ListBox.ItemsSource = items;
