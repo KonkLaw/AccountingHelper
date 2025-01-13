@@ -110,13 +110,20 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn>
+            <DataGridTemplateColumn Width="50">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Button Content="+"
+                        <Button
+                                HorizontalAlignment="Center"
+                                Margin="0" BorderThickness="0" Background="Transparent"
                                 Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
                                 CommandParameter="{Binding}"
-                                Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"/>
+                                Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"
+                                ToolTip="Save this operation for further association with category.">
+                            <Image Width="24" Height="24" ToolTip="{Binding AssociationStatusComment}"
+                                   Source="/Resources/UtilsIcons/add.png"
+                                   IsHitTestVisible="False"/>
+                        </Button>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
