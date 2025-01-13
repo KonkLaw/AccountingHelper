@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace AccountHelperWpf.Models;
@@ -22,10 +23,15 @@ public class StringDistance
         return distance / averageSize;
     }
 
-    private static unsafe int GetDistance(string s1, string s2, int stopSearchDistance)
+    private static unsafe int GetDistance(string s1In, string s2In, int stopSearchDistance)
     {
-        if (s1.Length > s2.Length)
-            (s1, s2) = (s2, s1);
+        if (s1In.Length > s2In.Length)
+            (s1In, s2In) = (s2In, s1In);
+
+        Span<char> s1 = stackalloc char[s1In.Length];
+        Span<char> s2 = stackalloc char[s2In.Length];
+        MemoryExtensions.ToLower(s1In, s1, CultureInfo.InvariantCulture);
+        MemoryExtensions.ToLower(s2In, s2, CultureInfo.InvariantCulture);
 
         Span<int> d0 = stackalloc int[s1.Length + 1];
         Span<int> d1 = stackalloc int[d0.Length];
@@ -40,7 +46,7 @@ public class StringDistance
 
             for (int i1 = 0; i1 < s1.Length; i1++)
             {
-                bool isEquals = char.ToLower(s1[i1]) == char.ToLower(s2[i2]);
+                bool isEquals = s1[i1] == s2[i2];
 
                 int newDistance = Math.Min(
                     Math.Min(d1[i1] + 1, d0[i1 + 1] + 1),
