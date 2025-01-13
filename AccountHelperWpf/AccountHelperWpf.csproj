@@ -22,11 +22,15 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+		<None Remove="Resources\Buttons\Open.png" />
+		<None Remove="Resources\Buttons\Save.png" />
 		<None Remove="Resources\UtilsIcons\add.png" />
 		<None Remove="Resources\UtilsIcons\associated.png" />
 		<None Remove="Resources\UtilsIcons\exclamation.png" />
 		<None Remove="Resources\UtilsIcons\warning.png" />
 		<Content Include="icon.ico" />
+		<Resource Include="Resources\Buttons\Open.png" />
+		<Resource Include="Resources\Buttons\Save.png" />
 		<Resource Include="Resources\UtilsIcons\add.png" />
 		<Resource Include="Resources\UtilsIcons\associated.png" />
 		<Resource Include="Resources\UtilsIcons\exclamation.png" />
