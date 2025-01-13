@@ -14,7 +14,8 @@
             <Style TargetType="{x:Type views:DataGridExt}" BasedOn="{StaticResource {x:Type DataGrid}}" />
 
             <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
-            <viewUtils:HighlightBackColorConverter x:Key="HighlightBackColorConverter" />
+            <viewUtils:HighlightBackColorConverter x:Key="HighlightCourseBackColorConverter" />
+            <viewUtils:MultibindingConverter x:Key="MultiBindingConverter"/>
 
             <DataTemplate x:Key="FileSortingTemplate" DataType="{x:Type viewModels:TabInfo}">
                 <views:File2View DataContext="{Binding Content}"/>

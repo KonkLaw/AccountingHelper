@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.Utils;
@@ -86,7 +87,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         ApplyCategoryForSimilarOperationsCommand = new DelegateCommand(ApplyCategoryForSimilarOperations);
         AddExceptionCommand = new DelegateCommand(AddException);
         ApproveSelectedCommand = new DelegateCommand(ApproveSelectedHandler);
-        AddCommand = new DelegateCommand<OperationVM>(AddAssociation);
+        AddCommand = new DelegateCommand<UIElement, OperationVM>(AddAssociation);
         HighlightSimilarOperations = new DelegateCommand(HighlightSimilarOperationsHandler);
         HighlightSameCategory = new DelegateCommand(HighlightSameCategoryHandler);
         ResetHighlight = new DelegateCommand(ResetHighlightHandler);
@@ -232,10 +233,18 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
             operationViewModel.IsAutoMappedNotApproved = false;
     }
 
-    private void AddAssociation(OperationVM? obj)
+    private void AddAssociation(UIElement button, OperationVM operation)
     {
-        OperationVM operationVM = obj!;
-        associationsManager.AddAssociation(operationVM.Operation.Description, operationVM.Category);
+        OperationVM operationVM = operation;
+        var viewModel = new AssociationPopupVM(
+            operationVM.Operation.Description, operationVM.Category,
+            associationsManager);
+        _ = new AssociationPopup
+        {
+            DataContext = viewModel,
+            PlacementTarget = button,
+            Focusable = true
+        };
     }
 
     private void HighlightSimilarOperationsHandler()

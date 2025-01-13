@@ -85,7 +85,7 @@ class MainWindowVM : BaseNotifyProperty
         SelectedTab = fileSortingVM.TabInfo;
     }
 
-    private void WindowClosingHandler(CancelEventArgs? arg) => arg!.Cancel = !saveController.RequestForClose();
+    private void WindowClosingHandler(CancelEventArgs arg) => arg.Cancel = !saveController.RequestForClose();
 
     private void RemoveHandler(FileSortingVM viewModel)
     {

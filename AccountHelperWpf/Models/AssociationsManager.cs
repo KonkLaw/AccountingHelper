@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using AccountHelperWpf.HistoryFile;
-using AccountHelperWpf.ViewModels;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.Models;
@@ -52,6 +51,23 @@ class AssociationsManager : IAssociationsManager
     public IAssociation? TryFindBestMatch(OperationDescription operationDescription)
         => storage.TryFindBestMatch(operationDescription);
 
+    IAssociation IAssociationsManager.AddAssociation(OperationDescription description, Category category)
+    {
+        if (category.IsDefault)
+            throw new InvalidOperationException("Can't add default category to associations");
+
+        IAssociation? oldAssociation = storage.TryFindBestMatch(description);
+
+        if (oldAssociation != null)
+            throw new InvalidOperationException("Can't change existing association.");
+
+        IAssociation newAssociation = new Association(description, category, true);
+        storage.Add(newAssociation);
+        Associations.Add(newAssociation);
+        ExecuteForAllAdd(newAssociation);
+        return newAssociation;
+    }
+
     void IAssociationsManager.AddException(OperationDescription description)
     {
         IAssociation? oldAssociation = storage.DeleteByOperation(description);
@@ -66,24 +82,11 @@ class AssociationsManager : IAssociationsManager
         ExecuteForAllAdd(newAssociation);
     }
 
-    void IAssociationsManager.AddAssociation(OperationDescription description, Category category)
-    {
-        if (category.IsDefault)
-            throw new InvalidOperationException("Can't add default category to associations");
-
-        IAssociation? oldAssociation = storage.TryFindBestMatch(description);
-
-        if (oldAssociation != null)
-            throw new InvalidOperationException("Can't change existing association.");
-
-        IAssociation newAssociation = new Association(description, category, true);
-        storage.Add(newAssociation);
-        Associations.Add(newAssociation);
-        ExecuteForAllAdd(newAssociation);
-    }
-    
     void IAssociationsManager.RemoveAssociations(Category category)
     {
+        if (category.IsDefault)
+            throw new InvalidOperationException("Can't remove default category from associations");
+
         List<IAssociation> associations = storage.Remove(category);
         foreach (IAssociation association in associations)
         {
@@ -163,8 +166,8 @@ class AssociationsManager : IAssociationsManager
 interface IAssociationsManager
 {
     IAssociation? TryFindBestMatch(OperationDescription operationDescription);
+    IAssociation AddAssociation(OperationDescription description, Category category);
     void AddException(OperationDescription description);
-    void AddAssociation(OperationDescription description, Category category);
     void RemoveAssociations(Category category);
 }
 

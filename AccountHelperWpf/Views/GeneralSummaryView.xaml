@@ -23,7 +23,7 @@
                             <Style TargetType="{x:Type TextBlock}" >
                                 <Setter Property="Background"
                                         Value="{Binding Path=Course,
-                                        Converter={StaticResource HighlightBackColorConverter}}" />
+                                        Converter={StaticResource HighlightCourseBackColorConverter}}" />
                                 <Setter Property="TextAlignment" Value="Right" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>

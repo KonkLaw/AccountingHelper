@@ -117,9 +117,14 @@
                                 HorizontalAlignment="Center"
                                 Margin="0" BorderThickness="0" Background="Transparent"
                                 Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
-                                CommandParameter="{Binding}"
                                 Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"
                                 ToolTip="Save this operation for further association with category.">
+                            <Button.CommandParameter>
+                                <MultiBinding Converter="{StaticResource MultiBindingConverter}">
+                                    <Binding RelativeSource="{RelativeSource Self}"/>
+                                    <Binding />
+                                </MultiBinding>
+                            </Button.CommandParameter>
                             <Image Width="24" Height="24" ToolTip="{Binding AssociationStatusComment}"
                                    Source="/Resources/UtilsIcons/add.png"
                                    IsHitTestVisible="False"/>
