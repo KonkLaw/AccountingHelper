@@ -63,9 +63,7 @@ class SummaryHelperSingleCurrency
     {
         foreach (OperationVM operation in operationsVM)
         {
-            if (operation.IsAutoMappedNotApproved
-                || operation.Category.IsDefault
-                || operation.AssociationStatus == AssociationStatus.NotMatch)
+            if (operation.IsAutoMappedNotApproved || operation.Category.IsDefault)
                 return false;
         }
         return true;
