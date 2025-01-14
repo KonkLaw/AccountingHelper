@@ -18,6 +18,7 @@ class OperationVM : BaseNotifyProperty
             OnPropertyChanged(nameof(IsAddAssociationPossible));
             OnPropertyChanged(nameof(AssociationStatus));
             OnPropertyChanged(nameof(AssociationStatusComment));
+            OnPropertyChanged(nameof(IsApprovalPossible));
         }
     }
 
@@ -32,8 +33,14 @@ class OperationVM : BaseNotifyProperty
     public bool IsAutoMappedNotApproved
     {
         get => isAutoMappedNotApproved;
-        set => SetProperty(ref isAutoMappedNotApproved, value);
+        set
+        {
+            if (SetProperty(ref isAutoMappedNotApproved, value))
+                OnPropertyChanged(nameof(IsApprovalPossible));
+        }
     }
+
+    public bool IsApprovalPossible => IsAutoMappedNotApproved && !Category.IsDefault;
 
     private IAssociation? association;
     public IAssociation? Association

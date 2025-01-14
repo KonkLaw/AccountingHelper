@@ -117,7 +117,7 @@
                             </StackPanel.Resources>
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
                                     ToolTip="Approve operation with auto-mapped category"
-                                    Visibility="{Binding IsAutoMappedNotApproved, Converter={StaticResource VisibilityConverter}}"
+                                    Visibility="{Binding IsApprovalPossible, Converter={StaticResource VisibilityConverter}}"
                                     Content="&#xe8fb;">
                             </Button>
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
