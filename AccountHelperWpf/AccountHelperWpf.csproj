@@ -22,15 +22,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<None Remove="Resources\UtilsIcons\add.png" />
-		<None Remove="Resources\UtilsIcons\associated.png" />
-		<None Remove="Resources\UtilsIcons\exclamation.png" />
-		<None Remove="Resources\UtilsIcons\warning.png" />
 		<Content Include="icon.ico" />
-		<Resource Include="Resources\UtilsIcons\add.png" />
-		<Resource Include="Resources\UtilsIcons\associated.png" />
-		<Resource Include="Resources\UtilsIcons\exclamation.png" />
-		<Resource Include="Resources\UtilsIcons\warning.png" />
 		<Resource Include="Resources\BlokedOperationsExample.png" />
 	</ItemGroup>
 	

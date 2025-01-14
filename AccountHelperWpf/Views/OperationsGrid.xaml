@@ -67,29 +67,31 @@
                 </DataGridTextColumn.CellStyle>
             </DataGridTextColumn>
             <!--status-->
-            <DataGridTemplateColumn>
+            <DataGridTemplateColumn Width="40" >
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Image Width="32" Height="32" ToolTip="{Binding AssociationStatusComment}">
-                            <Image.Style>
-                                <Style TargetType="Image">
+                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   ToolTip="{Binding AssociationStatusComment}"
+                                   FontSize="24" FontFamily="{DynamicResource SymbolThemeFontFamily}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
                                     <Style.Triggers>
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="None">
-                                            <Setter Property="Source" Value="{x:Null}"/>
+                                            <Setter Property="Text" Value=""/>
                                         </DataTrigger >
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="Associated">
-                                            <Setter Property="Source" Value="/Resources/UtilsIcons/associated.png"/>
+                                            <Setter Property="Text" Value="&#xe8d3;"/>
                                         </DataTrigger >
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="NotMatch">
-                                            <Setter Property="Source" Value="/Resources/UtilsIcons/warning.png"/>
+                                            <Setter Property="Text" Value="&#xe8c9;"/>
                                         </DataTrigger >
                                         <DataTrigger  Binding="{Binding AssociationStatus}" Value="Excluded">
-                                            <Setter Property="Source" Value="/Resources/UtilsIcons/exclamation.png"/>
+                                            <Setter Property="Text" Value="&#xe81a;"/>
                                         </DataTrigger >
                                     </Style.Triggers>
                                 </Style>
-                            </Image.Style>
-                        </Image>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
