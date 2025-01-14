@@ -22,11 +22,12 @@ class MainWindowVM : BaseNotifyProperty
     private FileSortingVM? fileSortingVM;
 
     public ICommand LoadOperationFileCommand { get; }
-    public ICommand SaveAssociation { get; }
-    public ICommand RemoveFile { get; }
-    public ICommand SetForAll { get; }
-    public ICommand About { get; }
-    public ICommand WindowClosing { get; }
+    public ICommand SaveAssociationCommand { get; }
+    public ICommand SetCategoryForAllCommand { get; }
+    public ICommand ResetTileFilterCommand { get; }
+    public ICommand RemoveFileCommand { get; }
+    public ICommand AboutCommand { get; }
+    public ICommand WindowClosingCommand { get; }
 
     private TabInfo? selectedTab;
     public TabInfo? SelectedTab
@@ -55,11 +56,12 @@ class MainWindowVM : BaseNotifyProperty
         filesContainer = new FilesContainer(Tabs, summaryVM);
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
-        SaveAssociation = new DelegateCommand(saveController.Save);
-        RemoveFile = new DelegateCommand(RemoveFileHandler);
-        SetForAll = new DelegateCommand(SetForAllHandler);
-        About = new DelegateCommand(ShowAbout);
-        WindowClosing = new DelegateCommand<CancelEventArgs>(WindowClosingHandler);
+        SaveAssociationCommand = new DelegateCommand(saveController.Save);
+        SetCategoryForAllCommand = new DelegateCommand(SetCategoryForAll);
+        ResetTileFilterCommand = new DelegateCommand(ResetTimeFilters);
+        RemoveFileCommand = new DelegateCommand(RemoveFile);
+        AboutCommand = new DelegateCommand(ShowAbout);
+        WindowClosingCommand = new DelegateCommand<CancelEventArgs>(WindowClosing);
 
         if (optionalFile != null)
             LoadFile(optionalFile);
@@ -102,9 +104,9 @@ class MainWindowVM : BaseNotifyProperty
         SelectedTab = newFileSortingVM.TabInfo;
     }
 
-    private void WindowClosingHandler(CancelEventArgs arg) => arg.Cancel = !saveController.RequestForClose();
+    private void WindowClosing(CancelEventArgs arg) => arg.Cancel = !saveController.RequestForClose();
 
-    private void SetForAllHandler()
+    private void SetCategoryForAll()
     {
         // default for select is not supported
         CategorySelectorWindow window = new(
@@ -118,7 +120,13 @@ class MainWindowVM : BaseNotifyProperty
         fileSortingVM!.SetCategoryForAllNonEmpty(selectedItem);
     }
 
-    private void RemoveFileHandler()
+    private void ResetTimeFilters()
+    {
+        FileSortingVM viewModel = fileSortingVM!;
+        viewModel.OperationsVM.ResetFilters();
+    }
+
+    private void RemoveFile()
     {
         FileSortingVM viewModel = fileSortingVM!;
         if (viewResolver.ShowYesNoQuestion("Are you sure you want to remove current file from sorting?"))

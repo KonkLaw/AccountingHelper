@@ -16,7 +16,6 @@
         <local:OperationsGrid Grid.Row="0" DataContext="{Binding OperationsVM}"></local:OperationsGrid>
         <DockPanel Grid.Row="1">
             <StackPanel Orientation="Vertical">
-                <Button Width="130" HorizontalAlignment="Left" Content="Reset filters" Command="{Binding ResetFiltersCommand}"/>
                 <Button Width="130" HorizontalAlignment="Left" Content="Approve all" Command="{Binding ApproveAllCommand}"/>
                 <CheckBox Content="Group by comment" IsChecked="{Binding GroupByComment}"/>
             </StackPanel>
