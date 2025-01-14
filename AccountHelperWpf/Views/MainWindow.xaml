@@ -30,30 +30,26 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <DockPanel>
-            <Button Background="Transparent" Margin="8, 0" BorderThickness="0.5"
-                    Command="{Binding LoadOperationFileCommand}"
-                    ToolTip="Open new file with operations"
-                    FontFamily="{DynamicResource SymbolThemeFontFamily}" Content="&#xe8e5;" FontSize="24" />
-            <Button Background="Transparent" Margin="8, 0" BorderThickness="0.5"
-                    Command="{Binding SaveAssociation}"
-                    ToolTip="Save associations"
-                    FontFamily="{DynamicResource SymbolThemeFontFamily}" Content="&#xE74E;" FontSize="24" />
-            <Border BorderThickness="1" BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}"></Border>
+            <DockPanel.Resources>
+                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
+                    <Setter Property="FontSize" Value="32" />
+                </Style>
+
+            </DockPanel.Resources>
+            <Button Command="{Binding LoadOperationFileCommand}" Content="&#xe8e5;" ToolTip="Open new file with operations" />
+            <Button Command="{Binding SaveAssociation}" Content="&#xE74E;" ToolTip="Save associations" />
+            <Border BorderThickness="1" BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}" />
             <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileTab, Converter={StaticResource VisibilityConverter}}">
-                <Button Background="Transparent" Margin="8, 0" BorderThickness="0.5"
-                        Command="{Binding SetForAll}"
-                        ToolTip="Close and remove currently opened file with operations"
-                        FontFamily="{DynamicResource SymbolThemeFontFamily}" Content="&#xE71D;" FontSize="24" />
-                <Button Background="Transparent" Margin="8, 0" BorderThickness="0.5"
-                        Command="{Binding RemoveFile}"
-                        ToolTip="Close and remove currently opened file with operations"
-                        FontFamily="{DynamicResource SymbolThemeFontFamily}" Content="&#xE711;" FontSize="24"/>
+                <Button Command="{Binding SetForAll}" Content="&#xE71D;"
+                        ToolTip="Close and remove currently opened file with operations"/>
+                <Button Command="{Binding RemoveFile}" Content="&#xE711;"
+                        ToolTip="Close and remove currently opened file with operations" />
             </StackPanel>
-            <Button HorizontalAlignment="Right"
-                    Background="Transparent" Margin="8, 0" BorderThickness="0.5"
-                    Command="{Binding About}"
-                    ToolTip="About application"
-                    FontFamily="{DynamicResource SymbolThemeFontFamily}" Content="&#xe946;" FontSize="24"/>
+            <Button HorizontalAlignment="Right" Content="&#xe946;"
+                    Command="{Binding About}" ToolTip="About application" />
         </DockPanel>
         <TabControl Grid.Row="1" ItemsSource="{Binding Tabs}"
                     ContentTemplateSelector="{StaticResource TabContentTemplateSelector}"

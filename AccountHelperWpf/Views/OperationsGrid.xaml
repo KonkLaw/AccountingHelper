@@ -108,23 +108,28 @@
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
                         <StackPanel Orientation="Horizontal">
+                            <StackPanel.Resources>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Margin" Value="5, 0"/>
+                                    <Setter Property="FontSize" Value="24"/>
+                                    <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}"/>
+                                </Style>
+                            </StackPanel.Resources>
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
                                     ToolTip="Approve operation with auto-mapped category"
                                     Visibility="{Binding IsAutoMappedNotApproved, Converter={StaticResource VisibilityConverter}}"
-                                    Margin="5, 0">
-                                <TextBlock Text="&#xe8fb;" FontSize="24" FontFamily="{DynamicResource SymbolThemeFontFamily}"/>
+                                    Content="&#xe8fb;">
                             </Button>
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
                                     Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"
                                     ToolTip="Save this operation for further association with category."
-                                    Margin="5,0">
+                                    Content="&#xf8aa;">
                                 <Button.CommandParameter>
                                     <MultiBinding Converter="{StaticResource MultiBindingConverter}">
                                         <Binding RelativeSource="{RelativeSource Self}"/>
                                         <Binding />
                                     </MultiBinding>
                                 </Button.CommandParameter>
-                                <TextBlock Text="&#xf8aa;" FontSize="24" FontFamily="{DynamicResource SymbolThemeFontFamily}"/>
                             </Button>
                         </StackPanel>
                     </DataTemplate>
