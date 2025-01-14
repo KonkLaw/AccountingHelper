@@ -66,6 +66,7 @@
                     </Style>
                 </DataGridTextColumn.CellStyle>
             </DataGridTextColumn>
+            <!--status-->
             <DataGridTemplateColumn>
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
@@ -92,16 +93,6 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn Width="50">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Button Margin="2, 0, 2, 0" Content="Ok" ToolTip="Approve operation with auto-mapped category"
-                                BorderThickness="0" Background="Transparent"
-                                Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
-                                Visibility="{Binding IsAutoMappedNotApproved, Converter={StaticResource VisibilityConverter}}"/>
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
             <DataGridTemplateColumn x:Name="CategoriesColumn" Width="150" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
@@ -110,25 +101,30 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn Width="50">
+            <!--add association-->
+            <DataGridTemplateColumn Width="120">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
-                        <Button
-                                HorizontalAlignment="Center"
-                                Margin="0" BorderThickness="0" Background="Transparent"
-                                Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
-                                Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"
-                                ToolTip="Save this operation for further association with category.">
-                            <Button.CommandParameter>
-                                <MultiBinding Converter="{StaticResource MultiBindingConverter}">
-                                    <Binding RelativeSource="{RelativeSource Self}"/>
-                                    <Binding />
-                                </MultiBinding>
-                            </Button.CommandParameter>
-                            <Image Width="24" Height="24" ToolTip="{Binding AssociationStatusComment}"
-                                   Source="/Resources/UtilsIcons/add.png"
-                                   IsHitTestVisible="False"/>
-                        </Button>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
+                                    ToolTip="Approve operation with auto-mapped category"
+                                    Visibility="{Binding IsAutoMappedNotApproved, Converter={StaticResource VisibilityConverter}}"
+                                    Margin="5, 0">
+                                <TextBlock Text="&#xe8fb;" FontSize="24" FontFamily="{DynamicResource SymbolThemeFontFamily}"/>
+                            </Button>
+                            <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
+                                    Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"
+                                    ToolTip="Save this operation for further association with category."
+                                    Margin="5,0">
+                                <Button.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource MultiBindingConverter}">
+                                        <Binding RelativeSource="{RelativeSource Self}"/>
+                                        <Binding />
+                                    </MultiBinding>
+                                </Button.CommandParameter>
+                                <TextBlock Text="&#xf8aa;" FontSize="24" FontFamily="{DynamicResource SymbolThemeFontFamily}"/>
+                            </Button>
+                        </StackPanel>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
