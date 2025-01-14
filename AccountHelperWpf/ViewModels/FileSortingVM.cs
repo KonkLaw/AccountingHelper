@@ -50,6 +50,7 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         ApproveAllCommand = new DelegateCommand(ApproveAllHandler);
 
         UpdateSummary();
+        UpdateIsSorted();
 
         categoriesVM.CategoryOrListChanged += CategoriesVMOnCategoryOrListChanged;
     }
@@ -65,7 +66,7 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         }
     }
 
-    private void UpdateSummary()
+    public void UpdateSummary()
     {
         SummaryHelperSingleCurrency.PrepareSummary(
             categoriesVM.GetCategories(), OperationsVM.Operations, groupByComment,
@@ -73,6 +74,9 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         TextSummaryVM.Update(collection);
         summaryNotifier.NotifySummaryChanged();
     }
+
+    public void UpdateIsSorted()
+        => TabInfo.IsHighlighted = !SummaryHelperSingleCurrency.GetIsSorted(OperationsVM.Operations);
 
     private void CategoriesVMOnCategoryOrListChanged()
     {
@@ -94,15 +98,10 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
                 operationVM.IsAutoMappedNotApproved = false;
         }
     }
-
-    void ISummaryChangedListener.SummaryDescriptionChanged() => UpdateSummary();
-
-    void ISummaryChangedListener.IsSortedChanged()
-        => TabInfo.IsHighlighted = !SummaryHelperSingleCurrency.GetIsSorted(OperationsVM.Operations);
 }
 
 interface ISummaryChangedListener
 {
-    void SummaryDescriptionChanged();
-    void IsSortedChanged();
+    void UpdateSummary();
+    void UpdateIsSorted();
 }
