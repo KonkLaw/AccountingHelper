@@ -26,9 +26,7 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
 
     public OperationsVM OperationsVM { get; }
 
-    public ICommand SetForAllCommand { get; }
     public ICommand ResetFiltersCommand { get; }
-    public ICommand RemoveFileCommand { get; }
     public ICommand ApproveAllCommand { get; }
 
     public SingleCurrencyTextSummaryVM TextSummaryVM { get; }
@@ -37,7 +35,6 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         OperationsFile file,
         CategoriesVM categoriesVM,
         IAssociationsManager associationsManager,
-        Action<FileSortingVM> removeHandler,
         ISaveController saveController,
         ISummaryNotifier summaryNotifier)
     {
@@ -49,14 +46,23 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         TabInfo = new TabInfo(file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
 
-        SetForAllCommand = new DelegateCommand(SetForAllHandler);
         ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
-        RemoveFileCommand = new DelegateCommand(() => removeHandler(this));
         ApproveAllCommand = new DelegateCommand(ApproveAllHandler);
 
         UpdateSummary();
 
         categoriesVM.CategoryOrListChanged += CategoriesVMOnCategoryOrListChanged;
+    }
+
+    public void SetCategoryForAllNonEmpty(Category selectedItem)
+    {
+        foreach (OperationVM operation in OperationsVM.Operations)
+        {
+            if (operation.Category.IsDefault)
+            {
+                operation.Category = selectedItem;
+            }
+        }
     }
 
     private void UpdateSummary()
@@ -72,24 +78,6 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
     {
         saveController.MarkChanged();
         UpdateSummary();
-    }
-
-    private void SetForAllHandler()
-    {
-        // default for select is not supported
-        CategorySelectorWindow window = new(categoriesVM.GetCategories().Where(c => !c.IsDefault).ToList());
-
-        window.ShowDialog();
-        if (window.SelectedItem == null)
-            return;
-        Category selectedItem = (Category)window.SelectedItem;
-        foreach (OperationVM operation in OperationsVM.Operations)
-        {
-            if (operation.Category.IsDefault)
-            {
-                operation.Category = selectedItem;
-            }
-        }
     }
 
     private void ResetFiltersHandler()

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.Parsing;
+using AccountHelperWpf.Views;
 using AccountHelperWpf.ViewUtils;
 using Microsoft.Win32;
 
@@ -18,8 +19,12 @@ class MainWindowVM : BaseNotifyProperty
     private readonly CategoriesVM categoriesVM;
     private readonly SummaryVM summaryVM;
 
+    private FileSortingVM? fileSortingVM;
+
     public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociation { get; }
+    public ICommand RemoveFile { get; }
+    public ICommand SetForAll { get; }
     public ICommand About { get; }
     public ICommand WindowClosing { get; }
 
@@ -27,8 +32,17 @@ class MainWindowVM : BaseNotifyProperty
     public TabInfo? SelectedTab
     {
         get => selectedTab;
-        set => SetProperty(ref selectedTab, value);
+        set
+        {
+            if (SetProperty(ref selectedTab, value))
+            {
+                fileSortingVM = selectedTab?.Content as FileSortingVM;
+                OnPropertyChanged(nameof(IsFileTab));
+            }
+        }
     }
+
+    public bool IsFileTab => fileSortingVM != null;
 
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
 
@@ -42,6 +56,8 @@ class MainWindowVM : BaseNotifyProperty
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociation = new DelegateCommand(saveController.Save);
+        RemoveFile = new DelegateCommand(RemoveFileHandler);
+        SetForAll = new DelegateCommand(SetForAllHandler);
         About = new DelegateCommand(ShowAbout);
         WindowClosing = new DelegateCommand<CancelEventArgs>(WindowClosingHandler);
 
@@ -79,16 +95,32 @@ class MainWindowVM : BaseNotifyProperty
         OperationsFile? operationsFile = ParserChooser.ParseFile(fullPath, viewResolver);
         if (operationsFile == null)
             return;
-        var fileSortingVM = new FileSortingVM(operationsFile, categoriesVM, associationsManager, RemoveHandler, saveController, summaryVM);
-        associationsManager.AddListener(fileSortingVM.OperationsVM);
-        filesContainer.Add(fullPath, fileSortingVM);
-        SelectedTab = fileSortingVM.TabInfo;
+        var newFileSortingVM = new FileSortingVM(
+            operationsFile, categoriesVM, associationsManager, saveController, summaryVM);
+        associationsManager.AddListener(newFileSortingVM.OperationsVM);
+        filesContainer.Add(fullPath, newFileSortingVM);
+        SelectedTab = newFileSortingVM.TabInfo;
     }
 
     private void WindowClosingHandler(CancelEventArgs arg) => arg.Cancel = !saveController.RequestForClose();
 
-    private void RemoveHandler(FileSortingVM viewModel)
+    private void SetForAllHandler()
     {
+        // default for select is not supported
+        CategorySelectorWindow window = new(
+            categoriesVM.GetCategories().Where(c => !c.IsDefault).ToList());
+
+        window.ShowDialog();
+        if (window.SelectedItem == null)
+            return;
+
+        Category selectedItem = (Category)window.SelectedItem;
+        fileSortingVM!.SetCategoryForAllNonEmpty(selectedItem);
+    }
+
+    private void RemoveFileHandler()
+    {
+        FileSortingVM viewModel = fileSortingVM!;
         if (viewResolver.ShowYesNoQuestion("Are you sure you want to remove current file from sorting?"))
         {
             filesContainer.CloseFile(viewModel);
