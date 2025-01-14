@@ -11,8 +11,6 @@
                 <ResourceDictionary Source="Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Style TargetType="{x:Type views:DataGridExt}" BasedOn="{StaticResource {x:Type DataGrid}}" />
-
             <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
             <viewUtils:HighlightBackColorConverter x:Key="HighlightCourseBackColorConverter" />
             <viewUtils:MultibindingConverter x:Key="MultiBindingConverter"/>
