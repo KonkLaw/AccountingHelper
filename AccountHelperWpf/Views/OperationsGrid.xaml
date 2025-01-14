@@ -109,27 +109,30 @@
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
                         <StackPanel Orientation="Horizontal">
                             <StackPanel.Resources>
-                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                    <Setter Property="Margin" Value="5, 0"/>
-                                    <Setter Property="FontSize" Value="24"/>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                    <Setter Property="Margin" Value="0"/>
+                                    <!--24 and 22 is too much doesn't fit in default case-->
+                                    <Setter Property="FontSize" Value="20"/>
                                     <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}"/>
                                 </Style>
                             </StackPanel.Resources>
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
                                     ToolTip="Approve operation with auto-mapped category"
                                     Visibility="{Binding IsApprovalPossible, Converter={StaticResource VisibilityConverter}}"
-                                    Content="&#xe8fb;">
+                                    Margin="5, 0">
+                                <TextBlock Text="&#xe8fb;" />
                             </Button>
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
                                     Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"
                                     ToolTip="Save this operation for further association with category."
-                                    Content="&#xf8aa;">
+                                    Margin="5, 0">
                                 <Button.CommandParameter>
                                     <MultiBinding Converter="{StaticResource MultiBindingConverter}">
                                         <Binding RelativeSource="{RelativeSource Self}"/>
                                         <Binding />
                                     </MultiBinding>
                                 </Button.CommandParameter>
+                                <TextBlock Text="&#xf8aa;" />
                             </Button>
                         </StackPanel>
                     </DataTemplate>
