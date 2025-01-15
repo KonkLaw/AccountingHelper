@@ -178,6 +178,8 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         firstIncluded = null;
         lastIncluded = null;
         UpdateByFilter();
+        summaryChangedListener.UpdateSummary();
+        summaryChangedListener.UpdateIsSorted();
     }
 
     private void SearchInfo()

@@ -1,7 +1,5 @@
 ﻿using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
-using System.Windows.Input;
-using AccountHelperWpf.Views;
 
 namespace AccountHelperWpf.ViewModels;
 
@@ -26,9 +24,6 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
 
     public OperationsVM OperationsVM { get; }
 
-    public ICommand ResetFiltersCommand { get; }
-    public ICommand ApproveAllCommand { get; }
-
     public SingleCurrencyTextSummaryVM TextSummaryVM { get; }
 
     public FileSortingVM(
@@ -45,9 +40,6 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, associationsManager, this);
         TabInfo = new TabInfo(file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
-
-        ResetFiltersCommand = new DelegateCommand(ResetFiltersHandler);
-        ApproveAllCommand = new DelegateCommand(ApproveAllHandler);
 
         UpdateSummary();
         UpdateIsSorted();
@@ -82,21 +74,6 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
     {
         saveController.MarkChanged();
         UpdateSummary();
-    }
-
-    private void ResetFiltersHandler()
-    {
-        OperationsVM.ResetFilters();
-        UpdateSummary();
-    }
-
-    private void ApproveAllHandler()
-    {
-        foreach (OperationVM operationVM in OperationsVM.Operations)
-        {
-            if (operationVM is { IsAutoMappedNotApproved: true, Category.IsDefault: false })
-                operationVM.IsAutoMappedNotApproved = false;
-        }
     }
 }
 

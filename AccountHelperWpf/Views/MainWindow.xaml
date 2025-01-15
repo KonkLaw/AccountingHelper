@@ -45,10 +45,12 @@
             <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileTab, Converter={StaticResource VisibilityConverter}}">
                 <Button Command="{Binding SetCategoryForAllCommand}" Content="&#xE71D;"
                         ToolTip="Choose and set specific category for not associated operations."/>
-                <Button Command="{Binding RemoveFileCommand}" Content="&#xE711;"
-                        ToolTip="Close and remove currently opened file with operations." />
                 <Button Command="{Binding ResetTileFilterCommand}" Content="&#xe81c;"
                         ToolTip="Reset chosen filters for start/stop dates." />
+                <Button Command="{Binding ApproveAllCommand}" Content="&#xe9d5;"
+                        ToolTip="Approve all automatically mapped operations." />
+                <Button Command="{Binding RemoveFileCommand}" Content="&#xE711;"
+                        ToolTip="Close and remove currently opened file with operations." />
             </StackPanel>
             <Button HorizontalAlignment="Right" Content="&#xe946;"
                     Command="{Binding AboutCommand}" ToolTip="About application" />
