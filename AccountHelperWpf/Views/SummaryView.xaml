@@ -14,7 +14,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="480" MinWidth="280"/>
         </Grid.ColumnDefinitions>
-        <ListBox ItemsSource="{Binding CategoriesDetails}">
+        <ListBox ItemsSource="{Binding CategoriesDetails}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <CheckBox Margin="0" IsChecked="{Binding IsSelected}" MaxWidth="250">
