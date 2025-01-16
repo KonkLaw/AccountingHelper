@@ -40,27 +40,26 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
             SetProperty(ref selectedItems, value);
             // We don't check equality as reference to collection is the same
             // however count is different
-            IsSingleSelection = selectedItems is { Count: 1 };
-            RemoveAssociationCommand.IsEnabled = IsSingleSelection && GetSelectedOperation().Association != null;
+            bool isSingleSelection = selectedItems is { Count: 1 };
+            SearchInfoCommand.IsEnabled = isSingleSelection;
+            SetLastOperationCommand.IsEnabled = isSingleSelection;
+            SetFirstOperationCommand.IsEnabled = isSingleSelection;
+            ApplyCategoryForSimilarOperationsCommand.IsEnabled = isSingleSelection;
+            HighlightSimilarOperations.IsEnabled = isSingleSelection;
+            HighlightSameCategory.IsEnabled = isSingleSelection;
+            RemoveAssociationCommand.IsEnabled = isSingleSelection && GetSelectedOperation().Association != null;
         }
     }
 
-    private bool isSingleSelection;
-    public bool IsSingleSelection
-    {
-        get => isSingleSelection;
-        set => SetProperty(ref isSingleSelection, value);
-    }
-
-    public ICommand SearchInfoCommand { get; }
-    public ICommand SetLastOperationCommand { get; }
-    public ICommand SetFirstOperationCommand { get; }
-    public ICommand ApplyCategoryForSimilarOperationsCommand { get; }
+    public DelegateCommand SearchInfoCommand { get; }
+    public DelegateCommand SetLastOperationCommand { get; }
+    public DelegateCommand SetFirstOperationCommand { get; }
+    public DelegateCommand ApplyCategoryForSimilarOperationsCommand { get; }
     public ICommand AddExceptionCommand { get; }
     public ICommand ApproveSelectedCommand { get; }
     public ICommand AddCommand { get; }
-    public ICommand HighlightSimilarOperations { get; }
-    public ICommand HighlightSameCategory { get; }
+    public DelegateCommand HighlightSimilarOperations { get; }
+    public DelegateCommand HighlightSameCategory { get; }
     public ICommand ResetHighlight { get; }
     public DelegateCommand RemoveAssociationCommand { get; }
 
@@ -326,7 +325,12 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         summaryChangedListener.UpdateIsSorted();
     }
 
-    private OperationVM GetSelectedOperation() => (OperationVM)selectedItems![0]!;
+    private OperationVM GetSelectedOperation()
+    {
+        if (selectedItems == null || selectedItems.Count != 1)
+            throw new InvalidOperationException("Single selection expected");
+        return (OperationVM)selectedItems![0]!;
+    }
 
     private IReadOnlyList<OperationVM> GetSimilarOperations(OperationDescription description)
     {
