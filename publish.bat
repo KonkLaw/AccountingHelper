@@ -1,6 +1,6 @@
 rmdir "Build" /S /Q
 mkdir "Build"
-dotnet publish "AccountHelperWpf\AccountHelperWpf.csproj" -c Release --framework net8.0-windows --self-contained true
+dotnet publish "AccountHelperWpf\AccountHelperWpf.csproj" -c Release --framework net9.0-windows --self-contained true
 cd Build
 
 :: take first folder in the current directory
