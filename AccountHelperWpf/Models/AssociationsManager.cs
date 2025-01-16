@@ -94,25 +94,24 @@ class AssociationsManager : IAssociationsManager
         }
     }
 
-    public void DeleteAssociation(int selectedIndex)
+    public void DeleteAssociation(IAssociation association)
     {
-        IAssociation association = Associations[selectedIndex];
-        Associations.RemoveAt(selectedIndex);
-        storage.Remove(association);
-        ExecuteForAllRemove(association);
+        if (Associations.Remove(association))
+        {
+            storage.Remove(association);
+            ExecuteForAllRemove(association);
+        }
     }
     
-    public void DeleteException(int selectedIndex)
+    public void DeleteException(IAssociation exception)
     {
-        IAssociation association = Exceptions[selectedIndex];
-        Exceptions.RemoveAt(selectedIndex);
-        storage.Remove(association);
-        ExecuteForAllRemove(association);
+        if (Exceptions.Remove(exception))
+        {
+            storage.Remove(exception);
+            ExecuteForAllRemove(exception);
+        }
     }
 
-
-
-    
 
     public static InitData PrepareInitData(HistoryData historyData)
     {
@@ -138,6 +137,7 @@ class AssociationsManager : IAssociationsManager
 
         return new InitData(categories, associations);
     }
+
 
     class Association : BaseNotifyProperty, IAssociation
     {

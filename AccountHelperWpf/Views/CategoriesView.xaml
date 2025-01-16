@@ -12,7 +12,8 @@
                   SelectedIndex="{Binding SelectedIndex}"
                   IsVisibleChanged="DataGrid_OnIsVisibleChanged"
                   CellEditEnding="DataGrid_OnCellEditEnding"
-                  BeginningEdit="BeginningEdit">
+                  BeginningEdit="BeginningEdit" 
+                  CanUserSortColumns="False"> <!-- disable sorting is important - otherwise problem with deleting and ordering-->
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Remove Category" Command="{Binding RemoveCommand}"/>

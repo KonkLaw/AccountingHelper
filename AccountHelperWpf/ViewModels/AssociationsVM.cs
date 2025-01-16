@@ -12,18 +12,18 @@ class AssociationsVM : BaseNotifyProperty
     public ICommand DeleteAssociationCommand { get; }
     public ICommand DeleteExceptionCommand { get; }
 
-    private int selectedAssociationIndex;
-    public int SelectedAssociationIndex
+    private IAssociation? selectedAssociation;
+    public IAssociation? SelectedAssociation
     {
-        get => selectedAssociationIndex;
-        set => SetProperty(ref selectedAssociationIndex, value);
+        get => selectedAssociation;
+        set => SetProperty(ref selectedAssociation, value);
     }
 
-    private int selectedExceptionIndex;
-    public int SelectedExceptionIndex
+    private IAssociation? selectedException;
+    public IAssociation? SelectedException
     {
-        get => selectedExceptionIndex;
-        set => SetProperty(ref selectedExceptionIndex, value);
+        get => selectedException;
+        set => SetProperty(ref selectedException, value);
     }
 
     public AssociationsVM(AssociationsManager storage)
@@ -37,8 +37,16 @@ class AssociationsVM : BaseNotifyProperty
     }
 
     private void DeleteAssociation()
-        => storage.DeleteAssociation(SelectedAssociationIndex);
+    {
+        if (SelectedAssociation is null)
+            return;
+        storage.DeleteAssociation(SelectedAssociation);
+    }
 
     private void DeleteException()
-        => storage.DeleteException(SelectedExceptionIndex);
+    {
+        if (SelectedException is null)
+            return;
+        storage.DeleteException(SelectedException);
+    }
 }

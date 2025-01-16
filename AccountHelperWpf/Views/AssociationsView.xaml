@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         <Border Grid.Row="0" BorderThickness="0.5" BorderBrush="Black">
             <DataGrid ItemsSource="{Binding Associations}"
-                      SelectedIndex="{Binding SelectedAssociationIndex}"
+                      SelectedItem="{Binding SelectedAssociation}"
                       SelectionMode="Single" AutoGenerateColumns="False"
                       Unloaded="FrameworkElement_OnUnloaded">
                 <DataGrid.ContextMenu>
@@ -57,12 +57,12 @@
         </Border>
         <Label Grid.Row="1" Content="Excluded from auto-mapping operations"/>
         <DataGrid Grid.Row="2" ItemsSource="{Binding Exceptions}"
-                  SelectedIndex="{Binding SelectedExceptionIndex}"
+                  SelectedItem="{Binding SelectedException}"
                   SelectionMode="Single" AutoGenerateColumns="False"
                   Unloaded="FrameworkElement_OnUnloaded">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}"/>
+                    <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand, Mode=OneTime}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
