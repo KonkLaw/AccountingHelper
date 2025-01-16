@@ -42,6 +42,7 @@
                 <Button HorizontalAlignment="Stretch" Command="{Binding UnselectCommand}" Content="Unselect All" />
                 <Button HorizontalAlignment="Stretch" Command="{Binding SelectCommand}" Content="Select All" />
                 <Button HorizontalAlignment="Stretch" Command="{Binding InvertCommand}" Content="Invert selection" />
+                <CheckBox Content="Group by comment" IsChecked="{Binding GroupByComment}"/>
             </StackPanel>
         </DockPanel>
         <ScrollViewer Grid.Column="3" DockPanel.Dock="Right">

@@ -14,11 +14,6 @@
             <RowDefinition Height="250"/>
         </Grid.RowDefinitions>
         <local:OperationsGrid Grid.Row="0" DataContext="{Binding OperationsVM}"></local:OperationsGrid>
-        <DockPanel Grid.Row="1">
-            <StackPanel Orientation="Vertical">
-                <CheckBox Content="Group by comment" IsChecked="{Binding GroupByComment}"/>
-            </StackPanel>
-            <local:SummaryView DataContext="{Binding TextSummaryVM}" HorizontalAlignment="Stretch"/>
-        </DockPanel>
+        <local:SummaryView Grid.Row="1" DataContext="{Binding TextSummaryVM}" HorizontalAlignment="Stretch"/>
     </Grid>
 </UserControl>

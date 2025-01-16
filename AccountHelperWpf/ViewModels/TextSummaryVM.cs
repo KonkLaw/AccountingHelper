@@ -27,6 +27,13 @@ class BaseTextSummaryVM : BaseNotifyProperty
         private set => SetProperty(ref amount, value);
     }
 
+    private bool groupByComment = true;
+    public bool GroupByComment
+    {
+        get => groupByComment;
+        set => SetProperty(ref groupByComment, value);
+    }
+
     public ICommand UnselectCommand { get; }
     public ICommand SelectCommand { get; }
     public ICommand InvertCommand { get; }

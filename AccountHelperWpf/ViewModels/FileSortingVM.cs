@@ -1,4 +1,5 @@
-﻿using AccountHelperWpf.Models;
+﻿using System.ComponentModel;
+using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
 namespace AccountHelperWpf.ViewModels;
@@ -10,17 +11,6 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
     private readonly ISaveController saveController;
     private readonly ISummaryNotifier summaryNotifier;
     public TabInfo TabInfo { get; }
-
-    private bool groupByComment = true;
-    public bool GroupByComment
-    {
-        get => groupByComment;
-        set
-        {
-            if (SetProperty(ref groupByComment, value))
-                UpdateSummary();
-        }
-    }
 
     public OperationsVM OperationsVM { get; }
 
@@ -40,11 +30,18 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, associationsManager, this);
         TabInfo = new TabInfo(file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
+        TextSummaryVM.PropertyChanged += TextSummaryVMOnPropertyChanged;
 
         UpdateSummary();
         UpdateIsSorted();
 
         categoriesVM.CategoryOrListChanged += CategoriesVMOnCategoryOrListChanged;
+    }
+
+    void TextSummaryVMOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(BaseTextSummaryVM.GroupByComment))
+            UpdateSummary();
     }
 
     public void SetCategoryForAllNonEmpty(Category selectedItem)
@@ -61,7 +58,7 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
     public void UpdateSummary()
     {
         SummaryHelperSingleCurrency.PrepareSummary(
-            categoriesVM.GetCategories(), OperationsVM.Operations, groupByComment,
+            categoriesVM.GetCategories(), OperationsVM.Operations, TextSummaryVM.GroupByComment,
             out ICollection<CategoryDetails> collection);
         TextSummaryVM.Update(collection);
         summaryNotifier.NotifySummaryChanged();

@@ -1,4 +1,5 @@
-﻿using AccountHelperWpf.ViewUtils;
+﻿using System.ComponentModel;
+using AccountHelperWpf.ViewUtils;
 using static AccountHelperWpf.ViewModels.MultiCurrencyTextSummaryVM;
 
 namespace AccountHelperWpf.ViewModels;
@@ -13,6 +14,17 @@ class SummaryVM : BaseNotifyProperty, ISummaryFiles, ISummaryNotifier
         private set => SetProperty(ref currenciesInfo, value);
     }
     public MultiCurrencyTextSummaryVM TextSummaryVM { get; } = new ();
+
+    public SummaryVM()
+    {
+        TextSummaryVM.PropertyChanged += TextSummaryVMOnPropertyChanged;
+    }
+
+    private void TextSummaryVMOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(BaseTextSummaryVM.GroupByComment))
+            UpdateSummary();
+    }
 
     public void Register(FileSortingVM fileSortingVM)
     {
