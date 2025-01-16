@@ -20,11 +20,18 @@ class BaseTextSummaryVM : BaseNotifyProperty
         set => SetProperty(ref textSummary, value);
     }
 
-    private decimal amount;
-    public decimal Amount
+    private decimal amountSelected;
+    public decimal AmountSelected
     {
-        get => amount;
-        private set => SetProperty(ref amount, value);
+        get => amountSelected;
+        private set => SetProperty(ref amountSelected, value);
+    }
+
+    private decimal amountNonSelected;
+    public decimal AmountNonSelected
+    {
+        get => amountNonSelected;
+        private set => SetProperty(ref amountNonSelected, value);
     }
 
     private bool groupByComment = true;
@@ -51,7 +58,10 @@ class BaseTextSummaryVM : BaseNotifyProperty
         => UpdateAmount();
 
     private void UpdateAmount()
-        => Amount = CategoriesDetails.Where(c => c.IsSelected).Sum(c => c.Amount);
+    {
+        AmountSelected = CategoriesDetails.Where(c => c.IsSelected).Sum(c => c.Amount);
+        AmountNonSelected = CategoriesDetails.Where(c => !c.IsSelected).Sum(c => c.Amount);
+    }
 
     private void Unselect()
     {
