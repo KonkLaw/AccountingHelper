@@ -20,15 +20,42 @@
                        ItemsSource="{Binding Operations}">
         <DataGrid.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Search info in web" Command="{Binding SearchInfoCommand}" />
-                <MenuItem Header="Set As Last (new)" Command="{Binding SetLastOperationCommand}" />
-                <MenuItem Header="Set As First (old)" Command="{Binding SetFirstOperationCommand}" />
-                <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSimilarOperationsCommand}" />
+                <MenuItem Header="Search info in web" Command="{Binding SearchInfoCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xf6fa;"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Set As Last (new)" Command="{Binding SetLastOperationCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe898;"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Set As First (old)" Command="{Binding SetFirstOperationCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe896;"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSimilarOperationsCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74c;"/>
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator />
-                <MenuItem Header="Add exception for associations" Command="{Binding AddExceptionCommand}"/>
-                <MenuItem Header="Remove association" Command="{Binding RemoveAssociationCommand}"/>
+                <MenuItem Header="Add exception for associations" Command="{Binding AddExceptionCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe81a;"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Remove association" Command="{Binding RemoveAssociationCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74d;"/>
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator />
                 <MenuItem Header="Highlight">
+                    <MenuItem.Icon>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe7e6;"/>
+                    </MenuItem.Icon>
                     <MenuItem Header="Highlight similar operations" Command="{Binding HighlightSimilarOperations}" IsEnabled="{Binding IsSingleSelection}"/>
                     <MenuItem Header="Highlight same category" Command="{Binding HighlightSameCategory}" IsEnabled="{Binding IsSingleSelection}"/>
                     <MenuItem Header="Reset Highlight" Command="{Binding ResetHighlight}"/>

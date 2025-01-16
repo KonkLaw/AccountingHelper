@@ -21,7 +21,11 @@
                       Unloaded="FrameworkElement_OnUnloaded">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}"/>
+                        <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}">
+                            <MenuItem.Icon>
+                                <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE74D;"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
@@ -62,7 +66,11 @@
                   Unloaded="FrameworkElement_OnUnloaded">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand, Mode=OneTime}"/>
+                    <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand, Mode=OneTime}">
+                        <MenuItem.Icon>
+                            <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE74D;"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>

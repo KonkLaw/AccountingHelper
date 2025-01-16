@@ -16,9 +16,21 @@
                   CanUserSortColumns="False"> <!-- disable sorting is important - otherwise problem with deleting and ordering-->
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Remove Category" Command="{Binding RemoveCommand}"/>
-                    <MenuItem Header="Move Up" Command="{Binding MoveUpCommand}"/>
-                    <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}"/>
+                    <MenuItem Header="Remove Category" Command="{Binding RemoveCommand}">
+                        <MenuItem.Icon>
+                            <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74d;"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Move Up" Command="{Binding MoveUpCommand}">
+                        <MenuItem.Icon>
+                            <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE74A;"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}">
+                        <MenuItem.Icon>
+                            <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE74B;"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
