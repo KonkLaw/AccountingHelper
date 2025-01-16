@@ -33,7 +33,7 @@
                             </Style>
                         </DataGridTextColumn.CellStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Width="250" IsReadOnly="True" Header="Category"
+                    <DataGridTextColumn Width="200" IsReadOnly="True" Header="Category"
                                         Binding="{Binding Category, Mode=OneWay}" />
                     <DataGridCheckBoxColumn Width="70" IsReadOnly="True" Header="Is New"
                                             Binding="{Binding IsNew, Mode=OneWay}">
@@ -43,7 +43,9 @@
                             </Style>
                         </DataGridCheckBoxColumn.HeaderStyle>
                     </DataGridCheckBoxColumn>
-                    <DataGridTextColumn Width="600" Header="Comment" Binding="{Binding Comment}">
+                    <DataGridTextColumn Binding="{Binding CreationDataTime, StringFormat='yyyy-MM-dd HH:mm'}"
+                                        IsReadOnly="True" Header="Creation Time"/>
+                    <DataGridTextColumn Width="650" Header="Comment" Binding="{Binding Comment}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForCommentColumn}"/>

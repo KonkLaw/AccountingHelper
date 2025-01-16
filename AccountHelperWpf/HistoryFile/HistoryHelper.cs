@@ -50,9 +50,10 @@ class DataConverter
                 return new AssociationRecord
                 {
                     BankId = bankId,
-                    Category = association.Category.IsDefault ? null : association.Category.Name,
-                    Comment = association.Comment,
                     TagsToContents = tagsContentsOut,
+                    Category = association.Category.IsDefault ? null : association.Category.Name,
+                    CreationDataTime = association.CreationDataTime,
+                    Comment = association.Comment,
                 };
             }).ToList()
         };

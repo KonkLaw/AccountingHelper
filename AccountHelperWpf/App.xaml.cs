@@ -19,7 +19,8 @@ public partial class App : Application
         UpdateController.CheckUpdates();
         base.OnStartup(e);
 
-        const bool fastStart = true;
+        //const bool fastStart = true;
+        const bool fastStart = false;
         if (fastStart)
         {
             string testPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "test.csv");

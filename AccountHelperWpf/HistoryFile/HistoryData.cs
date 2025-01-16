@@ -11,6 +11,7 @@ class AssociationRecord
     public string? BankId { get; set; }
     public IDictionary<string, string>? TagsToContents { get; set; }
     public string? Category { get; set; }
+    public DateTime CreationDataTime { get; set; }
     public string? Comment { get; set; }
 }
 

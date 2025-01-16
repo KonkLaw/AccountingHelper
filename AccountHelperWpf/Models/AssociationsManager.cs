@@ -61,7 +61,7 @@ class AssociationsManager : IAssociationsManager
         if (oldAssociation != null)
             throw new InvalidOperationException("Can't change existing association.");
 
-        IAssociation newAssociation = new Association(description, category, true);
+        IAssociation newAssociation = Association.CreateNew(description, category);
         storage.Add(newAssociation);
         Associations.Add(newAssociation);
         ExecuteForAllAdd(newAssociation);
@@ -76,7 +76,7 @@ class AssociationsManager : IAssociationsManager
             Associations.Remove(oldAssociation);
             ExecuteForAllRemove(oldAssociation);
         }
-        IAssociation newAssociation = new Association(description, Category.Default, true);
+        IAssociation newAssociation = Association.CreateNew(description, Category.Default);
         storage.Add(newAssociation);
         Exceptions.Add(newAssociation);
         ExecuteForAllAdd(newAssociation);
@@ -131,7 +131,7 @@ class AssociationsManager : IAssociationsManager
                 // recreate to be sure that dictionary is ordered by key
                 tagsContents: new SortedDictionary<string, string>(association.TagsToContents!));
             Category category = association.Category == null ? Category.Default : dictionary[association.Category!];
-            return new Association(operationDescription, category, false) { Comment = association.Comment };
+            return Association.LoadExisting(operationDescription, category, association.CreationDataTime, association.Comment);
         }
 
         List<IAssociation> associations = historyData.Associations!.Select(Selector).ToList();
@@ -147,6 +147,8 @@ class AssociationsManager : IAssociationsManager
 
         public bool IsNew { get; }
 
+        public DateTime CreationDataTime { get; }
+
         private string? comment;
         public string? Comment
         {
@@ -154,12 +156,23 @@ class AssociationsManager : IAssociationsManager
             set => SetProperty(ref comment, value);
         }
 
-        public Association(OperationDescription description, Category category, bool isNew)
+        private Association(OperationDescription description, Category category, DateTime creationDataTime, bool isNew)
         {
             Description = description;
             Category = category;
             IsNew = isNew;
+            CreationDataTime = creationDataTime;
         }
+
+        public static Association LoadExisting(
+            OperationDescription description, Category category, DateTime creationDataTime, string? comment)
+            => new(description, category, creationDataTime, false)
+            {
+                Comment = comment
+            };
+
+        public static Association CreateNew(OperationDescription description, Category category)
+            => new Association(description, category, DateTime.UtcNow, true);
     }
 }
 
