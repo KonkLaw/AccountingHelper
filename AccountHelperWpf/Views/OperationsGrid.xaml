@@ -95,7 +95,7 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTemplateColumn x:Name="CategoriesColumn" Width="150" Header="Categories" CanUserSort="True" SortMemberPath="Category">
+            <DataGridTemplateColumn x:Name="CategoriesColumn" Width="170" Header="Categories" CanUserSort="True" SortMemberPath="Category">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
                         <ComboBox ItemsSource="{Binding ElementName=OperationGrid, Path=DataContext.Categories, Mode=OneTime}"
