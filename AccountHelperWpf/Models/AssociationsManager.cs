@@ -82,7 +82,7 @@ class AssociationsManager : IAssociationsManager
         ExecuteForAllAdd(newAssociation);
     }
 
-    void IAssociationsManager.RemoveAssociations(Category category)
+    void IAssociationsManager.DeleteAssociations(Category category)
     {
         if (category.IsDefault)
             throw new InvalidOperationException("Can't remove default category from associations");
@@ -181,7 +181,8 @@ interface IAssociationsManager
     IAssociation? TryFindBestMatch(OperationDescription operationDescription);
     IAssociation AddAssociation(OperationDescription description, Category category);
     void AddException(OperationDescription description);
-    void RemoveAssociations(Category category);
+    void DeleteAssociation(IAssociation association);
+    void DeleteAssociations(Category category);
 }
 
 interface IAssociationStorageListener

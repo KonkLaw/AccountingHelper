@@ -28,7 +28,10 @@
                           IsEnabled="{Binding IsSingleSelection}"/>
                 <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSimilarOperationsCommand}"
                           IsEnabled="{Binding IsSingleSelection}"/>
+                <Separator />
                 <MenuItem Header="Add exception for associations" Command="{Binding AddExceptionCommand}"/>
+                <MenuItem Header="Remove association" Command="{Binding RemoveAssociationCommand}"/>
+                <Separator />
                 <MenuItem Header="Highlight">
                     <MenuItem Header="Highlight similar operations" Command="{Binding HighlightSimilarOperations}" IsEnabled="{Binding IsSingleSelection}"/>
                     <MenuItem Header="Highlight same category" Command="{Binding HighlightSameCategory}" IsEnabled="{Binding IsSingleSelection}"/>

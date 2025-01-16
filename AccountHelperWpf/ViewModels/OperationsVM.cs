@@ -41,6 +41,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
             // We don't check equality as reference to collection is the same
             // however count is different
             IsSingleSelection = selectedItems is { Count: 1 };
+            RemoveAssociationCommand.IsEnabled = IsSingleSelection && GetSelectedOperation().Association != null;
         }
     }
 
@@ -61,6 +62,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     public ICommand HighlightSimilarOperations { get; }
     public ICommand HighlightSameCategory { get; }
     public ICommand ResetHighlight { get; }
+    public DelegateCommand RemoveAssociationCommand { get; }
 
     public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
@@ -88,6 +90,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         HighlightSimilarOperations = new DelegateCommand(HighlightSimilarOperationsHandler);
         HighlightSameCategory = new DelegateCommand(HighlightSameCategoryHandler);
         ResetHighlight = new DelegateCommand(ResetHighlightHandler);
+        RemoveAssociationCommand = new DelegateCommand(RemoveAssociation);
     }
 
     private List<OperationVM> GetAllOperations(IReadOnlyList<BaseOperation> baseOperations)
@@ -149,7 +152,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
                 operation.Category = Category.Default;
             }
         }
-        associationsManager.RemoveAssociations(categoryToRemove);
+        associationsManager.DeleteAssociations(categoryToRemove);
     }
 
     private void CategoriesVMOnOnCategoryRemoved()
@@ -274,6 +277,14 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         {
             operationVM.IsHighlighted = false;
         }
+    }
+
+    private void RemoveAssociation()
+    {
+        OperationVM operation = GetSelectedOperation();
+        if (operation.Association == null)
+            return;
+        associationsManager.DeleteAssociation(operation.Association);
     }
 
     void IAssociationStorageListener.AssociationAdded(IAssociation newAssociation)
