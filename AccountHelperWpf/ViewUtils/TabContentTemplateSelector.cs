@@ -6,18 +6,23 @@ namespace AccountHelperWpf.ViewUtils;
 
 class TabContentTemplateSelector : DataTemplateSelector
 {
+    public DataTemplate? FileSortingTemplate { get; set; }
+    public DataTemplate? CategoriesTemplate { get; set; }
+    public DataTemplate? AssociationsTemplate { get; set; }
+    public DataTemplate? SummaryTemplate { get; set; }
+
     public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
         object content = ((TabInfo)item).Content;
 
         if (content is FileSortingVM)
-            return (DataTemplate)Application.Current!.FindResource("FileSortingTemplate")!;
+            return FileSortingTemplate!;
         if (content is CategoriesVM)
-            return (DataTemplate)Application.Current!.FindResource("CategoriesTemplate")!;
+            return CategoriesTemplate!;
         if (content is AssociationsVM)
-            return (DataTemplate)Application.Current!.FindResource("AssociationsTemplate")!;
+            return AssociationsTemplate!;
         if (content is SummaryVM)
-            return (DataTemplate)Application.Current!.FindResource("SummaryTemplate")!;
+            return SummaryTemplate!;
 
         throw new InvalidOperationException();
     }

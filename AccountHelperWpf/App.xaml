@@ -1,8 +1,6 @@
 ﻿<Application x:Class="AccountHelperWpf.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:views="clr-namespace:AccountHelperWpf.Views"
-             xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
              xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils">
     <Application.Resources>
         <ResourceDictionary>
@@ -14,19 +12,6 @@
             <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
             <viewUtils:HighlightBackColorConverter x:Key="HighlightCourseBackColorConverter" />
             <viewUtils:MultibindingConverter x:Key="MultiBindingConverter"/>
-
-            <DataTemplate x:Key="FileSortingTemplate" DataType="{x:Type viewModels:TabInfo}">
-                <views:File2View DataContext="{Binding Content}"/>
-            </DataTemplate>
-            <DataTemplate x:Key="CategoriesTemplate" DataType="{x:Type viewModels:TabInfo}">
-                <views:CategoriesView DataContext="{Binding Content}"/>
-            </DataTemplate>
-            <DataTemplate x:Key="AssociationsTemplate" DataType="{x:Type viewModels:TabInfo}">
-                <views:AssociationsView DataContext="{Binding Content}"/>
-            </DataTemplate>
-            <DataTemplate x:Key="SummaryTemplate" DataType="{x:Type viewModels:TabInfo}">
-                <views:GeneralSummaryView DataContext="{Binding Content}"/>
-            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

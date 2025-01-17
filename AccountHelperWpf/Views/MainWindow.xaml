@@ -6,6 +6,7 @@
         xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
+        xmlns:views="clr-namespace:AccountHelperWpf.Views"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:MainWindowVM}"
         Height="990" Width="1500"
@@ -19,7 +20,28 @@
     </b:Interaction.Triggers>
 
     <Window.Resources>
-        <viewUtils:TabContentTemplateSelector x:Key="TabContentTemplateSelector"/>
+        <viewUtils:TabContentTemplateSelector x:Key="TabContentTemplateSelector">
+            <viewUtils:TabContentTemplateSelector.FileSortingTemplate>
+                <DataTemplate DataType="{x:Type viewModels:TabInfo}">
+                    <views:File2View DataContext="{Binding Content}"/>
+                </DataTemplate>
+            </viewUtils:TabContentTemplateSelector.FileSortingTemplate>
+            <viewUtils:TabContentTemplateSelector.CategoriesTemplate>
+                <DataTemplate DataType="{x:Type viewModels:TabInfo}">
+                    <views:CategoriesView DataContext="{Binding Content}"/>
+                </DataTemplate>
+            </viewUtils:TabContentTemplateSelector.CategoriesTemplate>
+            <viewUtils:TabContentTemplateSelector.AssociationsTemplate>
+                <DataTemplate DataType="{x:Type viewModels:TabInfo}">
+                    <views:AssociationsView DataContext="{Binding Content}"/>
+                </DataTemplate>
+            </viewUtils:TabContentTemplateSelector.AssociationsTemplate>
+            <viewUtils:TabContentTemplateSelector.SummaryTemplate>
+                <DataTemplate DataType="{x:Type viewModels:TabInfo}">
+                    <views:GeneralSummaryView DataContext="{Binding Content}"/>
+                </DataTemplate>
+            </viewUtils:TabContentTemplateSelector.SummaryTemplate>
+        </viewUtils:TabContentTemplateSelector>
     </Window.Resources>
 
 
