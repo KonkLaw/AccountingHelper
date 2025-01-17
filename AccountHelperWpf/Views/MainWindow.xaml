@@ -23,7 +23,7 @@
         <viewUtils:TabContentTemplateSelector x:Key="TabContentTemplateSelector">
             <viewUtils:TabContentTemplateSelector.FileSortingTemplate>
                 <DataTemplate DataType="{x:Type viewModels:TabInfo}">
-                    <views:File2View DataContext="{Binding Content}"/>
+                    <views:FileSortingView DataContext="{Binding Content}"/>
                 </DataTemplate>
             </viewUtils:TabContentTemplateSelector.FileSortingTemplate>
             <viewUtils:TabContentTemplateSelector.CategoriesTemplate>

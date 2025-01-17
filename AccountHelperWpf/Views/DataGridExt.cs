@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewModels;
 
@@ -29,6 +30,8 @@ public class DataGridExt : DataGrid
         set => SetValue(SelectedItemsListProperty, value);
     }
 
+    private static readonly Dictionary<object, double> ViewModelToOffset = new();
+
     private (HashSet<string> properties, DataGridColumn[] columns)? xamlColumns;
 
     static DataGridExt()
@@ -40,6 +43,30 @@ public class DataGridExt : DataGrid
     public DataGridExt()
     {
         AutoGenerateColumns = false;
+        
+
+        Loaded += OnLoaded;
+        Unloaded += DataGridExt_Unloaded;
+    }
+
+
+    public static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+    {
+        // Recursively look for the first child of type T
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T tChild)
+            {
+                return tChild;
+            }
+            T? result = FindVisualChild<T>(child);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+        return null;
     }
 
     public override void EndInit()
@@ -64,13 +91,12 @@ public class DataGridExt : DataGrid
     protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
     {
         base.OnItemsSourceChanged(oldValue, newValue);
-        CorrectColumns(ItemsSource, Columns, ColumnDescriptions);
+        CorrectColumns(ItemsSource, Columns);
     }
 
     private void CorrectColumns(
         IEnumerable? itemsSource,
-        ObservableCollection<DataGridColumn> columns,
-        IEnumerable<ColumnDescription> columnDescriptions)
+        ObservableCollection<DataGridColumn> columns)
     {
         if (xamlColumns == null)
             throw new InvalidOperationException("Well known properties are not initialized");
@@ -140,6 +166,24 @@ public class DataGridExt : DataGrid
         string propName = nameof(BaseOperation.TransactionDateTime);
         customization.Add(propName, new ColumnDescription(propName, null, null, true));
         return customization;
+    }
+
+    private void DataGridExt_Unloaded(object sender, RoutedEventArgs e)
+    {
+        ScrollViewer? scrollViewer = FindVisualChild<ScrollViewer>(this);
+        if (scrollViewer != null)
+        {
+            ViewModelToOffset[DataContext] = scrollViewer.VerticalOffset;
+        }
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        ScrollViewer? scrollViewer = FindVisualChild<ScrollViewer>(this);
+        if (scrollViewer != null && ViewModelToOffset.TryGetValue(DataContext, out double offset))
+        {
+            scrollViewer.ScrollToVerticalOffset(offset);
+        }
     }
 }
 
