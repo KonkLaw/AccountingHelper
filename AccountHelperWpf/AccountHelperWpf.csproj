@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<Version>2.0.0</Version>
+		<Version>2.0.1</Version>
 		<PublishDir>..\Build\$(Version)\</PublishDir>
 	</PropertyGroup>
 	<Target Name="PostPublish" AfterTargets="Publish">
