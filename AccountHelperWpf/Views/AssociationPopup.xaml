@@ -10,6 +10,11 @@
         AllowsTransparency="True"
         d:DataContext="{d:DesignInstance viewModels:AssociationPopupVM}"
         IsOpen="{Binding IsOpen}">
+    <Popup.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+    </Popup.Resources>
     <Border BorderThickness="1" BorderBrush="{DynamicResource ControlStrokeColorOnAccentSecondaryBrush}" CornerRadius="9"
             Background="{DynamicResource ControlFillColorInputActiveBrush}">
         <Grid Margin="7" MaxWidth="1400">
@@ -38,8 +43,18 @@
                 </behaviors:Interaction.Triggers>
             </TextBox>
             <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <Button Content="Ok (Enter)" Command="{Binding Ok}"/>
-                <Button Content="Close (Esc)" Command="{Binding Cancel}"/>
+                <Button Command="{Binding Ok}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="18" Text="&#xe8fb;" VerticalAlignment="Center"/>
+                        <TextBlock Text="  Ok (Enter)"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding Cancel}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="18" Text="&#xe711;" VerticalAlignment="Center"/>
+                        <TextBlock Text="  Close (Esc)"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Grid>
     </Border>
