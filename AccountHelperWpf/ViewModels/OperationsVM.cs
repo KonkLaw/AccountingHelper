@@ -51,19 +51,22 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         }
     }
 
+    public ICommand AddExceptionCommand { get; }
+    public DelegateCommand RemoveAssociationCommand { get; }
+
     public DelegateCommand SearchInfoCommand { get; }
     public DelegateCommand ApplyCategoryForSimilarOperationsCommand { get; }
-    public ICommand AddExceptionCommand { get; }
-    public ICommand ApproveSelectedCommand { get; }
-    public ICommand AddCommand { get; }
+
     public DelegateCommand HighlightSimilarOperations { get; }
     public DelegateCommand HighlightSameCategory { get; }
-    public ICommand ResetHighlight { get; }
-    public DelegateCommand RemoveAssociationCommand { get; }
+    public DelegateCommand ResetHighlight { get; }
 
     public DelegateCommand SetLastOperationCommand { get; }
     public DelegateCommand SetFirstOperationCommand { get; }
     public DelegateCommand RemoveTimeFilerCommand { get; }
+
+    public ICommand ApproveSelectedCommand { get; }
+    public ICommand AddCommand { get; }
 
     public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
@@ -76,7 +79,6 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         this.associationsManager = associationsManager;
         this.summaryChangedListener = summaryChangedListener;
         allOperations = GetAllOperations(baseOperations);
-        UpdateByFilter();
 
         categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
         categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
@@ -86,14 +88,17 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         AddExceptionCommand = new DelegateCommand(AddException);
         ApproveSelectedCommand = new DelegateCommand(ApproveSelectedHandler);
         AddCommand = new DelegateCommand<UIElement, OperationVM>(AddAssociation);
+        RemoveAssociationCommand = new DelegateCommand(RemoveAssociation);
+
         HighlightSimilarOperations = new DelegateCommand(HighlightSimilarOperationsHandler);
         HighlightSameCategory = new DelegateCommand(HighlightSameCategoryHandler);
-        ResetHighlight = new DelegateCommand(ResetHighlightHandler);
-        RemoveAssociationCommand = new DelegateCommand(RemoveAssociation);
+        ResetHighlight = new DelegateCommand(ResetHighlightHandler) { IsEnabled = false };
 
         SetLastOperationCommand = new DelegateCommand(SetLastOperation);
         SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
         RemoveTimeFilerCommand = new DelegateCommand(ResetFilters);
+
+        UpdateByFilter();
     }
 
     private List<OperationVM> GetAllOperations(IReadOnlyList<BaseOperation> baseOperations)
@@ -177,6 +182,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
                 break;
         }
         Operations = filteredOperations;
+        RemoveTimeFilerCommand.IsEnabled = lastIncluded != null || firstIncluded != null;
     }
 
     public void ResetFilters()
@@ -258,11 +264,12 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         IReadOnlyList<OperationVM> collection = GetSimilarOperations(operation.Operation.Description);
 
         ResetHighlightHandler();
-        
+
         foreach (OperationVM operationVM in collection)
         {
             operationVM.IsHighlighted = true;
         }
+        ResetHighlight.IsEnabled = true;
     }
 
     private void HighlightSameCategoryHandler()
@@ -272,6 +279,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         {
             operationVM.IsHighlighted = operationVM.Category == category;
         }
+        ResetHighlight.IsEnabled = true;
     }
 
     private void ResetHighlightHandler()
@@ -280,6 +288,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         {
             operationVM.IsHighlighted = false;
         }
+        ResetHighlight.IsEnabled = false;
     }
 
     private void RemoveAssociation()

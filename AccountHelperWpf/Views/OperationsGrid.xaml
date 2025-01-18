@@ -25,7 +25,7 @@
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe81a;"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Remove association" Command="{Binding RemoveAssociationCommand}">
+                <MenuItem Header="Remove association/exception" Command="{Binding RemoveAssociationCommand}">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74d;"/>
                     </MenuItem.Icon>
@@ -36,7 +36,7 @@
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xf6fa;"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Apply this Category for same operations" Command="{Binding ApplyCategoryForSimilarOperationsCommand}">
+                <MenuItem Header="Set same Category for similar operations" Command="{Binding ApplyCategoryForSimilarOperationsCommand}">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74c;"/>
                     </MenuItem.Icon>
@@ -45,9 +45,9 @@
                     <MenuItem.Icon>
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe7e6;"/>
                     </MenuItem.Icon>
-                    <MenuItem Header="Highlight similar operations" Command="{Binding HighlightSimilarOperations}" IsEnabled="{Binding IsSingleSelection}"/>
-                    <MenuItem Header="Highlight same category" Command="{Binding HighlightSameCategory}" IsEnabled="{Binding IsSingleSelection}"/>
-                    <MenuItem Header="Reset Highlight" Command="{Binding ResetHighlight}"/>
+                    <MenuItem Header="Highlight similar operations" Command="{Binding HighlightSimilarOperations}" />
+                    <MenuItem Header="Highlight same category" Command="{Binding HighlightSameCategory}" />
+                    <MenuItem Header="Disable Highlight" Command="{Binding ResetHighlight}"/>
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="Set As Last (new)" Command="{Binding SetLastOperationCommand}">
