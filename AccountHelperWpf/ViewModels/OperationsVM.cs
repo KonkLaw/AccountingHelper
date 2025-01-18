@@ -52,8 +52,6 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     }
 
     public DelegateCommand SearchInfoCommand { get; }
-    public DelegateCommand SetLastOperationCommand { get; }
-    public DelegateCommand SetFirstOperationCommand { get; }
     public DelegateCommand ApplyCategoryForSimilarOperationsCommand { get; }
     public ICommand AddExceptionCommand { get; }
     public ICommand ApproveSelectedCommand { get; }
@@ -62,6 +60,10 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     public DelegateCommand HighlightSameCategory { get; }
     public ICommand ResetHighlight { get; }
     public DelegateCommand RemoveAssociationCommand { get; }
+
+    public DelegateCommand SetLastOperationCommand { get; }
+    public DelegateCommand SetFirstOperationCommand { get; }
+    public DelegateCommand RemoveTimeFilerCommand { get; }
 
     public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
@@ -80,8 +82,6 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         categoriesVM.OnCategoryRemoved += CategoriesVMOnOnCategoryRemoved;
         
         SearchInfoCommand = new DelegateCommand(SearchInfo);
-        SetLastOperationCommand = new DelegateCommand(SetLastOperation);
-        SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
         ApplyCategoryForSimilarOperationsCommand = new DelegateCommand(ApplyCategoryForSimilarOperations);
         AddExceptionCommand = new DelegateCommand(AddException);
         ApproveSelectedCommand = new DelegateCommand(ApproveSelectedHandler);
@@ -90,6 +90,10 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         HighlightSameCategory = new DelegateCommand(HighlightSameCategoryHandler);
         ResetHighlight = new DelegateCommand(ResetHighlightHandler);
         RemoveAssociationCommand = new DelegateCommand(RemoveAssociation);
+
+        SetLastOperationCommand = new DelegateCommand(SetLastOperation);
+        SetFirstOperationCommand = new DelegateCommand(SetFirstOperation);
+        RemoveTimeFilerCommand = new DelegateCommand(ResetFilters);
     }
 
     private List<OperationVM> GetAllOperations(IReadOnlyList<BaseOperation> baseOperations)

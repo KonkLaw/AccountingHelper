@@ -24,7 +24,7 @@ class MainWindowVM : BaseNotifyProperty
     public ICommand LoadOperationFileCommand { get; }
     public ICommand SaveAssociationCommand { get; }
     public ICommand SetCategoryForAllCommand { get; }
-    public ICommand ResetTileFilterCommand { get; }
+    public ICommand ResetTimeFilterCommand { get; }
     public ICommand ApproveAllCommand { get; }
     public ICommand RemoveFileCommand { get; }
     public ICommand AboutCommand { get; }
@@ -59,7 +59,7 @@ class MainWindowVM : BaseNotifyProperty
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
         SaveAssociationCommand = new DelegateCommand(saveController.Save);
         SetCategoryForAllCommand = new DelegateCommand(SetCategoryForAll);
-        ResetTileFilterCommand = new DelegateCommand(ResetTimeFilters);
+        ResetTimeFilterCommand = new DelegateCommand(ResetTimeFilters);
         ApproveAllCommand = new DelegateCommand(ApproveAll);
         RemoveFileCommand = new DelegateCommand(RemoveFile);
         AboutCommand = new DelegateCommand(ShowAbout);
