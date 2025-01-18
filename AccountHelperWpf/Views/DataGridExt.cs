@@ -170,6 +170,9 @@ public class DataGridExt : DataGrid
 
     private void DataGridExt_Unloaded(object sender, RoutedEventArgs e)
     {
+        if (DataContext == null) // for designer
+            return;
+
         ScrollViewer? scrollViewer = FindVisualChild<ScrollViewer>(this);
         if (scrollViewer != null)
         {
@@ -179,6 +182,9 @@ public class DataGridExt : DataGrid
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (DataContext == null) // for designer
+            return;
+
         ScrollViewer? scrollViewer = FindVisualChild<ScrollViewer>(this);
         if (scrollViewer != null && ViewModelToOffset.TryGetValue(DataContext, out double offset))
         {
