@@ -2,7 +2,6 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Input;
 using AccountHelperWpf.Models;
 using AccountHelperWpf.ViewUtils;
 
@@ -13,11 +12,28 @@ class CategoriesVM : BaseNotifyProperty
     private readonly IViewResolver viewResolver;
     private readonly ReadOnlyObservableCollection<Category> collection;
     public ObservableCollection<Category> Categories { get; }
-    public ICommand RemoveCommand { get; }
-    public ICommand MoveUpCommand { get; }
-    public ICommand MoveDownCommand { get; }
 
-    public int SelectedIndex { get; set; }
+    public DelegateCommand RemoveCommand { get; }
+    public DelegateCommand MoveUpCommand { get; }
+    public DelegateCommand MoveDownCommand { get; }
+
+    private int selectedIndex;
+    public int SelectedIndex
+    {
+        get => selectedIndex;
+        set
+        {
+            if (SetProperty(ref selectedIndex, value))
+                UpdateContextMenuValidity();
+        }
+    }
+
+    private Category? selectedItem;
+    public Category? SelectedItem
+    {
+        get => selectedItem;
+        set => SetProperty(ref selectedItem, value);
+    }
 
     public event Action<Category>? OnCategoryRemoving;
     public event Action? OnCategoryRemoved;
@@ -37,13 +53,18 @@ class CategoriesVM : BaseNotifyProperty
         {
             categoryViewModel.PropertyChanged += CategoryChanged;
         }
+        UpdateContextMenuValidity();
+    }
+
+    private void UpdateContextMenuValidity()
+    {
+        RemoveCommand.IsEnabled = SelectedItem is { IsDefault: false };
+        MoveUpCommand.IsEnabled = SelectedIndex > 1;
+        MoveDownCommand.IsEnabled = SelectedIndex > 0 && SelectedIndex < Categories.Count - 1;
     }
 
     private void RemoveCategory()
     {
-        if (SelectedIndex == 0)
-            return;
-
         if (viewResolver.ShowQuestion("Are you sure? All saved associations for this category will be removed", MessageBoxButton.YesNo) == MessageBoxResult.No)
             return;
         Category categoryToRemove = Categories[SelectedIndex];
@@ -52,25 +73,9 @@ class CategoriesVM : BaseNotifyProperty
         OnCategoryRemoved?.Invoke();
     }
 
-    private void MoveUp()
-    {
-        if (SelectedIndex == 0)
-            return;
+    private void MoveUp() => Categories.Move(SelectedIndex, SelectedIndex - 1);
 
-        if (SelectedIndex < 2)
-            return;
-        Categories.Move(SelectedIndex, SelectedIndex - 1);
-    }
-
-    private void MoveDown()
-    {
-        if (SelectedIndex == 0)
-            return;
-
-        if (SelectedIndex > Categories.Count - 2)
-            return;
-        Categories.Move(SelectedIndex, SelectedIndex + 1);
-    }
+    private void MoveDown() => Categories.Move(SelectedIndex, SelectedIndex + 1);
 
     private void CategoriesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
@@ -96,6 +101,8 @@ class CategoriesVM : BaseNotifyProperty
                 break;
         }
         Notify();
+        // update is required - selected changed not always cover all cases
+        UpdateContextMenuValidity();
     }
 
     private void CategoryChanged(object? sender, PropertyChangedEventArgs e) => Notify();
