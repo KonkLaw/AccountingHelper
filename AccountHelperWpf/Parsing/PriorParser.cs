@@ -1,13 +1,16 @@
 ﻿using System.Globalization;
 using System.IO;
+using AccountHelperWpf.Models;
 
 namespace AccountHelperWpf.Parsing;
 
 static class PriorParser
 {
     public const string BankId = "priorby";
+    public static readonly string DescriptionTagName = string.Empty;
 
     private const string ColumnSeparator = ";";
+
 
     public static PriorFile? TryParse(StreamReader reader, string name)
     {
@@ -108,9 +111,13 @@ static class PriorParser
         decimal amount = decimal.Parse(parts[6], NumberFormatHelper.NumberFormat);
         string categoryName = parts[8];
 
-        throw new NotImplementedException();
-        //return new PriorOperation(
-        //    transactionDateTime, amount, description, categoryName, currency, fee, initialAmount, accountDateTime);
+        OperationDescription operationDescription = OperationDescription.Create(BankId, new SortedDictionary<string, string>
+        {
+            { DescriptionTagName, description }
+        });
+
+        return new PriorOperation(
+            transactionDateTime, amount, operationDescription, categoryName, currency, fee, initialAmount, accountDateTime);
     }
 
     private static PriorBlockedOperation ParseBlockedOperationLine(string line)
@@ -125,9 +132,14 @@ static class PriorParser
         decimal amount = -decimal.Parse(parts[4], NumberFormatHelper.NumberFormat);
         string currency = parts[5];
         string categoryName = parts[7];
-        throw new NotImplementedException();
-        //return new PriorBlockedOperation(
-        //    transactionDateTime, amount, description, categoryName, currency, initialAmount, initialCurrency);
+
+        OperationDescription operationDescription = OperationDescription.Create(BankId, new SortedDictionary<string, string>
+        {
+            { DescriptionTagName, description }
+        });
+
+        return new PriorBlockedOperation(
+            transactionDateTime, amount, operationDescription, categoryName, currency, initialAmount, initialCurrency);
     }
 }
 

@@ -8,7 +8,7 @@ static class OperationDescriptionHelper
 {
     delegate void GetOperationDescriptionDelegate(
         SortedDictionary<string, string> tagsToContents,
-        out string displayName, out string comparisonKey);
+        out string displayName, out string comparisonKeyBeforeProcess);
 
     private static readonly Dictionary<string, GetOperationDescriptionDelegate> BankIdToConverters = new()
     {
@@ -106,6 +106,7 @@ static class OperationDescriptionHelper
         SortedDictionary<string, string> tagsToContents,
         out string displayName, out string comparisonString)
     {
-        throw new NotImplementedException();
+        displayName = tagsToContents[PriorParser.DescriptionTagName];
+        comparisonString = displayName;
     }
 }
