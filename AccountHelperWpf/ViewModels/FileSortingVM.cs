@@ -28,7 +28,7 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         this.saveController = saveController;
         this.summaryNotifier = summaryNotifier;
         OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, associationsManager, this);
-        TabInfo = new TabInfo(file.GetTitle(), this);
+        TabInfo = new TabInfo(TabInfo.TabTypeEnum.File, file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
         TextSummaryVM.PropertyChanged += TextSummaryVMOnPropertyChanged;
 

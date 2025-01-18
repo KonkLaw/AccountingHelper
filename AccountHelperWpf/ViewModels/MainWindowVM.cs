@@ -157,10 +157,10 @@ class MainWindowVM : BaseNotifyProperty
         out SummaryVM summaryVM)
     {
         categoriesVM = new CategoriesVM(initData.Categories, viewResolver);
-        tabs.Add(new TabInfo("Categories", categoriesVM));
+        tabs.Add(new TabInfo(TabInfo.TabTypeEnum.Category, "Categories", categoriesVM));
         var associationsVM = new AssociationsVM(storage);
-        tabs.Add(new TabInfo("Associations", associationsVM));
+        tabs.Add(new TabInfo(TabInfo.TabTypeEnum.Associations, "Associations", associationsVM));
         summaryVM = new SummaryVM();
-        tabs.Add(new TabInfo("Summary", summaryVM));
+        tabs.Add(new TabInfo(TabInfo.TabTypeEnum.Summary, "Summary", summaryVM));
     }
 }

@@ -11,9 +11,9 @@ class TabContentTemplateSelector : DataTemplateSelector
     public DataTemplate? AssociationsTemplate { get; set; }
     public DataTemplate? SummaryTemplate { get; set; }
 
-    public override DataTemplate SelectTemplate(object item, DependencyObject container)
+    public override DataTemplate SelectTemplate(object? item, DependencyObject container)
     {
-        object content = ((TabInfo)item).Content;
+        object content = ((TabInfo)item!).Content;
 
         if (content is FileSortingVM)
             return FileSortingTemplate!;
