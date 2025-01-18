@@ -1,4 +1,5 @@
-﻿using AccountHelperWpf.Models;
+﻿using System.Text;
+using AccountHelperWpf.Models;
 
 namespace AccountHelperWpf.Parsing;
 
@@ -46,7 +47,40 @@ public record PkoOperation(DateTime TransactionDateTime, decimal Amount, Operati
         string OperationType,
         string? OriginalAmount,
         decimal SaldoBeforeTransaction,
-        string OtherDescription);
+        SortedDictionary<string, string> OtherDescription);
+
+public record PkoOtherDescription
+{
+    private readonly SortedDictionary<string, string> description;
+    private readonly string shortDescription;
+
+    private string? fullDescription;
+    public string FullDescription
+    {
+        get
+        {
+            if (fullDescription == null)
+            {
+                StringBuilder result = new();
+                foreach (KeyValuePair<string, string> tagContent in description)
+                {
+                    result.AppendLine($"{tagContent.Key} : {tagContent.Value}");
+                    result.AppendLine();
+                }
+                fullDescription = result.ToString();
+            }
+            return fullDescription;
+        }
+    }
+
+    public PkoOtherDescription(SortedDictionary<string, string> description)
+    {
+        this.description = description;
+        shortDescription = string.Join(" || ", description.Select(kvp => $"{kvp.Key} : {kvp.Value}"));
+    }
+
+    public override string ToString() => shortDescription;
+}
 
 public record PkoBlockedOperation(
     DateTime TransactionDateTime, decimal Amount, OperationDescription Description,

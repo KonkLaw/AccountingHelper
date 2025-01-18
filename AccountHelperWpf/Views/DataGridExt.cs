@@ -134,11 +134,11 @@ public class DataGridExt : DataGrid
                 continue;
             
             Style style = new (typeof(DataGridCell));
-            style.Setters.Add(new Setter
+            Setter toolTipPropertySetter = new Setter
             {
-                Property = ToolTipService.ToolTipProperty,
-                Value = new Binding(propertyPath)
-            });
+                Property = ToolTipService.ToolTipProperty
+            };
+            style.Setters.Add(toolTipPropertySetter);
 
             DataGridTextColumn column = new()
             {
@@ -152,7 +152,12 @@ public class DataGridExt : DataGrid
                 column.Width = customDescription.CustomWidth.Value;
             if (customDescription.CustomFormat != null)
                 column.Binding.StringFormat = customDescription.CustomFormat;
-            
+
+            toolTipPropertySetter.Value = customDescription.ToolTipSourcePropertyName == null
+                ? new Binding(propertyPath)
+                : new Binding(prefix + customDescription.ToolTipSourcePropertyName);
+
+
             columns.Add(column);
         }
 
@@ -164,7 +169,7 @@ public class DataGridExt : DataGrid
     {
         Dictionary<string, ColumnDescription> customization = ColumnDescriptions.ToDictionary(cd => cd.PropertyName, cd => cd);
         string propName = nameof(BaseOperation.TransactionDateTime);
-        customization.Add(propName, new ColumnDescription(propName, null, null, true));
+        customization.Add(propName, new ColumnDescription(propName, null, null, null, true));
         return customization;
     }
 
@@ -197,8 +202,9 @@ public readonly record struct ColumnDescription(
     string PropertyName,
     double? CustomWidth,
     string? CustomFormat,
+    string? ToolTipSourcePropertyName,
     bool IsInvisible)
 {
     public ColumnDescription(string propertyName, double? customWidth, string? customFormat)
-        : this(propertyName, customWidth, customFormat, false) { }
+        : this(propertyName, customWidth, customFormat, null, false) { }
 };

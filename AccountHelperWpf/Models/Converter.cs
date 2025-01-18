@@ -68,7 +68,10 @@ public static class Converter
         [
             new ColumnDescription(nameof(PkoOperation.DateAccounting), null, DateFormat),
             new ColumnDescription(nameof(PkoOperation.OperationType), 160, null),
-            new ColumnDescription(nameof(PkoOperation.SaldoBeforeTransaction), null, null, !isSaldoVisible)
+            new ColumnDescription(nameof(PkoOperation.SaldoBeforeTransaction), null, null, null, !isSaldoVisible),
+            new ColumnDescription(nameof(PkoOperation.OtherDescription), null, null,
+                $"{nameof(PkoOperation.OtherDescription)}.{nameof(PkoOtherDescription.FullDescription)}"
+                , !isSaldoVisible)
         ];
     }
 }

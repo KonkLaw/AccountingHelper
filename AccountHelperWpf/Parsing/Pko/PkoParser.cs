@@ -57,11 +57,9 @@ static class PkoParser
             out SortedDictionary<string, string> other,
             out string? originalAmount);
 
-        var otherDetails = string.Join(" || ", other.Select(kvp => $"{kvp.Key} : {kvp.Value}"));
-
         return new PkoOperation(
             dateOperation, amount, OperationDescription.Create(BankId, main), 
             dateAccounting, currency, operationType, originalAmount,
-            saldoBeforeTransaction, otherDetails);
+            saldoBeforeTransaction, other);
     }
 }

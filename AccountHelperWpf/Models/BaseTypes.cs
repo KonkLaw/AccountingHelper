@@ -15,7 +15,7 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescr
     string? OriginalAmount,
     decimal? SaldoBeforeTransaction,
     int Id,
-    string OtherDescription)
+    PkoOtherDescription OtherDescription)
     :
     BaseOperation(TransactionDateTime, Amount, Description)
 {
@@ -26,18 +26,22 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescr
             OriginalAmount: operation.OriginalAmount,
             SaldoBeforeTransaction: operation.SaldoBeforeTransaction,
             Id: id,
-            OtherDescription: operation.OtherDescription
+            OtherDescription: new PkoOtherDescription(operation.OtherDescription)
         );
 
-    public static PkoOperation Convert(PkoBlockedOperation operation, int id) => new PkoOperation(
-            operation.TransactionDateTime, operation.Amount, operation.Description,
-            DateAccounting: null,
-            OperationType: null,
-            OriginalAmount: null,
-            SaldoBeforeTransaction: null,
-            Id: id,
-            OtherDescription: operation.OtherDescription
-        );
+    public static PkoOperation Convert(PkoBlockedOperation operation, int id)
+    {
+        throw new NotImplementedException();
+        //return new PkoOperation(
+        //    operation.TransactionDateTime, operation.Amount, operation.Description,
+        //    DateAccounting: null,
+        //    OperationType: null,
+        //    OriginalAmount: null,
+        //    SaldoBeforeTransaction: null,
+        //    Id: id,
+        //    OtherDescription: operation.OtherDescription
+        //);
+    }
 }
 
 
