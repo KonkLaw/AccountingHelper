@@ -41,7 +41,7 @@
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74c;"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Highlight">
+                <MenuItem Header="Operations highlighting">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe7e6;"/>
                     </MenuItem.Icon>
