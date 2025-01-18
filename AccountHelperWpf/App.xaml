@@ -10,7 +10,6 @@
             </ResourceDictionary.MergedDictionaries>
 
             <viewUtils:VisibilityConverter x:Key="VisibilityConverter" />
-            <viewUtils:HighlightBackColorConverter x:Key="HighlightCourseBackColorConverter" />
             <viewUtils:MultibindingConverter x:Key="MultiBindingConverter"/>
         </ResourceDictionary>
     </Application.Resources>

@@ -5,15 +5,6 @@ using System.Windows.Media;
 
 namespace AccountHelperWpf.ViewUtils;
 
-public class HighlightBackColorConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => ((decimal?)value).HasValue ? Brushes.Transparent : Brushes.IndianRed;
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new InvalidOperationException();
-}
-
 public class VisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -23,10 +14,10 @@ public class VisibilityConverter : IValueConverter
         => throw new InvalidOperationException();
 }
 
-public class AmountToColorConverter : DependencyObject, IValueConverter
+public abstract class BoolToColorConverter : DependencyObject, IValueConverter
 {
     public static DependencyProperty PositiveAmountColorProperty = DependencyProperty.Register(
-        nameof(PositiveAmountColor), typeof(Brush), typeof(AmountToColorConverter), new PropertyMetadata(Brushes.Red));
+        nameof(PositiveAmountColor), typeof(Brush), typeof(BoolToColorConverter), new PropertyMetadata(Brushes.Red));
 
     public Brush PositiveAmountColor
     {
@@ -35,7 +26,7 @@ public class AmountToColorConverter : DependencyObject, IValueConverter
     }
 
     public static DependencyProperty NegativeAmountColorProperty = DependencyProperty.Register(
-        nameof(NegativeAmountColor), typeof(Brush), typeof(AmountToColorConverter), new PropertyMetadata(Brushes.Blue));
+        nameof(NegativeAmountColor), typeof(Brush), typeof(BoolToColorConverter), new PropertyMetadata(Brushes.Blue));
 
     public Brush NegativeAmountColor
     {
@@ -45,10 +36,22 @@ public class AmountToColorConverter : DependencyObject, IValueConverter
     }
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => (decimal)value! > 0 ? PositiveAmountColor : NegativeAmountColor;
+        => GetIsTrue(value) ? PositiveAmountColor : NegativeAmountColor;
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new InvalidOperationException();
+
+    public abstract bool GetIsTrue(object? value);
+}
+
+public class AmountToColorConverter : BoolToColorConverter
+{
+    public override bool GetIsTrue(object? value) => (decimal)value! > 0;
+}
+
+public class HasValueBackColorConverter : BoolToColorConverter
+{
+    public override bool GetIsTrue(object? value) => ((decimal?)value).HasValue;
 }
 
 public class MultibindingConverter : IMultiValueConverter

@@ -5,9 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:AccountHelperWpf.ViewModels"
              xmlns:views="clr-namespace:AccountHelperWpf.Views"
+             xmlns:viewUtils="clr-namespace:AccountHelperWpf.ViewUtils"
              mc:Ignorable="d" 
              d:DesignHeight="750" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModels:SummaryVM}">
+    <UserControl.Resources>
+        <viewUtils:HasValueBackColorConverter x:Key="HighlightCourseBackColorConverter"
+                                               PositiveAmountColor="{DynamicResource ControlFillColorDefaultBrush}"
+                                               NegativeAmountColor="{DynamicResource SystemFillColorCriticalBrush}"/>
+    </UserControl.Resources>
     <DockPanel>
         <Grid DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
@@ -30,9 +36,8 @@
                     </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <TextBlock Grid.Column="2" Width="300" TextWrapping="Wrap">
-                Coefficient in front of each currency will be used as multiplier for each currency to get final sums.
-            </TextBlock>
+            <TextBlock Grid.Column="2" Width="300" TextWrapping="Wrap"
+                       Text="Coefficient in front of each currency will be used as multiplier for each currency to get final sums." />
         </Grid>
         <views:SummaryView DataContext="{Binding TextSummaryVM, Mode=OneTime}"/>
     </DockPanel>
