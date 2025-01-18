@@ -83,7 +83,11 @@ class OperationVM : BaseNotifyProperty
                 AssociationStatus.Associated
                     => "Association is done with operation:"
                        + Environment.NewLine + Environment.NewLine
-                       + Association!.Description.DisplayName,
+                       + Association!.Description.DisplayName
+                       + Environment.NewLine + Environment.NewLine
+                       + "Comment: " + Association.Comment
+                       + Environment.NewLine + Environment.NewLine
+                       + "Comparison string of association: " + Association.Description.ComparisonKey,
                 AssociationStatus.NotMatch
                     => "Selected, category do not correspond to category in auto-mapping." +
                                                    "Use other category or add to exceptions",
