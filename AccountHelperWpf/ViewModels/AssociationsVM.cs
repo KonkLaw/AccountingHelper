@@ -40,13 +40,13 @@ class AssociationsVM : BaseNotifyProperty
     {
         if (SelectedAssociation is null)
             return;
-        storage.DeleteAssociation(SelectedAssociation);
+        storage.DeleteAssociationOrException(SelectedAssociation);
     }
 
     private void DeleteException()
     {
         if (SelectedException is null)
             return;
-        storage.DeleteException(SelectedException);
+        storage.DeleteAssociationOrException(SelectedException);
     }
 }

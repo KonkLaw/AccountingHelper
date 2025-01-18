@@ -94,21 +94,23 @@ class AssociationsManager : IAssociationsManager
         }
     }
 
-    public void DeleteAssociation(IAssociation association)
+    public void DeleteAssociationOrException(IAssociation association)
     {
-        if (Associations.Remove(association))
+        if (association.Category.IsDefault)
         {
-            storage.Remove(association);
-            ExecuteForAllRemove(association);
+            if (Exceptions.Remove(association))
+            {
+                storage.Remove(association);
+                ExecuteForAllRemove(association);
+            }
         }
-    }
-    
-    public void DeleteException(IAssociation exception)
-    {
-        if (Exceptions.Remove(exception))
+        else
         {
-            storage.Remove(exception);
-            ExecuteForAllRemove(exception);
+            if (Associations.Remove(association))
+            {
+                storage.Remove(association);
+                ExecuteForAllRemove(association);
+            }
         }
     }
 
@@ -181,7 +183,7 @@ interface IAssociationsManager
     IAssociation? TryFindBestMatch(OperationDescription operationDescription);
     IAssociation AddAssociation(OperationDescription description, Category category);
     void AddException(OperationDescription description);
-    void DeleteAssociation(IAssociation association);
+    void DeleteAssociationOrException(IAssociation association);
     void DeleteAssociations(Category category);
 }
 

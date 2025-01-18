@@ -35,23 +35,10 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     public IList? SelectedItems
     {
         get => selectedItems;
-        set
-        {
-            SetProperty(ref selectedItems, value);
-            // We don't check equality as reference to collection is the same
-            // however count is different
-            bool isSingleSelection = selectedItems is { Count: 1 };
-            SearchInfoCommand.IsEnabled = isSingleSelection;
-            SetLastOperationCommand.IsEnabled = isSingleSelection;
-            SetFirstOperationCommand.IsEnabled = isSingleSelection;
-            ApplyCategoryForSimilarOperationsCommand.IsEnabled = isSingleSelection;
-            HighlightSimilarOperations.IsEnabled = isSingleSelection;
-            HighlightSameCategory.IsEnabled = isSingleSelection;
-            RemoveAssociationCommand.IsEnabled = isSingleSelection && GetSelectedOperation().Association != null;
-        }
+        set => SetProperty(ref selectedItems, value);
     }
 
-    public ICommand AddExceptionCommand { get; }
+    public DelegateCommand AddExceptionCommand { get; }
     public DelegateCommand RemoveAssociationCommand { get; }
 
     public DelegateCommand SearchInfoCommand { get; }
@@ -67,6 +54,36 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 
     public ICommand ApproveSelectedCommand { get; }
     public ICommand AddCommand { get; }
+
+    private bool isContextMenuOpen;
+    public bool IsContextMenuOpen
+    {
+        get => isContextMenuOpen;
+        set
+        {
+            if (SetProperty(ref isContextMenuOpen, value))
+            {
+                if (value)
+                {
+                    // We don't check equality as reference to collection is the same
+                    // however count is different
+                    bool isSingleSelection = selectedItems is { Count: 1 };
+
+                    OperationVM operationVM = GetSelectedOperation();
+                    AddExceptionCommand.IsEnabled = operationVM.Association == null || !operationVM.Association.Category.IsDefault;
+                    RemoveAssociationCommand.IsEnabled = operationVM.Association != null;
+
+                    SearchInfoCommand.IsEnabled = isSingleSelection;
+                    ApplyCategoryForSimilarOperationsCommand.IsEnabled = isSingleSelection;
+
+                    HighlightSimilarOperations.IsEnabled = isSingleSelection;
+                    HighlightSameCategory.IsEnabled = isSingleSelection;
+                    SetLastOperationCommand.IsEnabled = isSingleSelection;
+                    SetFirstOperationCommand.IsEnabled = isSingleSelection;
+                }
+            }
+        }
+    }
 
     public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
@@ -143,7 +160,6 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
             case nameof(OperationVM.Comment):
                 summaryChangedListener.UpdateSummary();
                 break;
-            case nameof(OperationVM.AssociationStatus):
             case nameof(OperationVM.IsAutoMappedNotApproved):
                 summaryChangedListener.UpdateIsSorted();
                 break;
@@ -232,12 +248,6 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         }
     }
 
-    private void AddException()
-    {
-        foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
-            associationsManager.AddException(operationViewModel.Operation.Description);
-    }
-
     private void ApproveSelectedHandler()
     {
         foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
@@ -291,12 +301,18 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         ResetHighlight.IsEnabled = false;
     }
 
+    private void AddException()
+    {
+        foreach (OperationVM operationViewModel in SelectedItems.CheckNull())
+            associationsManager.AddException(operationViewModel.Operation.Description);
+    }
+
     private void RemoveAssociation()
     {
         OperationVM operation = GetSelectedOperation();
         if (operation.Association == null)
             return;
-        associationsManager.DeleteAssociation(operation.Association);
+        associationsManager.DeleteAssociationOrException(operation.Association);
     }
 
     void IAssociationStorageListener.AssociationAdded(IAssociation newAssociation)
