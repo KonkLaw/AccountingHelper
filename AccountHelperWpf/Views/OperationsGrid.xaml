@@ -34,9 +34,9 @@
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74d;"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Select association/exception" Command="{Binding NavigateToAssociationCommand}">
+                <MenuItem Header="Navigate to association/exception" Command="{Binding NavigateToAssociationCommand}">
                     <MenuItem.Icon>
-                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe74d;"/>
+                        <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe89f;"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
