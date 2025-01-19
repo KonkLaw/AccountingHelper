@@ -23,7 +23,7 @@
                        SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"
                        ItemsSource="{Binding Operations}">
         <DataGrid.ContextMenu>
-            <ContextMenu IsOpen="{Binding IsContextMenuOpen, Mode=OneWay}">
+            <ContextMenu IsOpen="{Binding IsContextMenuOpen, Mode=OneWayToSource}">
                 <MenuItem Header="Add exception for associations" Command="{Binding AddExceptionCommand}">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xe81a;"/>
