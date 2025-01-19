@@ -30,7 +30,7 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Width="*" MaxWidth="800" IsReadOnly="True" Header="Operation Description"
+                    <DataGridTextColumn Width="Auto" MaxWidth="800" IsReadOnly="True" Header="Operation Description"
                                         Binding="{Binding Description.DisplayName, Mode=OneWay}">
                         <DataGridTextColumn.CellStyle>
                             <Style TargetType="DataGridCell">
@@ -38,10 +38,8 @@
                             </Style>
                         </DataGridTextColumn.CellStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Width="200" IsReadOnly="True" Header="Category"
-                                        Binding="{Binding Category, Mode=OneWay}" />
-                    <DataGridCheckBoxColumn Width="70" IsReadOnly="True" Header="Is New"
-                                            Binding="{Binding IsNew, Mode=OneWay}">
+                    <DataGridTextColumn Width="200" IsReadOnly="True" Header="Category" Binding="{Binding Category, Mode=OneWay}" />
+                    <DataGridCheckBoxColumn Width="70" IsReadOnly="True" Header="Is New" Binding="{Binding IsNew, Mode=OneWay}">
                         <DataGridCheckBoxColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForIsNewColumn}"/>
@@ -50,7 +48,7 @@
                     </DataGridCheckBoxColumn>
                     <DataGridTextColumn Binding="{Binding CreationDataTime, StringFormat='yyyy-MM-dd HH:mm'}"
                                         IsReadOnly="True" Header="Creation Time"/>
-                    <DataGridTextColumn Width="650" Header="Comment" Binding="{Binding Comment}">
+                    <DataGridTextColumn Width="Auto" Header="Comment" Binding="{Binding Comment}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForCommentColumn}"/>
@@ -76,17 +74,16 @@
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTextColumn Width="*" MaxWidth="800" IsReadOnly="True" Header="Operation Description"
+                <DataGridTextColumn Width="Auto" MaxWidth="800" IsReadOnly="True" Header="Operation Description"
                                     Binding="{Binding Description.DisplayName, Mode=OneWay}"/>
-                <DataGridCheckBoxColumn Width="70" IsReadOnly="True" Header="Is New"
-                                        Binding="{Binding IsNew, Mode=OneWay}">
+                <DataGridCheckBoxColumn Width="70" IsReadOnly="True" Header="Is New" Binding="{Binding IsNew, Mode=OneWay}">
                     <DataGridCheckBoxColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForIsNewColumn}"/>
                         </Style>
                     </DataGridCheckBoxColumn.HeaderStyle>
                 </DataGridCheckBoxColumn>
-                <DataGridTextColumn Width="600" Header="Comment" Binding="{Binding Comment}">
+                <DataGridTextColumn Width="Auto" Header="Comment" Binding="{Binding Comment}">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="ToolTip" Value="{x:Static views:ResourceUI.HeaderForCommentColumn}"/>
