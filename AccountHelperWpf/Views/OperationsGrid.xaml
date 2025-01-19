@@ -14,6 +14,10 @@
         <viewUtils:AmountToColorConverter x:Key="AmountToColorConverter"
                                           PositiveAmountColor="{DynamicResource SystemFillColorCautionBackgroundBrush}"
                                           NegativeAmountColor="{DynamicResource ControlFillColorDefaultBrush}"/>
+        <viewUtils:CategoryIsSortedConverter x:Key="CategoryIsSortedConverter"
+                                             DefaultBrush="{DynamicResource ControlFillColorDefaultBrush}"
+                                             HighlightedBrush="{DynamicResource SystemFillColorSuccessBackgroundBrush}"
+                                             NotSortedBrush="{DynamicResource SolidBackgroundFillColorBaseAltBrush}"/>
     </UserControl.Resources>
     <local:DataGridExt ColumnDescriptions="{Binding ColumnDescriptions, Mode=OneWay}"
                        SelectedItemsList="{Binding SelectedItems, Mode=TwoWay}"
@@ -173,12 +177,16 @@
         </DataGrid.Columns>
         <DataGrid.RowStyle>
             <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
-                <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
-                    </DataTrigger>
-                </Style.Triggers>
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <MultiBinding Converter="{StaticResource CategoryIsSortedConverter}">
+                            <Binding Path="Category" />
+                            <Binding Path="IsHighlighted" />
+                            <Binding Path="IsAutoMappedNotApproved" />
+                            <Binding Path="DataContext.HighlightNotSorted" RelativeSource="{RelativeSource AncestorType=local:MainWindow}" />
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
             </Style>
         </DataGrid.RowStyle>
     </local:DataGridExt>

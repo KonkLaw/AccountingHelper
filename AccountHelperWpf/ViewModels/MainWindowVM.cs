@@ -48,6 +48,13 @@ class MainWindowVM : BaseNotifyProperty
 
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
 
+    private bool highlightNotSorted = true;
+    public bool HighlightNotSorted
+    {
+        get => highlightNotSorted;
+        set => SetProperty(ref highlightNotSorted, value);
+    }
+
     public MainWindowVM(IViewResolver viewResolver, InitData initData, string? optionalFile)
     {
         this.viewResolver = viewResolver;

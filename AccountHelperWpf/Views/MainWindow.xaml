@@ -74,6 +74,8 @@
                 <Button Command="{Binding RemoveFileCommand}" Content="&#xE711;"
                         ToolTip="Close and remove currently opened file with operations." />
             </StackPanel>
+            <Border BorderThickness="1" Margin="8, 0, 8, 0" BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}" />
+            <CheckBox IsChecked="{Binding HighlightNotSorted}" Content="Highlight not sorted operations" />
             <Button HorizontalAlignment="Right" Content="&#xe946;"
                     Command="{Binding AboutCommand}" ToolTip="About application" />
         </DockPanel>

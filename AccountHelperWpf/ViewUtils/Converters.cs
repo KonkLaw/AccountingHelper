@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using AccountHelperWpf.Models;
 
 namespace AccountHelperWpf.ViewUtils;
 
@@ -58,6 +59,53 @@ public class MultibindingConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         => values.Clone();
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+public class CategoryIsSortedConverter : DependencyObject, IMultiValueConverter
+{
+    public static DependencyProperty DefaultBrushProperty = DependencyProperty.Register(
+        nameof(DefaultBrush), typeof(Brush), typeof(CategoryIsSortedConverter), new PropertyMetadata(Brushes.White));
+
+    public Brush DefaultBrush
+    {
+        get => (Brush)GetValue(DefaultBrushProperty);
+        set => SetValue(DefaultBrushProperty, value);
+    }
+
+    public static DependencyProperty HighlightedBrushProperty = DependencyProperty.Register(
+        nameof(HighlightedBrush), typeof(Brush), typeof(CategoryIsSortedConverter), new PropertyMetadata(Brushes.Orange));
+
+    public Brush HighlightedBrush
+    {
+        get => (Brush)GetValue(HighlightedBrushProperty);
+        set => SetValue(HighlightedBrushProperty, value);
+    }
+
+    public static DependencyProperty NotSortedBrushProperty = DependencyProperty.Register(
+        nameof(NotSortedBrush), typeof(Brush), typeof(CategoryIsSortedConverter), new PropertyMetadata(Brushes.Gray));
+
+    public Brush NotSortedBrush
+    {
+        get => (Brush)GetValue(NotSortedBrushProperty);
+        set => SetValue(NotSortedBrushProperty, value);
+    }
+
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        Category category = (Category)values[0];
+        bool isHighlighted = (bool)values[1];
+        bool isAutoMappedNotApproved = (bool)values[2];
+        bool highlightNonSorted = (bool)values[3];
+
+        if (isHighlighted)
+            return HighlightedBrush;
+
+        bool isNotSorted = category.IsDefault || isAutoMappedNotApproved;
+        return isNotSorted && highlightNonSorted ? NotSortedBrush : DefaultBrush;
+    }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         => throw new NotImplementedException();
