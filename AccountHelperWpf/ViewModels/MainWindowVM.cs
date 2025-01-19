@@ -10,13 +10,15 @@ using Microsoft.Win32;
 
 namespace AccountHelperWpf.ViewModels;
 
-class MainWindowVM : BaseNotifyProperty
+class MainWindowVM : BaseNotifyProperty, INavigationHelper
 {
     private readonly IViewResolver viewResolver;
     private readonly FilesContainer filesContainer;
     private readonly SaveController saveController;
     private readonly AssociationsManager associationsManager;
     private readonly CategoriesVM categoriesVM;
+    private readonly TabInfo associationsTab;
+    private readonly AssociationsVM associationsVM;
     private readonly SummaryVM summaryVM;
 
     private FileSortingVM? fileSortingVM;
@@ -49,6 +51,7 @@ class MainWindowVM : BaseNotifyProperty
     public ObservableCollection<TabInfo> Tabs { get; } = new ();
 
     private bool highlightNotSorted = true;
+
     public bool HighlightNotSorted
     {
         get => highlightNotSorted;
@@ -60,7 +63,8 @@ class MainWindowVM : BaseNotifyProperty
         this.viewResolver = viewResolver;
         saveController = new SaveController(viewResolver, initData);
         associationsManager = new AssociationsManager(initData.AssociationStorage);
-        InitCategories(viewResolver, associationsManager, Tabs, initData, out categoriesVM, out summaryVM);
+        InitCategories(viewResolver, associationsManager, Tabs, initData,
+            out categoriesVM, out associationsTab, out associationsVM, out summaryVM);
         filesContainer = new FilesContainer(Tabs, summaryVM);
 
         LoadOperationFileCommand = new DelegateCommand(LoadOperationFile);
@@ -107,7 +111,8 @@ class MainWindowVM : BaseNotifyProperty
         if (operationsFile == null)
             return;
         var newFileSortingVM = new FileSortingVM(
-            operationsFile, categoriesVM, associationsManager, saveController, summaryVM);
+            operationsFile, categoriesVM, associationsManager,
+            saveController, summaryVM, this);
         associationsManager.AddListener(newFileSortingVM.OperationsVM);
         filesContainer.Add(fullPath, newFileSortingVM);
         SelectedTab = newFileSortingVM.TabInfo;
@@ -161,13 +166,30 @@ class MainWindowVM : BaseNotifyProperty
         ObservableCollection<TabInfo> tabs,
         InitData initData,
         out CategoriesVM categoriesVM,
+        out TabInfo associationsTab,
+        out AssociationsVM associationsVM,
         out SummaryVM summaryVM)
     {
         categoriesVM = new CategoriesVM(initData.Categories, viewResolver);
         tabs.Add(new TabInfo(TabInfo.TabTypeEnum.Category, "Categories", categoriesVM));
-        var associationsVM = new AssociationsVM(storage);
-        tabs.Add(new TabInfo(TabInfo.TabTypeEnum.Associations, "Associations", associationsVM));
+        associationsVM = new AssociationsVM(storage);
+        associationsTab = new TabInfo(TabInfo.TabTypeEnum.Associations, "Associations", associationsVM);
+        tabs.Add(associationsTab);
         summaryVM = new SummaryVM();
         tabs.Add(new TabInfo(TabInfo.TabTypeEnum.Summary, "Summary", summaryVM));
     }
+
+    public void NavigateAndSelect(IAssociation association)
+    {
+        SelectedTab = associationsTab;
+        if (association.Category.IsDefault)
+            associationsVM.SelectedException = association;
+        else
+            associationsVM.SelectedAssociation = association;
+    }
+}
+
+interface INavigationHelper
+{
+    void NavigateAndSelect(IAssociation association);
 }

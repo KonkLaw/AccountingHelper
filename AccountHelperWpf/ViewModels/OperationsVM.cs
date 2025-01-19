@@ -14,6 +14,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 {
     private readonly IAssociationsManager associationsManager;
     private readonly ISummaryChangedListener summaryChangedListener;
+    private readonly INavigationHelper navigationHelper;
     private readonly List<OperationVM> allOperations;
     private readonly BatchProcessingMutex mutex = new ();
 
@@ -40,6 +41,7 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
 
     public DelegateCommand AddExceptionCommand { get; }
     public DelegateCommand RemoveAssociationCommand { get; }
+    public DelegateCommand NavigateToAssociationCommand { get; }
 
     public DelegateCommand SearchInfoCommand { get; }
     public DelegateCommand ApplyCategoryForSimilarOperationsCommand { get; }
@@ -69,9 +71,19 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
                     // however count is different
                     bool isSingleSelection = selectedItems is { Count: 1 };
 
-                    OperationVM operationVM = GetSelectedOperation();
-                    AddExceptionCommand.IsEnabled = operationVM.Association == null || !operationVM.Association.Category.IsDefault;
-                    RemoveAssociationCommand.IsEnabled = operationVM.Association != null;
+                    if (isSingleSelection)
+                    {
+                        OperationVM operationVM = GetSelectedOperation();
+                        AddExceptionCommand.IsEnabled = operationVM.Association == null || !operationVM.Association.Category.IsDefault;
+                        RemoveAssociationCommand.IsEnabled = operationVM.Association != null;
+                        NavigateToAssociationCommand.IsEnabled = operationVM.Association != null;
+                    }
+                    else
+                    {
+                        AddExceptionCommand.IsEnabled = false;
+                        RemoveAssociationCommand.IsEnabled = false;
+                        NavigateToAssociationCommand.IsEnabled = false;
+                    }
 
                     SearchInfoCommand.IsEnabled = isSingleSelection;
                     ApplyCategoryForSimilarOperationsCommand.IsEnabled = isSingleSelection;
@@ -85,16 +97,19 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         }
     }
 
-    public OperationsVM(IReadOnlyList<BaseOperation> baseOperations,
+    public OperationsVM(
+        IReadOnlyList<BaseOperation> baseOperations,
         IEnumerable<ColumnDescription> columnDescriptions,
         CategoriesVM categoriesVM,
         IAssociationsManager associationsManager,
-        ISummaryChangedListener summaryChangedListener)
+        ISummaryChangedListener summaryChangedListener,
+        INavigationHelper navigationHelper)
     {
         Categories = categoriesVM.GetCategories();
         ColumnDescriptions = columnDescriptions;
         this.associationsManager = associationsManager;
         this.summaryChangedListener = summaryChangedListener;
+        this.navigationHelper = navigationHelper;
         allOperations = GetAllOperations(baseOperations);
 
         categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;
@@ -104,8 +119,10 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         ApplyCategoryForSimilarOperationsCommand = new DelegateCommand(ApplyCategoryForSimilarOperations);
         AddExceptionCommand = new DelegateCommand(AddException);
         ApproveSelectedCommand = new DelegateCommand(ApproveSelectedHandler);
+
         AddCommand = new DelegateCommand<UIElement, OperationVM>(AddAssociation);
         RemoveAssociationCommand = new DelegateCommand(RemoveAssociation);
+        NavigateToAssociationCommand = new DelegateCommand(NavigateToAssociation);
 
         HighlightSimilarOperations = new DelegateCommand(HighlightSimilarOperationsHandler);
         HighlightSameCategory = new DelegateCommand(HighlightSameCategoryHandler);
@@ -313,6 +330,11 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         if (operation.Association == null)
             return;
         associationsManager.DeleteAssociationOrException(operation.Association);
+    }
+
+    private void NavigateToAssociation()
+    {
+        navigationHelper.NavigateAndSelect(GetSelectedOperation().Association!);
     }
 
     void IAssociationStorageListener.AssociationAdded(IAssociation newAssociation)

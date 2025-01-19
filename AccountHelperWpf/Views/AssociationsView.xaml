@@ -18,7 +18,8 @@
         <DataGrid ItemsSource="{Binding Associations}"
                       SelectedItem="{Binding SelectedAssociation}"
                       SelectionMode="Single" AutoGenerateColumns="False"
-                      Unloaded="FrameworkElement_OnUnloaded">
+                      Unloaded="FrameworkElement_OnUnloaded"
+                      SelectionChanged="Selector_OnSelectionChanged">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Delete" Command="{Binding DeleteAssociationCommand, Mode=OneTime}">
@@ -63,7 +64,8 @@
         <DataGrid Grid.Row="3" ItemsSource="{Binding Exceptions}"
                   SelectedItem="{Binding SelectedException}"
                   SelectionMode="Single" AutoGenerateColumns="False"
-                  Unloaded="FrameworkElement_OnUnloaded">
+                  Unloaded="FrameworkElement_OnUnloaded"
+                  SelectionChanged="Selector_OnSelectionChanged">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Delete" Command="{Binding DeleteExceptionCommand, Mode=OneTime}">
