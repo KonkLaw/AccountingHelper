@@ -11,6 +11,8 @@ class CategoriesVM : BaseNotifyProperty
 {
     private readonly IViewResolver viewResolver;
     private readonly ReadOnlyObservableCollection<Category> collection;
+    private readonly ObservableCollection<Category> externalCategories;
+
     public ObservableCollection<Category> Categories { get; }
 
     public DelegateCommand RemoveCommand { get; }
@@ -29,6 +31,7 @@ class CategoriesVM : BaseNotifyProperty
     }
 
     private Category? selectedItem;
+
     public Category? SelectedItem
     {
         get => selectedItem;
@@ -42,8 +45,9 @@ class CategoriesVM : BaseNotifyProperty
     public CategoriesVM(ObservableCollection<Category> loadedCategories, IViewResolver viewResolver)
     {
         this.viewResolver = viewResolver;
-        Categories = loadedCategories;
-        collection = new ReadOnlyObservableCollection<Category>(Categories);
+        externalCategories = loadedCategories;
+        collection = new ReadOnlyObservableCollection<Category>(externalCategories);
+        Categories = new ObservableCollection<Category>(externalCategories);
         RemoveCommand = new DelegateCommand(RemoveCategory);
         MoveUpCommand = new DelegateCommand(MoveUp);
         MoveDownCommand = new DelegateCommand(MoveDown);
@@ -54,6 +58,7 @@ class CategoriesVM : BaseNotifyProperty
             categoryViewModel.PropertyChanged += CategoryChanged;
         }
         UpdateContextMenuValidity();
+        CheckOrderExternal();
     }
 
     private void UpdateContextMenuValidity()
@@ -88,21 +93,34 @@ class CategoriesVM : BaseNotifyProperty
                     foreach (Category categoryViewModel in e.NewItems)
                     {
                         categoryViewModel.PropertyChanged += CategoryChanged;
+                        externalCategories.Add(categoryViewModel);
                     }
                 if (e.OldItems != null)
                     foreach (Category categoryViewModel in e.OldItems)
                     {
                         categoryViewModel.PropertyChanged -= CategoryChanged;
+                        externalCategories.Remove(categoryViewModel);
                     }
+                CheckOrderExternal();
                 break;
             case NotifyCollectionChangedAction.Reset:
                 throw new NotImplementedException();
             case NotifyCollectionChangedAction.Move:
+                externalCategories.Move(e.OldStartingIndex - 1, e.NewStartingIndex - 1);
                 break;
         }
         Notify();
         // update is required - selected changed not always cover all cases
         UpdateContextMenuValidity();
+    }
+
+    private void CheckOrderExternal()
+    {
+        int index = externalCategories.IndexOf(Category.Default);
+        if (index != externalCategories.Count - 1)
+        {
+            externalCategories.Move(index, externalCategories.Count - 1);
+        }
     }
 
     private void CategoryChanged(object? sender, PropertyChangedEventArgs e) => Notify();
