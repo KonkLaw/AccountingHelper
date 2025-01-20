@@ -41,6 +41,13 @@ class BaseTextSummaryVM : BaseNotifyProperty
         set => SetProperty(ref groupByComment, value);
     }
 
+    private bool isGroupingUsed;
+    public bool IsGroupingUsed
+    {
+        get => isGroupingUsed;
+        set => SetProperty(ref isGroupingUsed, value);
+    }
+
     public ICommand UnselectCommand { get; }
     public ICommand SelectCommand { get; }
     public ICommand InvertCommand { get; }
@@ -121,6 +128,11 @@ class MultiCurrencyTextSummaryVM : BaseTextSummaryVM
 {
     internal readonly record struct CategoriesInfo(IReadOnlyCollection<CategoryDetails> Collection, string Currency, decimal Course);
 
+    public MultiCurrencyTextSummaryVM()
+    {
+        IsGroupingUsed = false;
+    }
+
     public void Update(IReadOnlyCollection<CategoriesInfo> collection)
     {
         SummaryHelperMultiCurrency.Prepare(collection, out List<CategoryDetails> categories, out string textSummary);
@@ -130,6 +142,11 @@ class MultiCurrencyTextSummaryVM : BaseTextSummaryVM
 
 class SingleCurrencyTextSummaryVM : BaseTextSummaryVM
 {
+    public SingleCurrencyTextSummaryVM()
+    {
+        IsGroupingUsed = true;
+    }
+
     public void Update(ICollection<CategoryDetails> newCollection)
         => UpdateCollection(newCollection, GetTextDescription(newCollection));
 

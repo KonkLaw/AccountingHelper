@@ -70,7 +70,7 @@
                         <TextBlock Text="  Invert selection" />
                     </StackPanel>
                 </Button>
-                <CheckBox Content="Group by comment" Margin="8" IsChecked="{Binding GroupByComment}" />
+                <CheckBox Content="Group by comment" Margin="8" IsChecked="{Binding GroupByComment}" Visibility="{Binding IsGroupingUsed, Converter={StaticResource VisibilityConverter}}" />
             </StackPanel>
         </StackPanel>
         <ScrollViewer Grid.Column="3" DockPanel.Dock="Right">
