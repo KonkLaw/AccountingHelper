@@ -30,7 +30,7 @@ public class DataGridExt : DataGrid
         set => SetValue(SelectedItemsListProperty, value);
     }
 
-    private static readonly Dictionary<object, double> ViewModelToOffset = new();
+    private static readonly Dictionary<object, DataGridInfo> ViewModelToGridInfo = new();
 
     private (HashSet<string> properties, DataGridColumn[] columns)? xamlColumns;
 
@@ -181,7 +181,12 @@ public class DataGridExt : DataGrid
         ScrollViewer? scrollViewer = FindVisualChild<ScrollViewer>(this);
         if (scrollViewer != null)
         {
-            ViewModelToOffset[DataContext] = scrollViewer.VerticalOffset;
+            Dictionary<int, double> columnWidths = new();
+            foreach (DataGridColumn column in Columns)
+            {
+                columnWidths[column.DisplayIndex] = column.ActualWidth;
+            }
+            ViewModelToGridInfo[DataContext] = new DataGridInfo(columnWidths, scrollViewer.VerticalOffset);
         }
     }
 
@@ -191,9 +196,15 @@ public class DataGridExt : DataGrid
             return;
 
         ScrollViewer? scrollViewer = FindVisualChild<ScrollViewer>(this);
-        if (scrollViewer != null && ViewModelToOffset.TryGetValue(DataContext, out double offset))
+        if (scrollViewer != null && ViewModelToGridInfo.TryGetValue(DataContext, out DataGridInfo info))
         {
-            scrollViewer.ScrollToVerticalOffset(offset);
+            scrollViewer.ScrollToVerticalOffset(info.Offset);
+
+            foreach (DataGridColumn column in Columns)
+            {
+                if (info.ColumnWidths.TryGetValue(column.DisplayIndex, out double width))
+                    column.Width = width;
+            }
         }
     }
 }
@@ -208,3 +219,7 @@ public readonly record struct ColumnDescription(
     public ColumnDescription(string propertyName, double? customWidth, string? customFormat)
         : this(propertyName, customWidth, customFormat, null, false) { }
 };
+
+readonly record struct DataGridInfo(
+    Dictionary<int, double> ColumnWidths,
+    double Offset);
