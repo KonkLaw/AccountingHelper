@@ -10,7 +10,7 @@ using Microsoft.Win32;
 
 namespace AccountHelperWpf.ViewModels;
 
-class MainWindowVM : BaseNotifyProperty, INavigationHelper
+class MainWindowVM : BaseNotifyProperty, INavigationHelper, ISortedInfoOwner
 {
     private readonly IViewResolver viewResolver;
     private readonly FilesContainer filesContainer;
@@ -112,7 +112,7 @@ class MainWindowVM : BaseNotifyProperty, INavigationHelper
             return;
         var newFileSortingVM = new FileSortingVM(
             operationsFile, categoriesVM, associationsManager,
-            saveController, summaryVM, this);
+            saveController, summaryVM, this, this);
         associationsManager.AddListener(newFileSortingVM.OperationsVM);
         filesContainer.Add(fullPath, newFileSortingVM);
         SelectedTab = newFileSortingVM.TabInfo;
@@ -192,4 +192,9 @@ class MainWindowVM : BaseNotifyProperty, INavigationHelper
 interface INavigationHelper
 {
     void NavigateAndSelect(IAssociation association);
+}
+
+interface ISortedInfoOwner : INotifyPropertyChanged
+{
+    bool HighlightNotSorted { get; }
 }

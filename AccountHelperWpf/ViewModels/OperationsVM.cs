@@ -17,9 +17,12 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
     private readonly INavigationHelper navigationHelper;
     private readonly List<OperationVM> allOperations;
     private readonly BatchProcessingMutex mutex = new ();
+    private readonly ISortedInfoOwner sortedInfoOwner;
 
     private OperationVM? firstIncluded;
     private OperationVM? lastIncluded;
+
+    public bool HighlightNotSorted => sortedInfoOwner.HighlightNotSorted;
 
     public IEnumerable<Category> Categories { get; }
 
@@ -103,13 +106,15 @@ class OperationsVM : BaseNotifyProperty, IAssociationStorageListener
         CategoriesVM categoriesVM,
         IAssociationsManager associationsManager,
         ISummaryChangedListener summaryChangedListener,
-        INavigationHelper navigationHelper)
+        INavigationHelper navigationHelper,
+        ISortedInfoOwner sortedInfoOwner)
     {
         Categories = categoriesVM.GetCategories();
         ColumnDescriptions = columnDescriptions;
         this.associationsManager = associationsManager;
         this.summaryChangedListener = summaryChangedListener;
         this.navigationHelper = navigationHelper;
+        this.sortedInfoOwner = sortedInfoOwner;
         allOperations = GetAllOperations(baseOperations);
 
         categoriesVM.OnCategoryRemoving += CategoriesVMOnOnCategoryRemoving;

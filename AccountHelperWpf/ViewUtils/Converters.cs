@@ -95,6 +95,9 @@ public class CategoryIsSortedConverter : DependencyObject, IMultiValueConverter
 
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
+        if (values[3] is not bool)
+            return Brushes.Red;
+
         Category category = (Category)values[0];
         bool isHighlighted = (bool)values[1];
         bool isAutoMappedNotApproved = (bool)values[2];

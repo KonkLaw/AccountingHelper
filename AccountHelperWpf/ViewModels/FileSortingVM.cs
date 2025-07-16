@@ -22,13 +22,15 @@ class FileSortingVM : BaseNotifyProperty, ISummaryChangedListener
         IAssociationsManager associationsManager,
         ISaveController saveController,
         ISummaryNotifier summaryNotifier,
-        INavigationHelper navigationHelper)
+        INavigationHelper navigationHelper,
+        ISortedInfoOwner sortedInfoOwner)
     {
         File = file;
         this.categoriesVM = categoriesVM;
         this.saveController = saveController;
         this.summaryNotifier = summaryNotifier;
-        OperationsVM = new OperationsVM(file.Operations, file.ColumnDescriptions, categoriesVM, associationsManager, this, navigationHelper);
+        OperationsVM = new OperationsVM(
+            file.Operations, file.ColumnDescriptions, categoriesVM, associationsManager, this, navigationHelper, sortedInfoOwner);
         TabInfo = new TabInfo(TabInfo.TabTypeEnum.File, file.GetTitle(), this);
         TextSummaryVM = new SingleCurrencyTextSummaryVM();
         TextSummaryVM.PropertyChanged += TextSummaryVMOnPropertyChanged;
