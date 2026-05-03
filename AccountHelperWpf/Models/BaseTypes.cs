@@ -13,7 +13,7 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescr
     DateOnly? DateAccounting,
     string? OperationType,
     string? OriginalAmount,
-    string? SaldoBeforeTransaction,
+    string? SaldoAfterTransaction,
     int Id,
     PkoOtherDescription OtherDescription)
     :
@@ -24,7 +24,7 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescr
             DateAccounting: operation.DateAccounting,
             OperationType: operation.OperationType,
             OriginalAmount: operation.OriginalAmount,
-            SaldoBeforeTransaction: operation.SaldoBeforeTransaction,
+			SaldoAfterTransaction: operation.SaldoAfterTransaction,
             Id: id,
             OtherDescription: new PkoOtherDescription(operation.OtherDescription)
         );
