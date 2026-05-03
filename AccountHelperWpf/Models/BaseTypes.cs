@@ -13,7 +13,7 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescr
     DateOnly? DateAccounting,
     string? OperationType,
     string? OriginalAmount,
-    decimal? SaldoBeforeTransaction,
+    string? SaldoBeforeTransaction,
     int Id,
     PkoOtherDescription OtherDescription)
     :

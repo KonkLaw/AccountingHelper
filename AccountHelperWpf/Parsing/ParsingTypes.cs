@@ -46,7 +46,7 @@ public record PkoOperation(DateTime TransactionDateTime, decimal Amount, Operati
         string Currency,
         string OperationType,
         string? OriginalAmount,
-        decimal SaldoBeforeTransaction,
+		string? SaldoBeforeTransaction,
         SortedDictionary<string, string> OtherDescription);
 
 public record PkoOtherDescription

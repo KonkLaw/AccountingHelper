@@ -50,7 +50,8 @@ static class PkoParser
         string operationType = iterator.GetNextSpan().ToString();
         decimal amount = decimal.Parse(iterator.GetNextSpan());
         string currency = iterator.GetNextSpan().ToString();
-        decimal saldoBeforeTransaction = withSaldo ? decimal.Parse(iterator.GetNextSpan()) : 0;
+
+        string? saldoBeforeTransaction = withSaldo ? iterator.GetNextSpan().ToString() : null;
 
         new PkoDescriptionParser(iterator).Parse(
             out SortedDictionary<string, string> main,
