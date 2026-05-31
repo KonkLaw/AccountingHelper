@@ -30,7 +30,7 @@ static class PkoParser
             string line = reader.ReadLine()!;
             try
             {
-                operations.Add(ParseRecord(line, withSaldo));
+                operations.Add(ParseRecord(line, withSaldo, operations.Count));
             }
             catch (Exception ex)
             {
@@ -41,7 +41,7 @@ static class PkoParser
         return operations;
     }
 
-    private static PkoOperation ParseRecord(string record, bool withSaldo)
+    private static PkoOperation ParseRecord(string record, bool withSaldo, int fileIndex)
     {
         RecordIterator iterator = new RecordIterator(record);
 
@@ -68,6 +68,6 @@ static class PkoParser
         return new PkoOperation(
             dateOperation, amount, OperationDescription.Create(BankId, main),
             dateAccounting, currency, operationType, originalAmount,
-			saldoAfterTransactionValue, other);
+			saldoAfterTransactionValue, other, fileIndex);
     }
 }

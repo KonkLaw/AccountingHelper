@@ -144,7 +144,7 @@
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
             <!--add association-->
-            <DataGridTemplateColumn Width="120">
+            <DataGridTemplateColumn Width="90">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="{x:Type viewModels:OperationVM}">
                         <StackPanel Orientation="Horizontal">
@@ -159,13 +159,13 @@
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.ApproveSelectedCommand}"
                                     ToolTip="Approve operation with auto-mapped category"
                                     Visibility="{Binding IsApprovalPossible, Converter={StaticResource VisibilityConverter}}"
-                                    Margin="5, 0">
+                                    Margin="0">
                                 <TextBlock Text="&#xe8fb;" />
                             </Button>
                             <Button Command="{Binding ElementName=OperationGrid, Path=DataContext.AddCommand}"
                                     Visibility="{Binding IsAddAssociationPossible, Converter={StaticResource VisibilityConverter}}"
                                     ToolTip="Save this operation for further association with category."
-                                    Margin="5, 0">
+                                    Margin="0">
                                 <Button.CommandParameter>
                                     <MultiBinding Converter="{StaticResource MultiBindingConverter}">
                                         <Binding RelativeSource="{RelativeSource Self}"/>

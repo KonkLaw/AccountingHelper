@@ -47,7 +47,10 @@ public record PkoOperation(DateTime TransactionDateTime, decimal Amount, Operati
         string OperationType,
         string? OriginalAmount,
 		decimal? SaldoAfterTransaction,
-        SortedDictionary<string, string> OtherDescription);
+        SortedDictionary<string, string> OtherDescription,
+        int FileIndex,
+        // Set by PkoSaldoSorter: true unless this operation's balance does not chain to the previous (older) one.
+        bool IsLinkedToPrevious = true);
 
 public record PkoOtherDescription
 {
@@ -90,4 +93,5 @@ public record PkoFile(
     string FileName,
     IReadOnlyList<PkoOperation> NonBlockedOperations,
     IReadOnlyList<PkoBlockedOperation>? BlockedOperations,
-    bool WithSaldo);
+    bool WithSaldo,
+    bool Sorted);

@@ -53,25 +53,29 @@ public static class Converter
                 operations.Add(PkoOperation.Convert(operation, operations.Count));
             }
         }
+        // Operations may be reordered by sorting, so use each operation's original file position
+        // (offset past the blocked operations) for its Id rather than its index in the sorted list.
+        int nonBlockedIdOffset = operations.Count;
         foreach (Parsing.PkoOperation operation in file.NonBlockedOperations)
         {
             CheckCurrency(operation.Currency);
-            operations.Add(PkoOperation.Convert(operations.Count, operation));
+            operations.Add(PkoOperation.Convert(nonBlockedIdOffset + operation.FileIndex, operation));
         }
 
-        return new OperationsFile(file.FileName, operations, GetPkoDescription(file.WithSaldo), fixedCurrent);
+        return new OperationsFile(file.FileName, operations, GetPkoDescription(file.WithSaldo, file.Sorted), fixedCurrent);
     }
 
-    private static IReadOnlyCollection<ColumnDescription> GetPkoDescription(bool isSaldoVisible)
+    private static IReadOnlyCollection<ColumnDescription> GetPkoDescription(bool isSaldoVisible, bool isSorted)
     {
         return
         [
             new ColumnDescription(nameof(PkoOperation.DateAccounting), null, DateFormat),
             new ColumnDescription(nameof(PkoOperation.OperationType), 160, null),
             new ColumnDescription(nameof(PkoOperation.SaldoAfterTransaction), null, null, null, !isSaldoVisible),
+			new ColumnDescription(nameof(PkoOperation.IsLinked), null, null, null, true), // hide
+			new ColumnDescription(nameof(PkoOperation.LinkedToPrev), null, null, null, !isSorted),
             new ColumnDescription(nameof(PkoOperation.OtherDescription), null, null,
-                $"{nameof(PkoOperation.OtherDescription)}.{nameof(PkoOtherDescription.FullDescription)}"
-                , !isSaldoVisible)
+                $"{nameof(PkoOperation.OtherDescription)}.{nameof(PkoOtherDescription.FullDescription)}", false)
         ];
     }
 }

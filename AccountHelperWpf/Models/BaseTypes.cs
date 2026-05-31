@@ -15,17 +15,23 @@ record PkoOperation(DateTime TransactionDateTime, decimal Amount, OperationDescr
     string? OriginalAmount,
     decimal? SaldoAfterTransaction,
     int Id,
+    bool IsLinked,
     PkoOtherDescription OtherDescription)
     :
     BaseOperation(TransactionDateTime, Amount, Description)
 {
-    public static PkoOperation Convert(int id, Parsing.PkoOperation operation) => new PkoOperation(
+    public string LinkedToPrev => IsLinked ? string.Empty : "!!!";
+
+    public PkoOtherDescription OtherDescription { get; set; } = OtherDescription;
+
+	public static PkoOperation Convert(int id, Parsing.PkoOperation operation) => new PkoOperation(
             operation.TransactionDateTime, operation.Amount, operation.Description,
             DateAccounting: operation.DateAccounting,
             OperationType: operation.OperationType,
             OriginalAmount: operation.OriginalAmount,
 			SaldoAfterTransaction: operation.SaldoAfterTransaction,
             Id: id,
+            IsLinked: operation.IsLinkedToPrevious,
             OtherDescription: new PkoOtherDescription(operation.OtherDescription)
         );
 

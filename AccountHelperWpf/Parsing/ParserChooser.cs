@@ -28,11 +28,20 @@ class ParserChooser
                 IReadOnlyList<PkoOperation>? nonBlockedOperations = PkoParser.TryParseFile(reader, out bool withSaldo);
                 if (nonBlockedOperations != null)
                 {
+                    bool sorted = false;
+                    if (withSaldo &&
+                        viewResolver.ShowYesNoQuestion(
+                            "This file contains `saldo` information. Reorder operations into the correct `saldo` order?"))
+                    {
+                        nonBlockedOperations = PkoSaldoSorter.Sort(nonBlockedOperations);
+                        sorted = true;
+                    }
+
                     PkoBlockedOperationParserVM pkoBlockedOperationsVM = new(viewResolver);
                     // temp solution
                     //viewResolver.ResolveAndShowDialog(pkoBlockedOperationsVM);
                     return Converter.Convert(
-                        new PkoFile(fileName, nonBlockedOperations, pkoBlockedOperationsVM.BlockedOperations, withSaldo));
+                        new PkoFile(fileName, nonBlockedOperations, pkoBlockedOperationsVM.BlockedOperations, withSaldo, sorted));
                 }
 
                 viewResolver.ShowWarning("Sorry, the fle wasn't recognized as any known bank report.");
