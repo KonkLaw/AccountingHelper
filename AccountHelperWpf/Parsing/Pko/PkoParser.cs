@@ -51,16 +51,23 @@ static class PkoParser
         decimal amount = decimal.Parse(iterator.GetNextSpan());
         string currency = iterator.GetNextSpan().ToString();
 
-        string? saldoBeforeTransaction = withSaldo ? iterator.GetNextSpan().ToString() : null;
+        string? saldoAfterTransaction = withSaldo ? iterator.GetNextSpan().ToString() : null;
+        decimal? saldoAfterTransactionValue;
+        if (saldoAfterTransaction == null)
+            saldoAfterTransactionValue = null;
+        else if (decimal.TryParse(saldoAfterTransaction, out decimal saldoAfterTransactionDouble))
+            saldoAfterTransactionValue = saldoAfterTransactionDouble;
+        else
+			saldoAfterTransactionValue = null;
 
-        new PkoDescriptionParser(iterator).Parse(
+		new PkoDescriptionParser(iterator).Parse(
             out SortedDictionary<string, string> main,
             out SortedDictionary<string, string> other,
             out string? originalAmount);
 
         return new PkoOperation(
-            dateOperation, amount, OperationDescription.Create(BankId, main), 
+            dateOperation, amount, OperationDescription.Create(BankId, main),
             dateAccounting, currency, operationType, originalAmount,
-            saldoBeforeTransaction, other);
+			saldoAfterTransactionValue, other);
     }
 }
